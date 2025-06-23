@@ -1,7 +1,7 @@
 const Page = () => {
     return (
         <main>
-            Testando
+            testando
         </main>
     );
 }

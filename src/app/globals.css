@@ -1,26 +1,42 @@
+/* globals.css (com tema único, sem modo escuro) */
+
 @import "tailwindcss";
 
 :root {
+  /* --- VARIÁVEIS GLOBAIS DE COR E FONTE --- */
+  
+  /* Cores do tema principal */
   --background: #ffffff;
   --foreground: #171717;
+  
+  --primaria: #008B35;
+  --secundaria: #FF7F2A;
+  --acento: #305F7D;
+
+  --font-geist-sans: "Geist Sans", sans-serif;
+  --font-geist-mono: "Geist Mono", monospace;
 }
+
+/* O bloco @media para o dark mode foi removido. */
 
 @theme inline {
+  /* Mapeamento das variáveis para o Tailwind */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* Mapeando nossas cores personalizadas */
+  --color-primaria: var(--primaria);
+  --color-secundaria: var(--secundaria);
+  --color-acento: var(--acento);
+  
+  /* Mapeamento das fontes */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  /* A família de fontes aqui é um fallback, o Tailwind controlará via classes como `font-sans` */
   font-family: Arial, Helvetica, sans-serif;
 }
