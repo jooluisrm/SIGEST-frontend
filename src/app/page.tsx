@@ -1,7 +1,7 @@
 const Page = () => {
     return (
-        <main>
-            testando
+        <main className="bg-secundaria">
+            page de controle
         </main>
     );
 }
