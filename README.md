@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SIGEST - Sistema de Gestão Escolar (Frontend)
 
-## Getting Started
+👋 Bem-vindo ao repositório do frontend do SIGEST, o nosso Sistema de Gestão Escolar. Esta aplicação foi desenvolvida com o objetivo de fornecer uma interface moderna, rápida e intuitiva para administrar as operações de uma instituição de ensino.
 
-First, run the development server:
+Este projeto foi construído utilizando **[Next.js](https://nextjs.org/)**, um framework React que possibilita a criação de aplicações web de alto desempenho com renderização tanto no lado do servidor (SSR) quanto no lado do cliente (CSR).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Funcionalidades Principais
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* 📱 Design responsivo, adaptável a desktops, tablets e smartphones.
+* 🚧 (Em breve mais funcionalidades)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Tecnologias Utilizadas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Este projeto foi desenvolvido com as seguintes tecnologias e ferramentas:
 
-## Learn More
+* **[Next.js](https://nextjs.org/)**: Framework React para produção.
+* **[React](https://react.dev/)**: Biblioteca para construção de interfaces de usuário.
+* **[TypeScript](https://www.typescriptlang.org/)**: Superset do JavaScript que adiciona tipagem estática.
+* **[Tailwind CSS](https://tailwindcss.com/)**: Framework de CSS utility-first para estilização rápida.
+* **[shadcn/ui](https://ui.shadcn.com/)**: Coleção de componentes de UI reutilizáveis construídos sobre Radix UI e Tailwind CSS.
 
-To learn more about Next.js, take a look at the following resources:
+## ⚙️ Como Rodar o Projeto Localmente
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Para executar este projeto em seu ambiente de desenvolvimento, siga os passos abaixo.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### ✅ **Pré-requisitos**
 
-## Deploy on Vercel
+Antes de começar, certifique-se de ter o **[Node.js](https://nodejs.org/en)** (versão 18.x ou superior) instalado em sua máquina.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 🔢 **Passo a Passo**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1.  **Clone o repositório**:
+    ```bash
+    git clone https://github.com/jooluisrm/SIGEST-frontend
+    ```
+
+2.  **Acesse o diretório do projeto:**
+    ```bash
+    cd SIGEST-frontend
+    ```
+
+3.  **Instale as dependências** (escolha seu gerenciador de pacotes preferido):
+    ```bash
+    npm install
+    # ou
+    yarn install
+    # ou
+    pnpm install
+    ```
+
+4.  **Execute o servidor de desenvolvimento:**
+    ```bash
+    npm run dev
+    # ou
+    yarn dev
+    # ou
+    pnpm dev
+    ```
+
+5.  **Acesse a aplicação:**
+    🎉 Abra seu navegador e acesse **[http://localhost:3000](http://localhost:3000)** para ver o resultado.
