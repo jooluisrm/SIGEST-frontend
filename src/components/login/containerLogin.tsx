@@ -16,7 +16,7 @@ export const ContainerLogin = () => {
     }
 
     return (
-        <div className="bg-white/30 backdrop-blur mx-5 w-full md:w-[400px] lg:w-[500px] h-[500px] rounded-4xl py-5 px-5 flex flex-col justify-between">
+        <div className="bg-white/30 backdrop-blur mx-5 w-full md:w-[400px] lg:w-[500px] h-[500px] rounded-4xl py-5 px-10 flex flex-col justify-between">
             <div>
                 <Image
                     alt="logo-sigest"
@@ -44,9 +44,9 @@ export const ContainerLogin = () => {
             </div>
             <div className="text-center">
                 <p className="text-text1">
-                    Esqueceu a senha?
+                    {pageLogin ? "Esqueceu a senha?" : "Fazer login?"}
                     <Button
-                        onClick={handleSwapPage} className="p-0 text-text1 ml-1" variant={"link"}
+                        onClick={handleSwapPage} className="p-0 text-text1 ml-1 cursor-pointer" variant={"link"}
                     >
                         Clique aqui.
                     </Button>
