@@ -4,7 +4,7 @@ import Image from "next/image";
 const Page = () => {
     return (
         <section className="bg-[url('/assets/bg-login.jpg')] bg-cover bg-center min-h-screen">
-            <div className="w-full h-screen bg-white/50 backdrop-blur relative">
+            <div className="w-full min-h-screen bg-white/50 backdrop-blur relative">
                 <Image
                     alt="logo sigest"
                     src={'/assets/sigest-logo.png'}
