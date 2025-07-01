@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { ButtonLogin } from "./buttonLogin";
 import { useState } from "react";
+import { redirect } from "next/navigation";
 
 export const ContainerLogin = () => {
 
@@ -13,6 +14,14 @@ export const ContainerLogin = () => {
 
     const handleSwapPage = () => {
         setPageLogin(!pageLogin);
+    }
+
+    const handleLoginButton = () => {
+        redirect('/dashboard');
+    }
+
+    const handleNewPassword = () => {
+        return;
     }
 
     return (
@@ -31,13 +40,13 @@ export const ContainerLogin = () => {
                         <>
                             <InputLogin placeholder="E-mail" />
                             <InputLogin placeholder="Senha" />
-                            <ButtonLogin text="Acessar" />
+                            <ButtonLogin text="Acessar" onClick={handleLoginButton}/>
                         </>
                     ) : (
                         <>
                             <InputLogin placeholder="Senha" />
                             <InputLogin placeholder="Confirmar senha" />
-                            <ButtonLogin text="Salvar" />
+                            <ButtonLogin text="Salvar" onClick={handleNewPassword}/>
                         </>
                     )
                 }

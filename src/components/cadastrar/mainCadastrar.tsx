@@ -6,7 +6,7 @@ type Props = {
 
 export const MainCadastrar = ({ type }: Props) => {
     return (
-        <main className="w-screen flex bg-black/50">
+        <main className="flex bg-black/50">
             <ContainerCadastro user={type}/>
         </main>
     );
