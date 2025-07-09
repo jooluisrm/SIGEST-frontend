@@ -32,6 +32,7 @@ export const ContainerLogin = () => {
                     src={'/assets/sigest-logo.png'}
                     width={942}
                     height={362}
+                    priority={true}
                 />
             </div>
             <div className="flex flex-col gap-5 items-center">
