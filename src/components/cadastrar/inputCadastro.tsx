@@ -1,6 +1,6 @@
 import { Input } from "../ui/input";
 
-type Props = React.InputHTMLAttributes<HTMLInputElement> & {
+type Props =  & {
     camp: string;
 };
 

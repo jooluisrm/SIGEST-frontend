@@ -5,296 +5,489 @@ import { InputCadastro } from "./inputCadastro";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { CalendarioCadastro } from "../ui/calendarioCadastro";
 
 type Props = {
-    user: "aluno" | "servidor" | "professor";
+  user: "aluno" | "servidor" | "professor";
 };
 
 const getFormSchema = (user: Props["user"]) =>
-    z.object({
-        nomeCompleto: z
-            .string({ required_error: "Nome completo é obrigatório" })
-            .min(3, "Nome muito curto"),
-        dataNascimento: z
-            .string({ required_error: "Data de nascimento é obrigatória" })
-            .refine(
-                (val) => {
-                    const date = new Date(val);
-                    return !isNaN(date.getTime()) && date < new Date();
-                },
-                {
-                    message: "Data de nascimento inválida",
-                }
-            ),
-        cpf: z
-            .string({ required_error: "CPF é obrigatório" })
-            .min(11, "CPF inválido")
-            .max(14),
-        rg: z.string({ required_error: "RG é obrigatório" }).min(5, "RG inválido"),
-        genero: z
-            .string({ required_error: "Gênero é obrigatório" })
-            .min(1, "Selecione um gênero"),
-        nomeDoPai: z.string({ required_error: "Nome do pai é obrigatório" }).min(3),
-        nomeDaMae: z.string({ required_error: "Nome da mãe é obrigatório" }).min(3),
-        possuiDeficiencia: z.enum(["sim", "nao"], {
-            required_error: "Informe se possui alguma deficiência",
-        }),
-        logradouro: z.string({ required_error: "Logradouro é obrigatório" }).min(3),
-        numero: z.string({ required_error: "Número é obrigatório" }).min(1),
-        bairro: z.string({ required_error: "Bairro é obrigatório" }).min(3),
-        complemento: z.string().optional(),
-        cidade: z.string({ required_error: "Cidade é obrigatória" }).min(2),
-        estado: z.string({ required_error: "Estado é obrigatório" }).min(2),
-        telefone: z
-            .string({ required_error: "Telefone do responsável é obrigatório" })
-            .min(8),
-        celular: z
-            .string({ required_error: "Celular do responsável é obrigatório" })
-            .min(8),
-        email: z
-            .string({ required_error: "E-mail é obrigatório" })
-            .email("E-mail inválido"),
-        matriculaAdpm: z.string({ required_error: "Matrícula ADPM é obrigatória" }),
-    });
+  z
+    .object({
+      nomeCompleto: z
+        .string({ required_error: "Nome completo é obrigatório" })
+        .min(3, "O nome deve ter no mínimo 3 caracteres."),
+      dataNascimento: z
+        .date({
+          required_error: "Data de nascimento é obrigatória.",
+        })
+        .refine(
+          (val) => {
+            return !isNaN(val.getTime()) && val < new Date();
+          },
+          {
+            message: "Data de nascimento inválida",
+          }
+        ),
+      cpf: z
+        .string({ required_error: "CPF é obrigatório" })
+        .min(11, "CPF inválido")
+        .max(14),
+      rg: z
+        .string({ required_error: "RG é obrigatório" })
+        .min(5, "RG inválido"),
+      genero: z
+        .string({ required_error: "Gênero é obrigatório" })
+        .min(1, "Selecione um gênero"),
+      nomeDoPai: z
+        .string({ required_error: "Nome do pai é obrigatório" })
+        .min(3, "O nome do pai deve ter no mínimo 3 caracteres."),
+      nomeDaMae: z
+        .string({ required_error: "Nome da mãe é obrigatório" })
+        .min(3, "O nome do pai deve ter no mínimo 3 caracteres."),
+      possuiDeficiencia: z.enum(["sim", "nao"], {
+        required_error: "Informe se possui alguma deficiência",
+      }),
+      qualDeficiencia: z.string().optional(),
+      logradouro: z
+        .string({ required_error: "O logradouro é obrigatório." })
+        .min(3, "O logradouro deve ter no mínimo 3 caracteres."),
 
+      numero: z
+        .string({ required_error: "O número é obrigatório." })
+        .min(1, "O número é obrigatório."),
+
+      bairro: z
+        .string({ required_error: "O bairro é obrigatório." })
+        .min(3, "O bairro deve ter no mínimo 3 caracteres."),
+
+      complemento: z.string().optional(),
+
+      cidade: z
+        .string({ required_error: "A cidade é obrigatória." })
+        .min(3, "A cidade deve ter no mínimo 3 caracteres."),
+
+      estado: z
+        .string({ required_error: "O estado é obrigatório." })
+        .min(2, "O estado deve ter no mínimo 2 letras (UF)."),
+
+      telefone: z
+        .string({ required_error: "O telefone do responsável é obrigatório." })
+        .min(8, "O telefone deve ter no mínimo 8 dígitos."),
+
+      celular: z
+        .string({ required_error: "O celular do responsável é obrigatório." })
+        .min(9, "O celular deve ter no mínimo 9 dígitos."),
+
+      email: z
+        .string({ required_error: "O e-mail é obrigatório." })
+        .email("O formato do e-mail é inválido."),
+
+      matriculaAdpm:
+        user === "professor"
+          ? z
+              .string({ required_error: "A matrícula ADPM é obrigatória" })
+              .min(1, "A matrícula ADPM não pode ser vazia.")
+          : z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (
+        data.possuiDeficiencia === "sim" &&
+        (!data.qualDeficiencia || data.qualDeficiencia.trim() === "")
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Por favor, informe qual deficiência.",
+          path: ["qualDeficiencia"],
+        });
+      }
+    });
 export const ContainerCadastro = ({ user }: Props) => {
-    const schema = getFormSchema(user);
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<z.infer<typeof schema>>({
-        resolver: zodResolver(schema),
-    });
+  const schema = getFormSchema(user);
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      nomeCompleto: "",
+      dataNascimento: undefined,
+      cpf: "",
+      rg: "",
+      genero: "",
+      nomeDoPai: "",
+      nomeDaMae: "",
+      possuiDeficiencia: "nao",
+      qualDeficiencia: "",
+      logradouro: "",
+      numero: "",
+      bairro: "",
+      complemento: "",
+      cidade: "",
+      estado: "",
+      telefone: "",
+      celular: "",
+      email: "",
+      matriculaAdpm: user === "professor" ? "" : "",
+    },
+  });
 
-    const onSubmit = (data: z.infer<typeof schema>) => {
-        console.log("Dados enviados:", data);
-    };
+  const onSubmit = (data: z.infer<typeof schema>) => {
+    console.log("Dados enviados:", data);
+    alert("Usuário Cadastrado");
+  };
 
-    return (
-        <div className="flex justify-center mt-10">
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="flex px-5 flex-col mx-1 mb-5 gap-4 w-[100%] md:w-[70%]"
-                noValidate
-            >
-                <p className="text-lg font-semibold my-2">Informações Pessoais:</p>
-                <div className="flex gap-4">
-                    <label className="w-full">
-                        Nome Completo
-                        <InputCadastro camp="text" {...register("nomeCompleto")} />
-                        {errors.nomeCompleto && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.nomeCompleto.message}
-                            </span>
-                        )}
-                    </label>
+  const possuiDeficiencia = form.watch("possuiDeficiencia");
 
-                    <label className="w-full md:w-1/2">
-                        Data de Nascimento
-                        <InputCadastro camp="date" {...register("dataNascimento")} />
-                        {errors.dataNascimento && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.dataNascimento.message}
-                            </span>
-                        )}
-                    </label>
-                </div>
+  return (
+    <div className="flex justify-center mt-10">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex px-5 flex-col mx-1 mb-5 gap-4 w-[100%] md:w-[70%]"
+          noValidate
+        >
+          <p className="text-lg font-semibold my-2">Informações Pessoais:</p>
 
-                <div className="flex gap-4">
-                    <label className="md:w-1/2">
-                        CPF
-                        <InputCadastro camp="text" {...register("cpf")} />
-                        {errors.cpf && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.cpf.message}
-                            </span>
-                        )}
-                    </label>
+          <div className="grid md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="nomeCompleto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome Completo</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                    <label className="md:w-1/3">
-                        RG
-                        <InputCadastro camp="text" {...register("rg")} />
-                        {errors.rg && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.rg.message}
-                            </span>
-                        )}
-                    </label>
-                    <label className="md:w-1/4">
-                        Gênero
-                        <InputCadastro camp="select" {...register("genero")} />
-                        {errors.genero && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.genero.message}
-                            </span>
-                        )}
-                    </label>
-                </div>
+            <FormField
+              control={form.control}
+              name="dataNascimento"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data de Nascimento</FormLabel>
+                  <FormControl>
+                    <CalendarioCadastro
+                      value={field.value as Date}
+                      onValueChange={field.onChange}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1940-01-01")
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <div className="flex gap-4">
-                    <label className="w-1/2 md:w-full">
-                        Nome do Pai
-                        <InputCadastro camp="text" {...register("nomeDoPai")} />
-                        {errors.nomeDoPai && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.nomeDoPai.message}
-                            </span>
-                        )}
-                    </label>
+            <FormField
+              control={form.control}
+              name="cpf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CPF</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                    <label className="w-1/2 md:w-full">
-                        Nome da mãe
-                        <InputCadastro camp="text" {...register("nomeDaMae")} />
-                        {errors.nomeDaMae && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.nomeDaMae.message}
-                            </span>
-                        )}
-                    </label>
-                </div>
-                {user === "professor" && (
-                    <div className="flex">
-                        <label className="md:w-1/2">
-                            Possui alguma deficiência?
-                            <InputCadastro camp="text" {...register("possuiDeficiencia")} />
-                            {errors.possuiDeficiencia && (
-                                <span className="text-red-500 text-sm" role="alert">
-                                    {errors.possuiDeficiencia.message}
-                                </span>
-                            )}
-                        </label>
-                    </div>
+            <FormField
+              control={form.control}
+              name="rg"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>RG</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="genero"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gênero</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um gênero" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="masculino">Masculino</SelectItem>
+                      <SelectItem value="feminino">Feminino</SelectItem>
+                      <SelectItem value="outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nomeDoPai"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome do Pai</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nomeDaMae"
+              render={({ field }) => (
+                <FormItem className="mb-2">
+                  <FormLabel>Nome da Mãe</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="possuiDeficiencia"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Possui alguma deficiência?</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      if (value === "nao") {
+                        form.setValue("qualDeficiencia", "", {
+                          shouldValidate: true,
+                        });
+                      }
+                    }}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="sim">Sim</SelectItem>
+                      <SelectItem value="nao">Não</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {possuiDeficiencia === "sim" && (
+              <FormField
+                control={form.control}
+                name="qualDeficiencia"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Qual deficiência?</FormLabel>
+                    <FormControl>
+                      <InputCadastro camp="text" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
+            )}
+          </div>
 
-                <p className="text-lg font-semibold my-2">Informações de Contato:</p>
+          <p className="text-lg font-semibold my-2">Informações de Contato:</p>
 
-                <div className="flex gap-4">
-                    <label className="w-full">
-                        Logadouro
-                        <InputCadastro camp="text" {...register("logradouro")} />
-                        {errors.logradouro && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.logradouro.message}
-                            </span>
-                        )}
-                    </label>
+          <div className="grid md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="logradouro"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Logradouro</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                    <label className="w-full md:w-1/2">
-                        Número
-                        <InputCadastro camp="text" {...register("numero")} />
-                        {errors.numero && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.numero.message}
-                            </span>
-                        )}
-                    </label>
-                </div>
+            <FormField
+              control={form.control}
+              name="numero"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Número</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <div className="flex gap-4">
-                    <label className="w-full md:w-1/2">
-                        Bairro
-                        <InputCadastro camp="text" {...register("bairro")} />
-                        {errors.bairro && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.bairro.message}
-                            </span>
-                        )}
-                    </label>
+            <FormField
+              control={form.control}
+              name="bairro"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bairro</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                    <label className="w-full md:w-1/2">
-                        Complemento
-                        <InputCadastro camp="text" {...register("complemento")} />
-                        {errors.complemento && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.complemento.message}
-                            </span>
-                        )}
-                    </label>
-                </div>
+            <FormField
+              control={form.control}
+              name="complemento"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Complemento</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <div className="flex gap-4">
-                    <label className="w-full">
-                        Cidade
-                        <InputCadastro camp="text" {...register("cidade")} />
-                        {errors.cidade && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.cidade.message}
-                            </span>
-                        )}
-                    </label>
+            <FormField
+              control={form.control}
+              name="cidade"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cidade</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                    <label className="w-full md:w-1/2">
-                        Estado
-                        <InputCadastro camp="text" {...register("estado")} />
-                        {errors.estado && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.estado.message}
-                            </span>
-                        )}
-                    </label>
-                </div>
+            <FormField
+              control={form.control}
+              name="estado"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Estado</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <div className="flex gap-4">
-                    <label className="w-full">
-                        Telefone - Responsável
-                        <InputCadastro camp="tel" {...register("telefone")} />
-                        {errors.telefone && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.telefone.message}
-                            </span>
-                        )}
-                    </label>
+            <FormField
+              control={form.control}
+              name="telefone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone - Responsável</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="tel" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                    <label className="w-full">
-                        Celular - Responsável
-                        <InputCadastro camp="tel" {...register("celular")} />
-                        {errors.celular && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.celular.message}
-                            </span>
-                        )}
-                    </label>
-                </div>
-                <div className="flex">
-                    <label className="w-1/2">
-                        E-mail
-                        <InputCadastro camp="email" {...register("email")} />
-                        {errors.email && (
-                            <span className="text-red-500 text-sm" role="alert">
-                                {errors.email.message}
-                            </span>
-                        )}
-                    </label>
-                </div>
+            <FormField
+              control={form.control}
+              name="celular"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Celular - Responsável</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="tel" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                {user === "professor" && (
-                    <>
-                        <p className="text-lg font-semibold my-2">
-                            Informação Profissional:
-                        </p>
-                        <div className="flex">
-                            <label className="w-1/2">
-                                Matrícula ADPM
-                                <InputCadastro camp="text" {...register("matriculaAdpm")} />
-                                {errors.matriculaAdpm && (
-                                    <span className="text-red-500 text-sm" role="alert">
-                                        {errors.matriculaAdpm.message}
-                                    </span>
-                                )}
-                            </label>
-                        </div>
-                    </>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail</FormLabel>
+                  <FormControl>
+                    <InputCadastro camp="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {user === "professor" && (
+            <>
+              <p className="text-lg font-semibold my-2">
+                Informação Profissional:
+              </p>
+              <FormField
+                control={form.control}
+                name="matriculaAdpm"
+                render={({ field }) => (
+                  <FormItem className="w-1/4">
+                    <FormLabel>Matrícula ADPM</FormLabel>
+                    <FormControl>
+                      <InputCadastro camp="text" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
+            </>
+          )}
 
-                <Button
-                    type="submit"
-                    variant={"default"}
-                    className="rounded-2xl text-white bg-primaria h-14 w-25 mt-5 cursor-pointer"
-                >
-                    Cadastrar
-                </Button>
-            </form>
-        </div>
-    );
+          <Button
+            type="submit"
+            variant={"default"}
+            className="rounded-2xl text-white bg-primaria h-14 w-25 mt-5 cursor-pointer"
+          >
+            Cadastrar
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
 };
