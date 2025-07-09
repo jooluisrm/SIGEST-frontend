@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
     title: "SIGEST",
     description: "Sistema de Gestão Escolar",
+    icons: {
+        icon: "/assets/favicon.ico"
+    }
 };
 
 export default function RootLayout({
