@@ -3,11 +3,14 @@ import Image from "next/image";
 
 type Props = {
     params: {
-        type: "aluno" | "professor" | "servidor";
+        type: string;
     };
 }
 
-const Page = ({ params }: Props) => {
+const Page = async ({ params }: Props) => {
+
+    const { type } = await params;
+
     return (
         <section className="bg-[url('/assets/bg-login.jpg')] bg-cover bg-center min-h-screen">
             <div className="w-full min-h-screen bg-white/50 backdrop-blur relative">
@@ -18,7 +21,7 @@ const Page = ({ params }: Props) => {
                     height={362}
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50"
                 />
-                <MainCadastrar type={params.type} />
+                <MainCadastrar type={type} />
             </div>
         </section>
     );

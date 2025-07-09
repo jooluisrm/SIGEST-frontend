@@ -23,7 +23,7 @@ import {
 import { CalendarioCadastro } from "../ui/calendarioCadastro";
 
 type Props = {
-  user: "aluno" | "servidor" | "professor";
+  user: string
 };
 
 const getFormSchema = (user: Props["user"]) =>

@@ -2,18 +2,21 @@
 
 import { ContainerCadastro } from "./containerCadastro";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { ButtonCadastro } from "./buttonCadastro";
 
 type Props = {
-    type: "aluno" | "professor" | "servidor";
+    type: string;
 };
 
-const handleBackButton = () => {
-    redirect('/dashboard');
-}
-
 export const MainCadastrar = ({ type }: Props) => {
+
+    const router = useRouter();
+
+    const handleBackButton = () => {
+        router.back();
+    }
+
     return (
         <main className="flex flex-col bg-white/60 backdrop-blur justify-center">
             <div className="relative flex bg-primaria h-15 mt-3 items-center sm:h-20">
