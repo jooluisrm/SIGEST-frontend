@@ -16,9 +16,13 @@ export const metadata: Metadata = {
     title: "SIGEST",
     description: "Sistema de Gestão Escolar",
     icons: {
-        icon: "/assets/favicon.ico"
-    }
+        icon: [
+            { url: "/assets/favicon.ico" }, 
+        ],
+        apple: "/assets/apple-touch-icon.png",
+    },
 };
+
 
 export default function RootLayout({
     children,
