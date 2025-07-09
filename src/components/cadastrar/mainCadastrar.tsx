@@ -2,7 +2,7 @@
 
 import { ContainerCadastro } from "./containerCadastro";
 import Image from "next/image";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ButtonCadastro } from "./buttonCadastro";
 
 type Props = {
@@ -32,7 +32,8 @@ export const MainCadastrar = ({ type }: Props) => {
                         alt={`${type} avatar`}
                         width={170}
                         height={170}
-                        className="rounded-full"
+                        className="rounded-full w-full h-full"
+                        priority={true}
                     />
                 </div>
             </div>

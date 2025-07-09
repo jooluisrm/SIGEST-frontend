@@ -20,6 +20,7 @@ const Page = async ({ params }: Props) => {
                     width={942}
                     height={362}
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50"
+                    priority={true}
                 />
                 <MainCadastrar type={type} />
             </div>
