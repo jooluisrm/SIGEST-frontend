@@ -269,7 +269,7 @@ export const ContainerCadastro = ({ user }: Props) => {
               control={form.control}
               name="nomeDaMae"
               render={({ field }) => (
-                <FormItem className="mb-2">
+                <FormItem>
                   <FormLabel>Nome da Mãe</FormLabel>
                   <FormControl>
                     <InputCadastro camp="text" {...field} />
