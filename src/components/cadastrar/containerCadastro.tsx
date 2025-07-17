@@ -5,115 +5,18 @@ import { InputCadastro } from "./inputCadastro";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "../ui/form";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "../ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { CalendarioCadastro } from "../ui/calendarioCadastro";
 import { postCadastrarProfessor, TypeProfessorCadastro } from "@/api/professor/professorServices";
 import { IMaskInput } from "react-imask";
 import { useEffect, useState } from "react";
 import { Cidade, Estado } from "@/types/endereco";
+import { getFormSchema, type CadastroFormValues } from "@/lib/schemas/cadastroSchema";
 
 type Props = {
     user: string
 };
-
-const getFormSchema = (user: Props["user"]) =>
-    z
-        .object({
-            nomeCompleto: z
-                .string({ required_error: "Nome completo é obrigatório" })
-                .min(3, "O nome deve ter no mínimo 3 caracteres."),
-            dataNascimento: z
-                .date({
-                    required_error: "Data de nascimento é obrigatória.",
-                })
-                .refine(
-                    (val) => {
-                        return !isNaN(val.getTime()) && val < new Date();
-                    },
-                    {
-                        message: "Data de nascimento inválida",
-                    }
-                ),
-            cpf: z.string().min(14, "O CPF completo é obrigatório"),
-            rg: z
-                .string({ required_error: "RG é obrigatório" })
-                .min(5, "RG inválido"),
-            genero: z
-                .string({ required_error: "Gênero é obrigatório" })
-                .min(1, "Selecione um gênero"),
-            nomeDoPai: z
-                .string({ required_error: "Nome do pai é obrigatório" })
-                .min(3, "O nome do pai deve ter no mínimo 3 caracteres."),
-            nomeDaMae: z
-                .string({ required_error: "Nome da mãe é obrigatório" })
-                .min(3, "O nome do pai deve ter no mínimo 3 caracteres."),
-            possuiDeficiencia: z.enum(["sim", "nao"], {
-                required_error: "Informe se possui alguma deficiência",
-            }),
-            qualDeficiencia: z.string().optional(),
-            logradouro: z
-                .string({ required_error: "O logradouro é obrigatório." })
-                .min(3, "O logradouro deve ter no mínimo 3 caracteres."),
-
-            numero: z
-                .string({ required_error: "O número é obrigatório." })
-                .min(1, "O número é obrigatório."),
-
-            bairro: z
-                .string({ required_error: "O bairro é obrigatório." })
-                .min(3, "O bairro deve ter no mínimo 3 caracteres."),
-
-            complemento: z.string().optional(),
-
-            cidade: z
-                .string({ required_error: "A cidade é obrigatória." })
-                .min(3, "A cidade deve ter no mínimo 3 caracteres."),
-
-            estado: z
-                .string({ required_error: "O estado é obrigatório." })
-                .min(2, "O estado deve ter no mínimo 2 letras (UF)."),
-
-            telefone: z.string().min(10, "O telefone com DDD deve ter no mínimo 10 dígitos."),
-
-            celular: z.string().min(11, "O celular com DDD deve ter 11 dígitos."),
-
-            email: z
-                .string({ required_error: "O e-mail é obrigatório." })
-                .email("O formato do e-mail é inválido."),
-
-            matriculaAdpm:
-                user === "professor"
-                    ? z
-                        .string({ required_error: "A matrícula ADPM é obrigatória" })
-                        .min(1, "A matrícula ADPM não pode ser vazia.")
-                    : z.string().optional(),
-        })
-        .superRefine((data, ctx) => {
-            if (
-                data.possuiDeficiencia === "sim" &&
-                (!data.qualDeficiencia || data.qualDeficiencia.trim() === "")
-            ) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "Por favor, informe qual deficiência.",
-                    path: ["qualDeficiencia"],
-                });
-            }
-        });
 
 export const ContainerCadastro = ({ user }: Props) => {
     const schema = getFormSchema(user);
@@ -142,8 +45,11 @@ export const ContainerCadastro = ({ user }: Props) => {
         },
     });
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const onSubmit = async (data: z.infer<typeof schema>) => {
         if (user === "professor") {
+            setIsSubmitting(true);
             const dataToSend: TypeProfessorCadastro = {
                 nome: data.nomeCompleto,
                 data_nascimento: new Date(data.dataNascimento).toISOString().split('T')[0],
@@ -170,14 +76,14 @@ export const ContainerCadastro = ({ user }: Props) => {
                 console.log("Dados enviados:", dataToSend);
             } catch (error: any) {
                 console.log(error.message);
+            } finally {
+                setIsSubmitting(false);
             }
         }
     };
 
-
     const possuiDeficiencia = form.watch("possuiDeficiencia");
-
-
+    
     const [loadingEstado, setLoadingEstado] = useState(false);
     const [loadingCidade, setLoadingCidade] = useState(false);
     const [estados, setEstados] = useState<Estado[]>([]);
@@ -639,8 +545,9 @@ export const ContainerCadastro = ({ user }: Props) => {
                         type="submit"
                         variant={"default"}
                         className="rounded-2xl text-white bg-secundaria h-14 w-25 mt-5 cursor-pointer hover:bg-secundaria hover:opacity-75"
+                        disabled={isSubmitting}
                     >
-                        Cadastrar
+                        {isSubmitting ? "Enviando..." : "Cadastrar"}
                     </Button>
                 </form>
             </Form>
