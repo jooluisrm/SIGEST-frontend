@@ -17,6 +17,7 @@ Este projeto foi desenvolvido com as seguintes tecnologias e ferramentas:
 * **[Next.js](https://nextjs.org/)**: Framework React para produção.
 * **[React](https://react.dev/)**: Biblioteca para construção de interfaces de usuário.
 * **[TypeScript](https://www.typescriptlang.org/)**: Superset do JavaScript que adiciona tipagem estática.
+* **[Axios](https://axios-http.com/)**: Cliente HTTP baseado em Promises para navegador e Node.js.
 * **[Tailwind CSS](https://tailwindcss.com/)**: Framework de CSS utility-first para estilização rápida.
 * **[shadcn/ui](https://ui.shadcn.com/)**: Coleção de componentes de UI reutilizáveis construídos sobre Radix UI e Tailwind CSS.
 
@@ -26,14 +27,16 @@ Para executar este projeto em seu ambiente de desenvolvimento, siga os passos ab
 
 ### ✅ **Pré-requisitos**
 
-* Certifique-se de ter o **[Node.js](https://nodejs.org/en)** (versão 18.x ou superior) instalado em sua máquina.
-* Garanta que a **API backend do SIGEST** esteja rodando localmente. As instruções de instalação dela estão em seu respectivo repositório.
+* Você precisa ter o **[Git](https://git-scm.com/)** instalado para clonar o repositório.
+* É necessário ter o **[Node.js](https://nodejs.org/en)** (versão 18.x ou superior) instalado em sua máquina.
+* Recomendamos o uso do **[Visual Studio Code](https://code.visualstudio.com/)** como editor de código.
+* Garanta que a **API backend do SIGEST** esteja rodando localmente. As instruções de instalação dela estão em seu **[respectivo repositório](https://github.com/Pedro-g2/SIGEST-backend)**.
 
 ### 🔢 **Passo a Passo**
 
 1.  **Clone o repositório**:
     ```bash
-    git clone [https://github.com/jooluisrm/SIGEST-frontend](https://github.com/jooluisrm/SIGEST-frontend)
+    git clone https://github.com/jooluisrm/SIGEST-frontend
     ```
 
 2.  **Acesse o diretório do projeto:**
@@ -54,7 +57,7 @@ Para executar este projeto em seu ambiente de desenvolvimento, siga os passos ab
     * Na raiz do projeto, renomeie o arquivo `.env.example` para `.env`.
     * Abra o novo arquivo `.env` e adicione a URL base da sua API local:
     ```env
-    NEXT_PUBLIC_API_BASE_URL=[http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+    NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/
     ```
 
 5.  **Execute o servidor de desenvolvimento:**
