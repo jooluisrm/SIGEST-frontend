@@ -22,6 +22,7 @@ import {
 } from "../ui/select";
 import { CalendarioCadastro } from "../ui/calendarioCadastro";
 import { postCadastrarProfessor, TypeProfessorCadastro } from "@/api/professor/professorServices";
+import { IMaskInput } from "react-imask";
 
 type Props = {
     user: string
@@ -45,10 +46,7 @@ const getFormSchema = (user: Props["user"]) =>
                         message: "Data de nascimento inválida",
                     }
                 ),
-            cpf: z
-                .string({ required_error: "CPF é obrigatório" })
-                .min(11, "CPF inválido")
-                .max(14),
+            cpf: z.string().min(14, "O CPF completo é obrigatório"),
             rg: z
                 .string({ required_error: "RG é obrigatório" })
                 .min(5, "RG inválido"),
@@ -87,13 +85,9 @@ const getFormSchema = (user: Props["user"]) =>
                 .string({ required_error: "O estado é obrigatório." })
                 .min(2, "O estado deve ter no mínimo 2 letras (UF)."),
 
-            telefone: z
-                .string({ required_error: "O telefone do responsável é obrigatório." })
-                .min(8, "O telefone deve ter no mínimo 8 dígitos."),
+            telefone: z.string().min(10, "O telefone com DDD deve ter no mínimo 10 dígitos."),
 
-            celular: z
-                .string({ required_error: "O celular do responsável é obrigatório." })
-                .min(9, "O celular deve ter no mínimo 9 dígitos."),
+            celular: z.string().min(11, "O celular com DDD deve ter 11 dígitos."),
 
             email: z
                 .string({ required_error: "O e-mail é obrigatório." })
@@ -150,7 +144,7 @@ export const ContainerCadastro = ({ user }: Props) => {
         if (user === "professor") {
             const dataToSend: TypeProfessorCadastro = {
                 nome: data.nomeCompleto,
-                data_nascimento: new Date(data.dataNascimento).toISOString().split('T')[0], 
+                data_nascimento: new Date(data.dataNascimento).toISOString().split('T')[0],
                 cpf: data.cpf,
                 rg: data.rg,
                 genero: data.genero,
@@ -233,7 +227,22 @@ export const ContainerCadastro = ({ user }: Props) => {
                                 <FormItem>
                                     <FormLabel>CPF</FormLabel>
                                     <FormControl>
-                                        <InputCadastro camp="text" {...field} />
+                                        <IMaskInput
+                                            mask="000.000.000-00"
+                                            // passe todas as props do field para o input
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            onBlur={field.onBlur}
+                                            name={field.name}
+                                            inputRef={field.ref} // ref do react-hook-form
+                                            // Prop importante: envia apenas os números
+                                            unmask={true}
+                                            // onAccept é mais seguro para RHF com unmask
+                                            onAccept={(value) => field.onChange(value)}
+                                            placeholder="000.000.000-00"
+                                            // Adicione as classes do seu input para manter o estilo
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -247,7 +256,22 @@ export const ContainerCadastro = ({ user }: Props) => {
                                 <FormItem>
                                     <FormLabel>RG</FormLabel>
                                     <FormControl>
-                                        <InputCadastro camp="text" {...field} />
+                                        <IMaskInput
+                                            // Máscara para RG (Ex: padrão SP com dígito alfanumérico)
+                                            mask="00.000.000-a"
+                                            definitions={{
+                                                'a': /[0-9a-zA-Z]/ // O último dígito pode ser letra ou número
+                                            }}
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            onBlur={field.onBlur}
+                                            name={field.name}
+                                            inputRef={field.ref}
+                                            unmask={true}
+                                            onAccept={(value) => field.onChange(value)}
+                                            placeholder="00.000.000-0"
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -450,9 +474,24 @@ export const ContainerCadastro = ({ user }: Props) => {
                             name="telefone"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Telefone - Responsável</FormLabel>
+                                    <FormLabel>Telefone</FormLabel>
                                     <FormControl>
-                                        <InputCadastro camp="tel" {...field} />
+                                        <IMaskInput
+                                            // Máscara dinâmica!
+                                            mask={[
+                                                { mask: '(00) 0000-0000' },  // Fixo
+                                                { mask: '(00) 00000-0000' } // Celular
+                                            ]}
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            onBlur={field.onBlur}
+                                            name={field.name}
+                                            inputRef={field.ref}
+                                            unmask={true}
+                                            onAccept={(value) => field.onChange(value)}
+                                            placeholder="(99) 9999-9999"
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -464,9 +503,20 @@ export const ContainerCadastro = ({ user }: Props) => {
                             name="celular"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Celular - Responsável</FormLabel>
+                                    <FormLabel>Celular</FormLabel>
                                     <FormControl>
-                                        <InputCadastro camp="tel" {...field} />
+                                        <IMaskInput
+                                            mask="(00) 00000-0000" // Máscara para celular com 9º dígito
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            onBlur={field.onBlur}
+                                            name={field.name}
+                                            inputRef={field.ref}
+                                            unmask={true}
+                                            onAccept={(value) => field.onChange(value)}
+                                            placeholder="(99) 99999-9999"
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
