@@ -638,7 +638,7 @@ export const ContainerCadastro = ({ user }: Props) => {
                     <Button
                         type="submit"
                         variant={"default"}
-                        className="rounded-2xl text-white bg-primaria h-14 w-25 mt-5 cursor-pointer"
+                        className="rounded-2xl text-white bg-secundaria h-14 w-25 mt-5 cursor-pointer hover:bg-secundaria hover:opacity-75"
                     >
                         Cadastrar
                     </Button>
