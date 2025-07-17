@@ -23,6 +23,8 @@ import {
 import { CalendarioCadastro } from "../ui/calendarioCadastro";
 import { postCadastrarProfessor, TypeProfessorCadastro } from "@/api/professor/professorServices";
 import { IMaskInput } from "react-imask";
+import { useEffect, useState } from "react";
+import { Cidade, Estado } from "@/types/endereco";
 
 type Props = {
     user: string
@@ -174,6 +176,44 @@ export const ContainerCadastro = ({ user }: Props) => {
 
 
     const possuiDeficiencia = form.watch("possuiDeficiencia");
+
+
+    const [loadingEstado, setLoadingEstado] = useState(false);
+    const [loadingCidade, setLoadingCidade] = useState(false);
+    const [estados, setEstados] = useState<Estado[]>([]);
+    const [cidades, setCidades] = useState<Cidade[]>([]);
+
+    useEffect(() => {
+        setLoadingEstado(true);
+        const url = "https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome";
+
+        fetch(url)
+            .then((res) => res.json())
+            .then((data) => {
+                setEstados(data); // Guarda a lista recebida no nosso estado
+            }).finally(() => setLoadingEstado(false));
+    }, []);
+
+    const estadoSelecionado: string = form.watch("estado");
+
+    useEffect(() => {
+        if (!estadoSelecionado) {
+            return;
+        }
+
+        setLoadingCidade(true);
+        form.setValue("cidade", "");
+
+        const url = `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoSelecionado}/municipios`;
+
+        fetch(url)
+            .then((res) => res.json())
+            .then((data) => {
+                setCidades(data);
+            })
+            .catch(error => console.error("Falha ao buscar cidades:", error))
+            .finally(() => setLoadingCidade(false));
+    }, [estadoSelecionado, form]);
 
     return (
         <div className="flex justify-center mt-10">
@@ -443,13 +483,26 @@ export const ContainerCadastro = ({ user }: Props) => {
 
                         <FormField
                             control={form.control}
-                            name="cidade"
+                            name="estado"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Cidade</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="text" {...field} />
-                                    </FormControl>
+                                    <FormLabel>Estado</FormLabel>
+                                    {/* O Select do shadcn/ui entra aqui */}
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={`${!loadingEstado ? "Selecione o estado" : "Carregando..."}`} />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {/* Aqui nós mapeamos a lista de estados que buscamos na API */}
+                                            {estados.map((estado) => (
+                                                <SelectItem key={estado.id} value={estado.sigla}>
+                                                    {estado.nome}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -457,13 +510,36 @@ export const ContainerCadastro = ({ user }: Props) => {
 
                         <FormField
                             control={form.control}
-                            name="estado"
+                            name="cidade"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Estado</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="text" {...field} />
-                                    </FormControl>
+                                    <FormLabel>Cidade</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value} // Usamos 'value' aqui para o RHF controlar o valor
+                                        // Desabilita o campo se nenhum estado foi selecionado
+                                        disabled={!estadoSelecionado || loadingCidade}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue
+                                                    placeholder={
+                                                        !loadingCidade ? (estadoSelecionado
+                                                            ? "Selecione a cidade"
+                                                            : "Primeiro, selecione um estado") : "Carregando..."
+                                                    }
+                                                />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {/* Mapeamos a lista de cidades do estado selecionado */}
+                                            {cidades.map((cidade) => (
+                                                <SelectItem key={cidade.id} value={cidade.nome}>
+                                                    {cidade.nome}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
