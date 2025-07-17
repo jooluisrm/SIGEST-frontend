@@ -7,6 +7,7 @@ Este projeto foi construído utilizando **[Next.js](https://nextjs.org/)**, um f
 ## ✨ Funcionalidades Principais
 
 * 📱 Design responsivo, adaptável a desktops, tablets e smartphones.
+* 🧑‍🏫 Cadastro de Professor.
 * 🚧 (Em breve mais funcionalidades)
 
 ## 🚀 Tecnologias Utilizadas
@@ -25,13 +26,14 @@ Para executar este projeto em seu ambiente de desenvolvimento, siga os passos ab
 
 ### ✅ **Pré-requisitos**
 
-Antes de começar, certifique-se de ter o **[Node.js](https://nodejs.org/en)** (versão 18.x ou superior) instalado em sua máquina.
+* Certifique-se de ter o **[Node.js](https://nodejs.org/en)** (versão 18.x ou superior) instalado em sua máquina.
+* Garanta que a **API backend do SIGEST** esteja rodando localmente. As instruções de instalação dela estão em seu respectivo repositório.
 
 ### 🔢 **Passo a Passo**
 
 1.  **Clone o repositório**:
     ```bash
-    git clone https://github.com/jooluisrm/SIGEST-frontend
+    git clone [https://github.com/jooluisrm/SIGEST-frontend](https://github.com/jooluisrm/SIGEST-frontend)
     ```
 
 2.  **Acesse o diretório do projeto:**
@@ -48,7 +50,14 @@ Antes de começar, certifique-se de ter o **[Node.js](https://nodejs.org/en)** (
     pnpm install
     ```
 
-4.  **Execute o servidor de desenvolvimento:**
+4.  🔑 **Configure as Variáveis de Ambiente**:
+    * Na raiz do projeto, renomeie o arquivo `.env.example` para `.env`.
+    * Abra o novo arquivo `.env` e adicione a URL base da sua API local:
+    ```env
+    NEXT_PUBLIC_API_BASE_URL=[http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+    ```
+
+5.  **Execute o servidor de desenvolvimento:**
     ```bash
     npm run dev
     # ou
@@ -57,5 +66,5 @@ Antes de começar, certifique-se de ter o **[Node.js](https://nodejs.org/en)** (
     pnpm dev
     ```
 
-5.  **Acesse a aplicação:**
+6.  **Acesse a aplicação:**
     🎉 Abra seu navegador e acesse **[http://localhost:3000](http://localhost:3000)** para ver o resultado.
