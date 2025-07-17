@@ -281,7 +281,7 @@ export const ContainerCadastro = ({ user }: Props) => {
                                             onAccept={(value) => field.onChange(value)}
                                             placeholder="000.000.000-00"
                                             // Adicione as classes do seu input para manter o estilo
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -310,7 +310,7 @@ export const ContainerCadastro = ({ user }: Props) => {
                                             unmask={true}
                                             onAccept={(value) => field.onChange(value)}
                                             placeholder="00.000.000-0"
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -566,7 +566,7 @@ export const ContainerCadastro = ({ user }: Props) => {
                                             unmask={true}
                                             onAccept={(value) => field.onChange(value)}
                                             placeholder="(99) 9999-9999"
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -591,7 +591,7 @@ export const ContainerCadastro = ({ user }: Props) => {
                                             unmask={true}
                                             onAccept={(value) => field.onChange(value)}
                                             placeholder="(99) 99999-9999"
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
                                         />
                                     </FormControl>
                                     <FormMessage />

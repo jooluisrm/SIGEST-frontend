@@ -20,7 +20,9 @@ export const MainCadastrar = ({ type }: Props) => {
     return (
         <main className="flex flex-col bg-white/60 backdrop-blur justify-center">
             <div className="relative flex bg-primaria h-15 mt-3 items-center sm:h-20">
-                <ButtonCadastro text="Voltar" onClick={handleBackButton} />
+                <span className="px-5">
+                    <ButtonCadastro text="Voltar" onClick={handleBackButton} />
+                </span>
                 <h1 className="font-bold absolute left-1/2 transform -translate-x-1/2 sm:absolute sm:left-1/2 sm:transform sm:-translate-x-1/2 text-1xl text-2xl sm:text-4xl text-white mx-auto">
                     Cadastro {type}
                 </h1>
