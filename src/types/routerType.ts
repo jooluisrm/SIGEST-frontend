@@ -1,3 +1,3 @@
 type RouterType = {
-    type: "Aluno" | "Professor" | "Servidor";
+    type: "aluno" | "professor" | "servidor";
 }
