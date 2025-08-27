@@ -1,9 +1,9 @@
+import { MainGerenciar } from "@/components/gerenciar/mainGerenciar";
 import { LogoFundo } from "@/components/shared/logo-fundo";
-import Image from "next/image";
 
 type Props = {
     params: {
-        type: string;
+        type: RouterType;
     };
 }
 
@@ -14,6 +14,7 @@ const Page = async ({ params }: Props) => {
     return (
         <section className="min-h-screen">
             <LogoFundo />
+            <MainGerenciar type={type}/>
         </section>
     );
 }
