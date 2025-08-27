@@ -4,8 +4,10 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { PaginationTable } from "./paginationTable";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { AtSignIcon, Search } from "lucide-react";
+import { AtSignIcon, Plus, Search, UserRoundPlus } from "lucide-react";
 import { UserType } from "@/app/(rotas)/cadastrar/[type]/page";
+import { Button } from "../ui/button";
+import { ButtonGerenciar } from "./buttonGerenciar";
 
 type Props = {
     type: UserType;
@@ -14,16 +16,22 @@ type Props = {
 export const MainGerenciar = ({ type }: Props) => {
 
     const id = useId();
-    
+
     return (
         <main className="bg-white/70 backdrop-blur min-h-screen">
-            <div className="container mx-auto">
-                <h1 className="text-xl sm:text-3xl md:text-4xl">
+            <div className="container mx-auto px-5">
+                <h1 className="text-xl sm:text-3xl md:text-4xl py-10">
                     Gerenciar <span className="font-bold">{type as ReactNode}</span>
                 </h1>
 
+
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="flex items-center justify-between">
+                        <ButtonGerenciar
+                            icon="add"
+                            className="bg-primaria"
+                            alt={`Adicionar ${type}`}
+                        />
                         <div className="*:not-first:mt-2">
                             <div className="relative">
                                 <Input id={id} className="peer ps-9" placeholder="Buscar" type="search" />
@@ -34,7 +42,7 @@ export const MainGerenciar = ({ type }: Props) => {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <TableGerenciar />
+                        <TableGerenciar type={type}/>
                     </CardContent>
                     <CardFooter>
                         <PaginationTable />
