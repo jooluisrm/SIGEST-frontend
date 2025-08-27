@@ -18,7 +18,7 @@ export const MainCadastrar = ({ type }: Props) => {
     }
 
     return (
-        <main className="flex flex-col bg-white/60 backdrop-blur justify-center">
+        <main className="flex flex-col bg-white/50 backdrop-blur justify-center">
             <div className="relative flex bg-primaria h-15 mt-3 items-center sm:h-20">
                 <span className="px-5">
                     <ButtonCadastro text="Voltar" onClick={handleBackButton} />

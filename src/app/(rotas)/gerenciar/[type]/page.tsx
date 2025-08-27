@@ -1,4 +1,3 @@
-import { MainCadastrar } from "@/components/cadastrar/mainCadastrar";
 import { LogoFundo } from "@/components/shared/logo-fundo";
 import Image from "next/image";
 
@@ -14,8 +13,7 @@ const Page = async ({ params }: Props) => {
 
     return (
         <section className="min-h-screen">
-                <LogoFundo />
-                <MainCadastrar type={type} />
+            <LogoFundo />
         </section>
     );
 }
