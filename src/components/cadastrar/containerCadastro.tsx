@@ -8,11 +8,12 @@ import { Button } from "../ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { CalendarioCadastro } from "../ui/calendarioCadastro";
-import { postCadastrarProfessor, TypeProfessorCadastro } from "@/api/professor/professorServices";
+import { postCadastrarProfessor } from "@/api/professor/professorServices";
 import { IMaskInput } from "react-imask";
 import { useEffect, useState } from "react";
 import { Cidade, Estado } from "@/types/endereco";
 import { getFormSchema, type CadastroFormValues } from "@/lib/schemas/cadastroSchema";
+import { TypeProfessorCadastro } from "@/types/professor";
 
 type Props = {
     user: string

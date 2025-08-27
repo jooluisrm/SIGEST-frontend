@@ -4,6 +4,7 @@ import { ContainerCadastro } from "./containerCadastro";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ButtonCadastro } from "./buttonCadastro";
+import { ReactNode } from "react";
 
 type Props = {
     type: string;
@@ -24,7 +25,7 @@ export const MainCadastrar = ({ type }: Props) => {
                     <ButtonCadastro text="Voltar" onClick={handleBackButton} />
                 </span>
                 <h1 className="font-bold absolute left-1/2 transform -translate-x-1/2 sm:absolute sm:left-1/2 sm:transform sm:-translate-x-1/2 text-1xl text-2xl sm:text-4xl text-white mx-auto">
-                    Cadastro {type}
+                    Cadastro {type as ReactNode}
                 </h1>
             </div>
             <div className="flex mt-10 justify-center items-center">
