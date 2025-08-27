@@ -1,20 +1,27 @@
 import { MainGerenciar } from "@/components/gerenciar/mainGerenciar";
 import { LogoFundo } from "@/components/shared/logo-fundo";
+import { notFound } from "next/navigation";
+import { UserType } from "../../cadastrar/[type]/page";
 
-type Props = {
-    params: {
-        type: RouterType;
-    };
+type ProGerenciarPageProps = {
+    params: Promise<{ type: UserType }>;
 }
 
-const Page = async ({ params }: Props) => {
+const validTypes: UserType[] = ['aluno', 'professor', 'servidor'];
 
-    const { type } = params;
+const Page = async ({ params }: ProGerenciarPageProps) => {
+
+    const resolvedParams = await params;
+    const { type } = resolvedParams;
+
+    if (!validTypes.includes(type)) {
+        notFound();
+    }
 
     return (
         <section className="min-h-screen">
             <LogoFundo />
-            <MainGerenciar type={type}/>
+            <MainGerenciar type={type} />
         </section>
     );
 }

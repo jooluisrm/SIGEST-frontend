@@ -5,9 +5,10 @@ import { PaginationTable } from "./paginationTable";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { AtSignIcon, Search } from "lucide-react";
+import { UserType } from "@/app/(rotas)/cadastrar/[type]/page";
 
 type Props = {
-    type: RouterType;
+    type: UserType;
 }
 
 export const MainGerenciar = ({ type }: Props) => {
