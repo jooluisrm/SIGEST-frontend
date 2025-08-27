@@ -9,7 +9,7 @@ type Props = {
 
 const Page = async ({ params }: Props) => {
 
-    const { type } = await params;
+    const { type } = params;
 
     return (
         <section className="min-h-screen">
