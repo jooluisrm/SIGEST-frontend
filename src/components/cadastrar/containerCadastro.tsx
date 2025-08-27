@@ -14,9 +14,10 @@ import { useEffect, useState } from "react";
 import { Cidade, Estado } from "@/types/endereco";
 import { getFormSchema, type CadastroFormValues } from "@/lib/schemas/cadastroSchema";
 import { TypeProfessorCadastro } from "@/types/professor";
+import { UserType } from "@/app/(rotas)/cadastrar/[type]/page";
 
 type Props = {
-    user: string
+    user: UserType
 };
 
 export const ContainerCadastro = ({ user }: Props) => {

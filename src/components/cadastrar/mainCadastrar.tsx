@@ -5,9 +5,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ButtonCadastro } from "./buttonCadastro";
 import { ReactNode } from "react";
+import { UserType } from "@/app/(rotas)/cadastrar/[type]/page";
 
 type Props = {
-    type: string;
+    type: UserType;
 };
 
 export const MainCadastrar = ({ type }: Props) => {

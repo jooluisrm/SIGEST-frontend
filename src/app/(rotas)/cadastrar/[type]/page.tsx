@@ -18,7 +18,8 @@ type Props = {
 const validTypes: UserType[] = ['aluno', 'professor', 'servidor'];
 
 const Page = async ({ params }: Props) => {
-    const { type } = params;
+    
+    const { type } = await params;
 
     // 2. Valide o parâmetro da URL em tempo de execução
     // Se o 'type' da URL não for um dos valores válidos, mostra a página 404.
