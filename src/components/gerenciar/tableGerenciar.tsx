@@ -6,13 +6,9 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
-import { Button } from "../ui/button";
-import { Eye, Pen } from "lucide-react";
-import { ButtonGerenciar } from "./buttonGerenciar";
+} from "@/components/ui/table";
 import { UserType } from "@/app/(rotas)/cadastrar/[type]/page";
-import { DialogEdit } from "./dialogEdit";
-import { DialogView } from "./dialogView";
+import { ActionDialog } from "./actionDialog";
 
 type Props = {
     type: UserType;
@@ -37,8 +33,25 @@ export const TableGerenciar = ({ type }: Props) => {
                     <TableCell className="hidden md:table-cell">39 99999-9999</TableCell>
                     <TableCell>
                         <div className="flex items-center justify-end gap-2">
-                            <DialogEdit type={type} />
-                            <DialogView type={type} />
+                            <ActionDialog
+                                triggerIcon="edit"
+                                triggerTooltip={`Editar ${type}`}
+                                triggerClassName="bg-secundaria"
+                                dialogTitle={`Editar ${type}`}
+                            >
+                                <p>Aqui dentro vai o seu formulário de edição para o {type}...</p>
+                                {/* Ex: <EditUserForm user={...} /> */}
+                            </ActionDialog>
+
+                            <ActionDialog
+                                triggerIcon="view"
+                                triggerTooltip={`Ver mais`}
+                                triggerClassName="bg-secundaria1"
+                                dialogTitle={`Visualizar ${type}`}
+                            >
+                                <p>Aqui dentro vão os detalhes do {type}...</p>
+                                {/* Ex: <UserDetails user={...} /> */}
+                            </ActionDialog>
                         </div>
                     </TableCell>
                 </TableRow>

@@ -8,8 +8,11 @@ import { Edit2, Eye, Trash2, UserRoundPlus, View } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
+export type ButtonIconType = "view" | "edit" | "delete" | "add";
+
+
 type Props = {
-    icon: "view" | "edit" | "delete" | "add";
+    icon: ButtonIconType;
     className?: string;
     alt: string;
     size?: "icon" | "sm" | "lg" | "default" | null | undefined;
