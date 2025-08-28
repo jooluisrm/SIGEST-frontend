@@ -26,7 +26,7 @@ export const MainGerenciar = ({ type }: Props) => {
 
     return (
         <main className="bg-white/70 backdrop-blur min-h-screen">
-            <div className="container mx-auto px-5">
+            <div className="container mx-auto px-5 min-h-screen">
                 <div className="flex items-center justify-start gap-5">
                     <ButtonCadastro text="Voltar" onClick={handleBackButton} />
                     <h1 className="text-xl sm:text-3xl md:text-4xl py-10">
@@ -34,7 +34,7 @@ export const MainGerenciar = ({ type }: Props) => {
                     </h1>
                 </div>
 
-                <Card className="">
+                <Card>
                     <CardHeader className="flex items-center justify-between">
                         <ButtonGerenciar
                             icon="add"
