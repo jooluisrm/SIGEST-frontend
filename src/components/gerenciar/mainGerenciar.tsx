@@ -30,7 +30,8 @@ export const MainGerenciar = ({ type }: Props) => {
                         <ButtonGerenciar
                             icon="add"
                             className="bg-primaria"
-                            alt={`Adicionar ${type}`}
+                            alt={`Cadastrar ${type}`}
+                            link={`/cadastrar/${type}`}
                         />
                         <div className="*:not-first:mt-2">
                             <div className="relative">
