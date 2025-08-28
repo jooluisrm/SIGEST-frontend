@@ -12,6 +12,7 @@ import { Eye, Pen } from "lucide-react";
 import { ButtonGerenciar } from "./buttonGerenciar";
 import { UserType } from "@/app/(rotas)/cadastrar/[type]/page";
 import { DialogEdit } from "./dialogEdit";
+import { DialogView } from "./dialogView";
 
 type Props = {
     type: UserType;
@@ -37,12 +38,7 @@ export const TableGerenciar = ({ type }: Props) => {
                     <TableCell>
                         <div className="flex items-center justify-end gap-2">
                             <DialogEdit type={type} />
-                            <ButtonGerenciar
-                                alt={`Ver mais`}
-                                icon="view"
-                                className="bg-secundaria1"
-                                size={"sm"}
-                            />
+                            <DialogView type={type} />
                         </div>
                     </TableCell>
                 </TableRow>
