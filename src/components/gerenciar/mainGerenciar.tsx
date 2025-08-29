@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { PaginationTable } from "./paginationTable";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
-import { UserType } from "@/app/(rotas)/cadastrar/[type]/page";
+import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { ButtonGerenciar } from "./buttonGerenciar";
 import { ButtonCadastro } from "../cadastrar/buttonCadastro";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ export const MainGerenciar = ({ type }: Props) => {
     }
 
     return (
-        <main className="bg-white/70 backdrop-blur min-h-screen">
+        <main className="min-h-screen">
             <div className="container mx-auto px-5 min-h-screen">
                 <div className="flex items-center justify-start gap-5">
                     <ButtonCadastro text="Voltar" onClick={handleBackButton} />

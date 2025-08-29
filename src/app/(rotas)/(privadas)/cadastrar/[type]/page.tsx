@@ -28,7 +28,6 @@ export default async function Page({ params }: CadastrarPageProps) {
 
     return (
         <section className="min-h-screen">
-            <LogoFundo />
             <MainCadastrar type={type} />
         </section>
     );

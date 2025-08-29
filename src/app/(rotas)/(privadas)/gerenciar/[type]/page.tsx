@@ -20,7 +20,6 @@ const Page = async ({ params }: ProGerenciarPageProps) => {
 
     return (
         <section className="min-h-screen">
-            <LogoFundo />
             <MainGerenciar type={type} />
         </section>
     );

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ButtonCadastro } from "./buttonCadastro";
 import { ReactNode } from "react";
-import { UserType } from "@/app/(rotas)/cadastrar/[type]/page";
+import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 
 type Props = {
     type: UserType;
@@ -20,7 +20,7 @@ export const MainCadastrar = ({ type }: Props) => {
     }
 
     return (
-        <main className="flex flex-col bg-white/50 backdrop-blur justify-center">
+        <main className="flex flex-col justify-center">
             <div className="relative flex bg-primaria h-15 mt-3 items-center sm:h-20">
                 <span className="px-5">
                     <ButtonCadastro text="Voltar" onClick={handleBackButton} />
