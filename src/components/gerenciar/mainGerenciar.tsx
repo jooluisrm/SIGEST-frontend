@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useId } from "react";
+import { ReactNode, useEffect, useId, useState } from "react";
 import { TableGerenciar } from "./tableGerenciar";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { PaginationTable } from "./paginationTable";
@@ -10,6 +10,8 @@ import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { ButtonGerenciar } from "./buttonGerenciar";
 import { ButtonCadastro } from "../cadastrar/buttonCadastro";
 import { useRouter } from "next/navigation";
+import { getProfessores } from "@/api/professor/professorServices";
+import { TypeProfessorCadastro } from "@/types/professor";
 
 type Props = {
     type: UserType;
@@ -17,12 +19,31 @@ type Props = {
 
 export const MainGerenciar = ({ type }: Props) => {
 
+    const [listUsers, setListUsers] = useState<TypeProfessorCadastro[]>([]);
+
     const id = useId();
 
     const router = useRouter();
     const handleBackButton = () => {
         router.back();
     }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            switch (type) {
+                case "professor": {
+                    const data = await getProfessores();
+                    setListUsers(data);
+                    break;
+                }
+                default:
+                    break;
+            }
+        };
+
+        fetchData();
+    }, [type]);
+
 
     return (
         <main className="min-h-screen">
@@ -52,7 +73,7 @@ export const MainGerenciar = ({ type }: Props) => {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <TableGerenciar type={type} />
+                        <TableGerenciar type={type} listUsers={listUsers}/>
                     </CardContent>
                     <CardFooter>
                         <PaginationTable />
