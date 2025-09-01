@@ -12,7 +12,7 @@ export default function RootLayout({
             <HeaderPage />
             <main className="pt-20">
                 <LogoFundo />
-                <div className="bg-white/70 backdrop-blur min-h-screen">
+                <div className="bg-white/70 backdrop-blur min-h-screen pb-20">
                     {children}
                 </div>
             </main>

@@ -20,7 +20,8 @@ type Props = {
 export const MainGerenciar = ({ type }: Props) => {
 
     const [listUsers, setListUsers] = useState<TypeProfessorCadastro[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const id = useId();
 
@@ -37,13 +38,22 @@ export const MainGerenciar = ({ type }: Props) => {
                     try {
                         const data = await getProfessores();
                         setListUsers(data);
+                        setError(null);
                     } catch (error) {
+                        setError("Erro ao carregar professores.");
                         console.log(error);
                     } finally {
                         setLoading(false);
                     }
                     break;
                 }
+                case "aluno": {
+                    break;
+                }
+                case "servidor": {
+                    break;
+                }
+
                 default:
                     break;
             }
@@ -83,6 +93,8 @@ export const MainGerenciar = ({ type }: Props) => {
                     <CardContent>
                         {loading ? (
                             <p className="text-center animate-pulse">Carregando...</p>
+                        ) : error ? (
+                            <p className="text-center text-red-500">{error}</p>
                         ) : (
                             <TableGerenciar type={type} listUsers={listUsers} />
                         )}
