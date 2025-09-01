@@ -12,8 +12,8 @@ export const ItemTable = ({ type, item }: Props) => {
     return (
         <TableRow>
             <TableCell className="font-medium">{item.nome}</TableCell>
-            <TableCell className="hidden md:table-cell">silva@gmail.com</TableCell>
-            <TableCell className="hidden md:table-cell">39 99999-9999</TableCell>
+            <TableCell className="hidden md:table-cell">{item.email}</TableCell>
+            <TableCell className="hidden md:table-cell">{item.telefone}</TableCell>
             <TableCell>
                 <div className="flex items-center justify-end gap-2">
                     <ActionDialog

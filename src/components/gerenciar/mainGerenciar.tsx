@@ -20,6 +20,7 @@ type Props = {
 export const MainGerenciar = ({ type }: Props) => {
 
     const [listUsers, setListUsers] = useState<TypeProfessorCadastro[]>([]);
+    const [loading, setLoading] = useState(false);
 
     const id = useId();
 
@@ -32,8 +33,15 @@ export const MainGerenciar = ({ type }: Props) => {
         const fetchData = async () => {
             switch (type) {
                 case "professor": {
-                    const data = await getProfessores();
-                    setListUsers(data);
+                    setLoading(true);
+                    try {
+                        const data = await getProfessores();
+                        setListUsers(data);
+                    } catch (error) {
+                        console.log(error);
+                    } finally {
+                        setLoading(false);
+                    }
                     break;
                 }
                 default:
@@ -73,7 +81,11 @@ export const MainGerenciar = ({ type }: Props) => {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <TableGerenciar type={type} listUsers={listUsers}/>
+                        {loading ? (
+                            <p className="text-center animate-pulse">Carregando...</p>
+                        ) : (
+                            <TableGerenciar type={type} listUsers={listUsers} />
+                        )}
                     </CardContent>
                     <CardFooter>
                         <PaginationTable />
