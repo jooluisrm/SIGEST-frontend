@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ItemLiDashboard } from "../dashboard/itemLiDashboard";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export const HeaderPage = () => {
 
@@ -32,14 +33,16 @@ export const HeaderPage = () => {
             )}>
                 <div className="container mx-auto px-5 flex justify-between items-center py-2">
                     <div>
-                        <Image
-                            alt="logo sigest"
-                            src={'/assets/sigest-logo-mini.png'}
-                            width={120}
-                            height={120}
-                            className=""
-                            priority={true}
-                        />
+                        <Link href={"/dashboard"}>
+                            <Image
+                                alt="logo sigest"
+                                src={'/assets/sigest-logo-mini.png'}
+                                width={120}
+                                height={120}
+                                priority={true}
+                                className="w-auto h-auto"
+                            />
+                        </Link>
                     </div>
                     <div className="flex items-center gap-4 pt-1">
                         <ItemLiDashboard url="#" type="user" />
