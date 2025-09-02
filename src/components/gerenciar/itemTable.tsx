@@ -3,6 +3,7 @@ import { TableCell, TableRow } from "../ui/table";
 import { ActionDialog } from "./actionDialog";
 import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { AlertDialogComponent } from "../shared/alertComponent";
+import { DropDownMenuCell } from "./dropDownMenuCell";
 
 type Props = {
     type: UserType;
@@ -16,7 +17,12 @@ export const ItemTable = ({ type, item }: Props) => {
             <TableCell className="hidden md:table-cell">{item.email}</TableCell>
             <TableCell className="hidden md:table-cell">{item.telefone}</TableCell>
             <TableCell>
-                <div className="flex items-center justify-end gap-1">
+                <div className="flex lg:hidden items-center justify-end">
+                    <DropDownMenuCell 
+                        type={type}
+                    />
+                </div>
+                <div className="hidden lg:flex items-center justify-end gap-1">
                     <AlertDialogComponent
                         triggerClassName="bg-red-500"
                         triggerIcon="delete"

@@ -18,10 +18,11 @@ type Props = {
     size?: "icon" | "sm" | "lg" | "default" | null | undefined;
     link?: string;
     onClick?: () => void;
+    variant?: "default" | "link" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export const ButtonGerenciar = React.forwardRef<HTMLButtonElement, Props>(
-    ({ className, icon, alt, size, link, onClick }, ref) => {
+    ({ className, icon, alt, size, link, onClick, variant }, ref) => {
 
         const buttonGerenciar = (
             <Tooltip>
@@ -31,6 +32,7 @@ export const ButtonGerenciar = React.forwardRef<HTMLButtonElement, Props>(
                         size={size}
                         className={`${className} transition-opacity hover:opacity-80`}
                         onClick={onClick}
+                        variant={variant}
                     >
                         {icon === "view" && <Eye />}
                         {icon === "edit" && <Edit2 />}
