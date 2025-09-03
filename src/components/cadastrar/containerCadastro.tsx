@@ -15,12 +15,14 @@ import { Cidade, Estado } from "@/types/endereco";
 import { getFormSchema, type CadastroFormValues } from "@/lib/schemas/cadastroSchema";
 import { TypeProfessorCadastro } from "@/types/professor";
 import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
+import { usePageType } from "@/context/pageTypeContext";
 
-type Props = {
-    user: UserType
-};
 
-export const ContainerCadastro = ({ user }: Props) => {
+export const ContainerCadastro = () => {
+
+    const {type: user} = usePageType();
+    if(!user) return;
+
     const schema = getFormSchema(user);
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),

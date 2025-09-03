@@ -4,13 +4,16 @@ import { ActionDialog } from "./actionDialog";
 import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { AlertDialogComponent } from "../shared/alertComponent";
 import { DropDownMenuCell } from "./dropDownMenuCell";
+import { usePageType } from "@/context/pageTypeContext";
 
 type Props = {
-    type: UserType;
     item: TypeProfessorCadastro;
 }
 
-export const ItemTable = ({ type, item }: Props) => {
+export const ItemTable = ({ item }: Props) => {
+
+    const { type } = usePageType();
+
     return (
         <TableRow>
             <TableCell className="font-medium">{item.nome}</TableCell>
@@ -18,9 +21,7 @@ export const ItemTable = ({ type, item }: Props) => {
             <TableCell className="hidden md:table-cell">{item.telefone}</TableCell>
             <TableCell>
                 <div className="flex lg:hidden items-center justify-end">
-                    <DropDownMenuCell 
-                        type={type}
-                    />
+                    <DropDownMenuCell />
                 </div>
                 <div className="hidden lg:flex items-center justify-end gap-1">
                     <AlertDialogComponent

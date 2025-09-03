@@ -11,13 +11,16 @@ import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { ActionDialog } from "./actionDialog";
 import { ItemTable } from "./itemTable";
 import { TypeProfessorCadastro } from "@/types/professor";
+import { PageType, usePageType } from "@/context/pageTypeContext";
 
 type Props = {
-    type: UserType;
     listUsers: TypeProfessorCadastro[];
 }
 
-export const TableGerenciar = ({ type, listUsers }: Props) => {
+export const TableGerenciar = ({ listUsers }: Props) => {
+
+    const { type } = usePageType();
+
     return (
         <Table className="bg-white">
             <TableCaption>Lista de {type}</TableCaption>
@@ -31,7 +34,7 @@ export const TableGerenciar = ({ type, listUsers }: Props) => {
             </TableHeader>
             <TableBody>
                 {listUsers.length > 0 && listUsers.map((item, index) => (
-                    <ItemTable key={index} type={type} item={item}/>
+                    <ItemTable key={index} item={item}/>
                 ))}
             </TableBody>
         </Table>

@@ -8,17 +8,16 @@ import { Input } from "../ui/input";
 import { Search } from "lucide-react";
 import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { ButtonGerenciar } from "./buttonGerenciar";
-import { ButtonCadastro } from "../cadastrar/buttonCadastro";
-import { useRouter } from "next/navigation";
 import { getProfessores } from "@/api/professor/professorServices";
 import { TypeProfessorCadastro } from "@/types/professor";
 import { TitlePage } from "../shared/titlePage";
+import { usePageType } from "@/context/pageTypeContext";
 
-type Props = {
-    type: UserType;
-}
 
-export const MainGerenciar = ({ type }: Props) => {
+
+export const MainGerenciar = () => {
+
+    const { type } = usePageType();
 
     const [listUsers, setListUsers] = useState<TypeProfessorCadastro[]>([]);
     const [loading, setLoading] = useState(true);
@@ -27,31 +26,40 @@ export const MainGerenciar = ({ type }: Props) => {
     const id = useId();
 
     useEffect(() => {
+        if (!type) return;
+
+        setListUsers([]); // limpa a lista ao trocar de tipo
+        setLoading(true);
+        setError(null);
+
         const fetchData = async () => {
-            switch (type) {
-                case "professor": {
-                    setLoading(true);
-                    try {
+            console.log("tipo da pagina:", type);
+
+            try {
+                switch (type) {
+                    case "professor": {
                         const data = await getProfessores();
                         setListUsers(data);
-                        setError(null);
-                    } catch (error) {
-                        setError("Erro ao carregar professores.");
-                        console.log(error);
-                    } finally {
-                        setLoading(false);
+                        break;
                     }
-                    break;
+                    case "aluno": {
+                        // futuramente: getAlunos()
+                        setListUsers([]);
+                        break;
+                    }
+                    case "servidor": {
+                        setListUsers([]);
+                        break;
+                    }
+                    default:
+                        setListUsers([]);
+                        break;
                 }
-                case "aluno": {
-                    break;
-                }
-                case "servidor": {
-                    break;
-                }
-
-                default:
-                    break;
+            } catch (error) {
+                setError("Erro ao carregar dados.");
+                console.error(error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -59,10 +67,11 @@ export const MainGerenciar = ({ type }: Props) => {
     }, [type]);
 
 
+
     return (
         <main className="min-h-screen">
             <div className="container mx-auto px-5 min-h-screen">
-                <TitlePage title="Gerenciar" type={type}/>
+                <TitlePage title="Gerenciar" />
 
                 <Card>
                     <CardHeader className="flex items-center justify-between">
@@ -87,7 +96,7 @@ export const MainGerenciar = ({ type }: Props) => {
                         ) : error ? (
                             <p className="text-center text-red-500">{error}</p>
                         ) : (
-                            <TableGerenciar type={type} listUsers={listUsers} />
+                            <TableGerenciar listUsers={listUsers} />
                         )}
                     </CardContent>
                     <CardFooter>

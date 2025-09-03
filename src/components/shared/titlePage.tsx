@@ -1,16 +1,19 @@
+"use client"
+
 import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { ReactNode } from "react";
 import { ButtonCadastro } from "../cadastrar/buttonCadastro";
 import { useRouter } from "next/navigation";
 import { ButtonBackPage } from "./buttonBackPage";
+import { PageType, usePageType } from "@/context/pageTypeContext";
 
 type Props = {
     title: string
-    type: UserType;
 }
 
 
-export const TitlePage = ({ title, type }: Props) => {
+export const TitlePage = ({ title }: Props) => {
+    const { type } = usePageType();
 
     return (
         <div className="flex items-center justify-start gap-5">

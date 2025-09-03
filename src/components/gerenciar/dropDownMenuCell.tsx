@@ -12,12 +12,13 @@ import { Ellipsis } from "lucide-react";
 import { ActionDialog } from "./actionDialog";
 import { AlertDialogComponent } from "../shared/alertComponent";
 import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
+import { usePageType } from "@/context/pageTypeContext";
 
-type Props = {
-    type: UserType;
-};
 
-export const DropDownMenuCell = ({ type }: Props) => {
+
+export const DropDownMenuCell = () => {
+
+    const { type } = usePageType();
 
     return (
         <DropdownMenu>

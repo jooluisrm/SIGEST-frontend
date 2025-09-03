@@ -1,5 +1,5 @@
-import { ArrowLeft, CircleArrowLeft } from "lucide-react";
-import { Button } from "../ui/button";
+"use client"
+
 import { ButtonGerenciar } from "../gerenciar/buttonGerenciar";
 import { useRouter } from "next/navigation";
 
