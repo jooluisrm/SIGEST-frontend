@@ -4,11 +4,11 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "../ui/button";
-import { Edit2, Eye, Trash2, UserRoundPlus, View } from "lucide-react";
+import { ArrowLeft, Edit2, Eye, Trash2, UserRoundPlus, View } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-export type ButtonIconType = "view" | "edit" | "delete" | "add";
+export type ButtonIconType = "view" | "edit" | "delete" | "add" | "arrow";
 
 
 type Props = {
@@ -38,6 +38,7 @@ export const ButtonGerenciar = React.forwardRef<HTMLButtonElement, Props>(
                         {icon === "edit" && <Edit2 />}
                         {icon === "delete" && <Trash2 />}
                         {icon === "add" && <UserRoundPlus />}
+                        {icon === "arrow" && <ArrowLeft />}
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>

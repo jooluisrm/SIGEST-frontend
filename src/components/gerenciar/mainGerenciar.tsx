@@ -12,6 +12,7 @@ import { ButtonCadastro } from "../cadastrar/buttonCadastro";
 import { useRouter } from "next/navigation";
 import { getProfessores } from "@/api/professor/professorServices";
 import { TypeProfessorCadastro } from "@/types/professor";
+import { TitlePage } from "../shared/titlePage";
 
 type Props = {
     type: UserType;
@@ -24,11 +25,6 @@ export const MainGerenciar = ({ type }: Props) => {
     const [error, setError] = useState<string | null>(null);
 
     const id = useId();
-
-    const router = useRouter();
-    const handleBackButton = () => {
-        router.back();
-    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -66,12 +62,7 @@ export const MainGerenciar = ({ type }: Props) => {
     return (
         <main className="min-h-screen">
             <div className="container mx-auto px-5 min-h-screen">
-                <div className="flex items-center justify-start gap-5">
-                    <ButtonCadastro text="Voltar" onClick={handleBackButton} />
-                    <h1 className="text-xl sm:text-3xl md:text-4xl py-10">
-                        Gerenciar <span className="font-bold">{type as ReactNode}</span>
-                    </h1>
-                </div>
+                <TitlePage title="Gerenciar" type={type}/>
 
                 <Card>
                     <CardHeader className="flex items-center justify-between">
