@@ -1,7 +1,6 @@
 import { TypeProfessorCadastro } from "@/types/professor";
 import { TableCell, TableRow } from "../ui/table";
 import { ActionDialog } from "./actionDialog";
-import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { AlertDialogComponent } from "../shared/alertComponent";
 import { DropDownMenuCell } from "./dropDownMenuCell";
 import { usePageType } from "@/context/pageTypeContext";

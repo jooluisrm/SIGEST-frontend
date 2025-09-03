@@ -6,7 +6,6 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { PaginationTable } from "./paginationTable";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
-import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { ButtonGerenciar } from "./buttonGerenciar";
 import { getProfessores } from "@/api/professor/professorServices";
 import { TypeProfessorCadastro } from "@/types/professor";

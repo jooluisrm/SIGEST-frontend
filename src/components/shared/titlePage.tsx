@@ -1,6 +1,5 @@
 "use client"
 
-import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { ReactNode } from "react";
 import { ButtonCadastro } from "../cadastrar/buttonCadastro";
 import { useRouter } from "next/navigation";

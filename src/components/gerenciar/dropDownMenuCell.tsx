@@ -11,7 +11,6 @@ import { Button } from "../ui/button";
 import { Ellipsis } from "lucide-react";
 import { ActionDialog } from "./actionDialog";
 import { AlertDialogComponent } from "../shared/alertComponent";
-import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { usePageType } from "@/context/pageTypeContext";
 
 

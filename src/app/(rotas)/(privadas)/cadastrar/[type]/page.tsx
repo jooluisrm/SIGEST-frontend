@@ -1,18 +1,16 @@
 // src/app/(rotas)/cadastrar/[type]/page.tsx
 
 import { MainCadastrar } from "@/components/cadastrar/mainCadastrar";
-import { PageTypeProvider } from "@/context/pageTypeContext";
+import { PageType, PageTypeProvider } from "@/context/pageTypeContext";
 import { notFound } from "next/navigation";
-
-export type UserType = 'aluno' | 'professor' | 'servidor';
 
 // A tipagem correta para o Next.js 15, refletindo que 'params' é uma Promise.
 // Usei um nome único para as props para evitar qualquer conflito.
 type CadastrarPageProps = {
-    params: Promise<{ type: UserType }>;
+    params: Promise<{ type: PageType }>;
 }
 
-const validTypes: UserType[] = ['aluno', 'professor', 'servidor'];
+const validTypes: PageType[] = ['aluno', 'professor', 'servidor'];
 
 export default async function Page({ params }: CadastrarPageProps) {
 

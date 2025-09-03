@@ -7,7 +7,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { ActionDialog } from "./actionDialog";
 import { ItemTable } from "./itemTable";
 import { TypeProfessorCadastro } from "@/types/professor";
