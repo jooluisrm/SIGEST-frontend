@@ -14,7 +14,6 @@ import { useEffect, useState } from "react";
 import { Cidade, Estado } from "@/types/endereco";
 import { getFormSchema, type CadastroFormValues } from "@/lib/schemas/cadastroSchema";
 import { TypeProfessorCadastro } from "@/types/professor";
-import { UserType } from "@/app/(rotas)/(privadas)/cadastrar/[type]/page";
 import { usePageType } from "@/context/pageTypeContext";
 
 
