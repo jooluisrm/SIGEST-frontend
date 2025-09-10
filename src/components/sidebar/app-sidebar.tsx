@@ -9,7 +9,7 @@ import {
 export function AppSidebar() {
     return (
         <aside className="fixed inset-y-0 left-0 bg-background z-100">
-            <Sidebar>
+            <Sidebar variant="sidebar" collapsible="icon">
                 <SidebarHeader>
                     aa
                 </SidebarHeader>

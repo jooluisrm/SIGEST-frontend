@@ -9,7 +9,7 @@ import Link from "next/link";
 import { SidebarTrigger, useSidebar } from "../ui/sidebar";
 
 export const HeaderPage = () => {
-    // Destruturamos 'isMobile' aqui também
+    
     const { open, isMobile } = useSidebar();
     const [scrolled, setScrolled] = useState(false);
 
