@@ -6,33 +6,37 @@ import { ItemLiDashboard } from "../dashboard/itemLiDashboard";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { SidebarTrigger, useSidebar } from "../ui/sidebar";
 
 export const HeaderPage = () => {
-
+    // Destruturamos 'isMobile' aqui também
+    const { open, isMobile } = useSidebar();
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
-            // Define como true se a rolagem for maior que 10 pixels
             setScrolled(window.scrollY > 10);
         };
 
-        // Adiciona o listener de scroll
         window.addEventListener("scroll", handleScroll);
-        handleScroll(); // Define o estado inicial no carregamento
+        handleScroll();
 
-        // Remove o listener quando o componente for desmontado
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50">
+        <header className={cn(
+            "fixed top-0 z-50 transition-all duration-300",
+            // AQUI: A condição agora é (open E !isMobile)
+            (open && !isMobile) ? "md:left-[16rem] md:w-[calc(100%-16rem)]" : "left-0 w-full"
+        )}>
             <Card className={cn(
                 "h-20 rounded-none border-0 border-b p-0 m-0 transition-all duration-300",
                 scrolled ? "border-border bg-background/80 backdrop-blur-sm" : "border-transparent"
             )}>
-                <div className="container mx-auto px-5 flex justify-between items-center py-2">
-                    <div>
+                <div className="container mx-auto px-5 flex justify-between items-center h-full">
+                    <div className="flex items-center gap-4">
+                        <SidebarTrigger />
                         <Link href={"/dashboard"}>
                             <Image
                                 alt="logo sigest"
