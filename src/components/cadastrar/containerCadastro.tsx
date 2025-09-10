@@ -8,17 +8,20 @@ import { Button } from "../ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { CalendarioCadastro } from "../ui/calendarioCadastro";
-import { postCadastrarProfessor, TypeProfessorCadastro } from "@/api/professor/professorServices";
+import { postCadastrarProfessor } from "@/api/professor/professorServices";
 import { IMaskInput } from "react-imask";
 import { useEffect, useState } from "react";
 import { Cidade, Estado } from "@/types/endereco";
 import { getFormSchema, type CadastroFormValues } from "@/lib/schemas/cadastroSchema";
+import { TypeProfessorCadastro } from "@/types/professor";
+import { usePageType } from "@/context/pageTypeContext";
 
-type Props = {
-    user: string
-};
 
-export const ContainerCadastro = ({ user }: Props) => {
+export const ContainerCadastro = () => {
+
+    const {type: user} = usePageType();
+    if(!user) return;
+
     const schema = getFormSchema(user);
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
@@ -122,16 +125,16 @@ export const ContainerCadastro = ({ user }: Props) => {
     }, [estadoSelecionado, form]);
 
     return (
-        <div className="flex justify-center mt-10">
+        <div className=" mt-10">
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex px-5 flex-col mx-1 mb-5 gap-4 w-[100%] md:w-[70%]"
+                    className="flex px-5 flex-col mx-1 mb-5 gap-4 w-[100%] md:w-[100%]"
                     noValidate
                 >
                     <p className="text-lg font-semibold my-2">Informações Pessoais:</p>
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <FormField
                             control={form.control}
                             name="nomeCompleto"
@@ -330,7 +333,7 @@ export const ContainerCadastro = ({ user }: Props) => {
 
                     <p className="text-lg font-semibold my-2">Informações de Contato:</p>
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <FormField
                             control={form.control}
                             name="logradouro"

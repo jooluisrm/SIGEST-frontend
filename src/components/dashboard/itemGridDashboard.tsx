@@ -23,7 +23,7 @@ export const ItemGridDashboard = ({ text, type, bg, link }: Props) => {
     // O conteúdo do item, que é sempre o mesmo
     const itemContent = (
         <div className={`
-            transition-all duration-200 hover:scale-105 hover:-translate-y-2 cursor-pointer pl-10 md:pl-0 z-50 gap-10 md:gap-2
+            transition-all duration-200 hover:scale-105 hover:-translate-y-2 cursor-pointer pl-10 md:pl-0 z-10 gap-10 md:gap-2
             flex items-center w-full h-32 rounded-2xl md:justify-center md:flex-col
             ${bg === 2 ? 'bg-primaria' : 'bg-secundaria1'}
         `}>
