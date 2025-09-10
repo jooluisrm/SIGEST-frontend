@@ -1,0 +1,34 @@
+// src/app/(rotas)/cadastrar/[type]/page.tsx
+
+import { MainCadastrar } from "@/components/cadastrar/mainCadastrar";
+import { PageType, PageTypeProvider } from "@/context/pageTypeContext";
+import { notFound } from "next/navigation";
+
+// A tipagem correta para o Next.js 15, refletindo que 'params' é uma Promise.
+// Usei um nome único para as props para evitar qualquer conflito.
+type CadastrarPageProps = {
+    params: Promise<{ type: PageType }>;
+}
+
+const validTypes: PageType[] = ['aluno', 'professor', 'servidor'];
+
+export default async function Page({ params }: CadastrarPageProps) {
+
+    // AQUI ESTÁ A MUDANÇA FUNDAMENTAL:
+    // Precisamos usar 'await' para resolver a Promise antes de acessar os valores.
+    const resolvedParams = await params;
+    const { type } = resolvedParams;
+
+    // A partir daqui, o resto do código funciona como antes
+    if (!validTypes.includes(type)) {
+        notFound();
+    }
+
+    return (
+        <PageTypeProvider initialType={type}>
+            <section className="min-h-screen">
+                <MainCadastrar />
+            </section>
+        </PageTypeProvider>
+    );
+}

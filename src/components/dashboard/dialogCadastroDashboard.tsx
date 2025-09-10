@@ -14,7 +14,7 @@ export const DialogCadastroDashboard = () => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <ItemGridDashboard text="Cadastro" type="Cadastrar" bg={1}/>
+                <ItemGridDashboard text="Gerenciar" type="Cadastrar" bg={1}/>
             </DialogTrigger>
             <DialogContent className="p-0 m-0 overflow-x-hidden border-0 bg-white/60 backdrop-blur">
                 <DialogHeader className="pb-10">
@@ -28,7 +28,7 @@ export const DialogCadastroDashboard = () => {
                                 className="w-[400px] h-20 -translate-x-2"
                             />
                             <h1 className="absolute top-1/2 left-1/2 -translate-x-[62%] -translate-y-1/2 text-text1 text-xl sm:text-3xl md:text-5xl text-nowrap font-bold">
-                                Cadastrar
+                                Gerenciar
                             </h1>
                         </div>
                     </DialogTitle>
