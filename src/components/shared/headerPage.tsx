@@ -29,12 +29,15 @@ export const HeaderPage = () => {
             "fixed top-0 z-50 transition-all duration-300",
             // AQUI: A condição agora é (open E !isMobile)
             (open && !isMobile) ? "md:left-[16rem] md:w-[calc(100%-16rem)]" : "left-0 w-full"
+            
         )}>
             <Card className={cn(
                 "h-20 rounded-none border-0 border-b p-0 m-0 transition-all duration-300",
                 scrolled ? "border-border bg-background/80 backdrop-blur-sm" : "border-transparent"
             )}>
-                <div className="container mx-auto px-5 flex justify-between items-center h-full">
+                <div className={`container mx-auto px-5 flex justify-between items-center h-full
+                        ${!open && !isMobile && "md:px-[3rem]"}
+                    `}>
                     <div className="flex items-center gap-4">
                         <SidebarTrigger />
                         <Link href={"/dashboard"}>

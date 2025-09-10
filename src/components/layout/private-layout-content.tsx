@@ -1,3 +1,5 @@
+// components/layout/private-layout-content.tsx
+
 "use client"
 
 import { useSidebar } from "../ui/sidebar";
@@ -12,22 +14,24 @@ type Props = {
 }
 
 export const PrivateLayoutContent = ({ children }: Props) => {
-    // Agora sim, o hook é chamado DENTRO de um componente filho do Provider
     const { open, isMobile } = useSidebar();
 
     return (
         <div
             className={cn(
                 "min-h-screen w-full transition-all duration-300",
-                // A lógica de classe continua aqui, funcionando perfeitamente
-                open && !isMobile && "md:pl-[16rem]"
+                // Se estiver aberto E for desktop, padding de 16rem
+                open && !isMobile && "md:pl-[16rem]",
+                // Se estiver fechado E for desktop, padding de 3rem (largura do ícone)
+                !open && !isMobile && "md:pl-[3rem]"
             )}
         >
             <AppSidebar />
             <HeaderPage />
             <main className="pt-20">
                 <LogoFundo />
-                <div className="bg-white/70 backdrop-blur min-h-screen pb-20">
+                {/* REMOVIDO: A classe de padding condicional daqui */}
+                <div className="bg-white/70 min-h-screen pb-20">
                     <PageTypeProvider>{children}</PageTypeProvider>
                 </div>
             </main>
