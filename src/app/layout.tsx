@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner"
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -18,7 +20,7 @@ export const metadata: Metadata = {
     description: "Sistema de Gestão Escolar",
     icons: {
         icon: [
-            { url: "/assets/favicon.ico" }, 
+            { url: "/assets/favicon.ico" },
         ],
         apple: "/assets/apple-touch-icon.png",
     },
@@ -31,13 +33,16 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html 
-        lang="pt-BR"
-        suppressHydrationWarning
+        <html
+            lang="pt-BR"
+            suppressHydrationWarning
         >
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-                {children}
-                <Toaster />
+                <SidebarProvider>
+                    <AppSidebar />
+                    {children}
+                    <Toaster />
+                </SidebarProvider>
             </body>
         </html>
     );
