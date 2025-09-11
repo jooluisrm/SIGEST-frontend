@@ -1,20 +1,23 @@
 "use client";
 
+import { PageTypeCentral } from "@/types/routerType";
 import { createContext, useContext, useState, ReactNode } from "react";
 
-// Tipos válidos da sua aplicação (pode expandir futuramente)
-export type PageType = "aluno" | "professor" | "servidor";
-
 type PageTypeContextProps = {
-  type: PageType | null;
-  setType: (type: PageType) => void;
+  type: PageTypeCentral | null;
+  setType: (type: PageTypeCentral) => void;
 };
 
 const PageTypeContext = createContext<PageTypeContextProps | undefined>(undefined);
 
-// context/PageTypeContext.tsx
-export const PageTypeProvider = ({ children, initialType }: { children: ReactNode, initialType?: PageType }) => {
-  const [type, setType] = useState<PageType | null>(initialType ?? null);
+export const PageTypeProvider = ({
+  children,
+  initialType,
+}: {
+  children: ReactNode;
+  initialType?: PageTypeCentral;
+}) => {
+  const [type, setType] = useState<PageTypeCentral | null>(initialType ?? null);
 
   return (
     <PageTypeContext.Provider value={{ type, setType }}>
@@ -23,7 +26,6 @@ export const PageTypeProvider = ({ children, initialType }: { children: ReactNod
   );
 };
 
-
 export const usePageType = () => {
   const context = useContext(PageTypeContext);
   if (!context) {
@@ -31,4 +33,3 @@ export const usePageType = () => {
   }
   return context;
 };
-
