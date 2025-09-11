@@ -5,523 +5,541 @@ import { InputCadastro } from "./inputCadastro";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { CalendarioCadastro } from "../ui/calendarioCadastro";
 import { postCadastrarProfessor } from "@/api/professor/professorServices";
 import { IMaskInput } from "react-imask";
 import { useEffect, useState } from "react";
 import { Cidade, Estado } from "@/types/endereco";
-import { getFormSchema, type CadastroFormValues } from "@/lib/schemas/cadastroSchema";
+import {
+  getFormSchema,
+  type CadastroFormValues,
+} from "@/lib/schemas/cadastroSchema";
 import { TypeProfessorCadastro } from "@/types/professor";
 import { usePageType } from "@/context/pageTypeContext";
 import { useIBGE } from "@/hooks/use-ibge";
 
-
 export const ContainerCadastro = () => {
+  const { type: user } = usePageType();
+  if (!user) return;
 
-    const { type: user } = usePageType();
-    if (!user) return;
+  const schema = getFormSchema(user);
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      nomeCompleto: "",
+      dataNascimento: undefined,
+      cpf: "",
+      rg: "",
+      genero: "",
+      nomeDoPai: "",
+      nomeDaMae: "",
+      possuiDeficiencia: "nao",
+      qualDeficiencia: "",
+      logradouro: "",
+      numero: "",
+      bairro: "",
+      complemento: "",
+      cidade: "",
+      estado: "",
+      telefone: "",
+      celular: "",
+      email: "",
+      matriculaAdpm: user === "professor" ? "" : "",
+    },
+  });
 
-    const schema = getFormSchema(user);
-    const form = useForm<z.infer<typeof schema>>({
-        resolver: zodResolver(schema),
-        defaultValues: {
-            nomeCompleto: "",
-            dataNascimento: undefined,
-            cpf: "",
-            rg: "",
-            genero: "",
-            nomeDoPai: "",
-            nomeDaMae: "",
-            possuiDeficiencia: "nao",
-            qualDeficiencia: "",
-            logradouro: "",
-            numero: "",
-            bairro: "",
-            complemento: "",
-            cidade: "",
-            estado: "",
-            telefone: "",
-            celular: "",
-            email: "",
-            matriculaAdpm: user === "professor" ? "" : "",
-        },
-    });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const onSubmit = async (data: z.infer<typeof schema>) => {
+    if (user === "professor") {
+      setIsSubmitting(true);
+      const dataToSend: TypeProfessorCadastro = {
+        nome: data.nomeCompleto,
+        data_nascimento: new Date(data.dataNascimento)
+          .toISOString()
+          .split("T")[0],
+        cpf: data.cpf,
+        rg: data.rg,
+        genero: data.genero,
+        nome_pai: data.nomeDoPai,
+        nome_mae: data.nomeDaMae,
+        deficiencia:
+          data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "",
+        logradouro: data.logradouro,
+        numero: data.numero,
+        bairro: data.bairro,
+        complemento: data.complemento,
+        cidade: data.cidade,
+        estado: data.estado,
+        telefone: data.telefone,
+        celular: data.celular,
+        email: data.email,
+        matricula_adpm: data.matriculaAdpm,
+      };
 
-    const onSubmit = async (data: z.infer<typeof schema>) => {
-        if (user === "professor") {
-            setIsSubmitting(true);
-            const dataToSend: TypeProfessorCadastro = {
-                nome: data.nomeCompleto,
-                data_nascimento: new Date(data.dataNascimento).toISOString().split('T')[0],
-                cpf: data.cpf,
-                rg: data.rg,
-                genero: data.genero,
-                nome_pai: data.nomeDoPai,
-                nome_mae: data.nomeDaMae,
-                deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "",
-                logradouro: data.logradouro,
-                numero: data.numero,
-                bairro: data.bairro,
-                complemento: data.complemento,
-                cidade: data.cidade,
-                estado: data.estado,
-                telefone: data.telefone,
-                celular: data.celular,
-                email: data.email,
-                matricula_adpm: data.matriculaAdpm,
-            };
+      try {
+        await postCadastrarProfessor(dataToSend);
+        console.log("Dados enviados:", dataToSend);
+      } catch (error: any) {
+        console.log(error.message);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
 
-            try {
-                await postCadastrarProfessor(dataToSend);
-                console.log("Dados enviados:", dataToSend);
-            } catch (error: any) {
-                console.log(error.message);
-            } finally {
-                setIsSubmitting(false);
-            }
-        }
-    };
+  const possuiDeficiencia = form.watch("possuiDeficiencia");
 
-    const possuiDeficiencia = form.watch("possuiDeficiencia");
+  const estadoSelecionado = form.watch("estado");
+  const { states, cities, loadingStates, loadingCities } =
+    useIBGE(estadoSelecionado);
 
-    //hook para selecionar o estado/cidade
-    const estadoSelecionado = form.watch("estado");
-    const { states, cities, loadingStates, loadingCities } = useIBGE(estadoSelecionado);
+  return (
+    <div className=" mt-10">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex px-5 flex-col mx-1 mb-5 gap-4 w-[100%] md:w-[100%]"
+          noValidate
+        >
+          <p className="text-lg font-semibold my-2">Informações Pessoais:</p>
 
-    return (
-        <div className=" mt-10">
-            <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex px-5 flex-col mx-1 mb-5 gap-4 w-[100%] md:w-[100%]"
-                    noValidate
-                >
-                    <p className="text-lg font-semibold my-2">Informações Pessoais:</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="nomeCompleto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome Completo</FormLabel>
+                  <FormControl>
+                    <InputCadastro type="text" inputStyle="form" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="nomeCompleto"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Nome Completo</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="text" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+            <FormField
+              control={form.control}
+              name="dataNascimento"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data de Nascimento</FormLabel>
+                  <FormControl>
+                    <CalendarioCadastro
+                      value={field.value as Date}
+                      onValueChange={field.onChange}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1940-01-01")
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="cpf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CPF</FormLabel>
+                  <FormControl>
+                    <IMaskInput
+                      mask="000.000.000-00"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      inputRef={field.ref}
+                      unmask={true}
+                      onAccept={(value) => field.onChange(value)}
+                      placeholder="000.000.000-00"
+                      className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="rg"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>RG</FormLabel>
+                  <FormControl>
+                    <IMaskInput
+                      mask="00.000.000-a"
+                      definitions={{
+                        a: /[0-9a-zA-Z]/,
+                      }}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      inputRef={field.ref}
+                      unmask={true}
+                      onAccept={(value) => field.onChange(value)}
+                      placeholder="00.000.000-0"
+                      className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="genero"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gênero</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um gênero" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="masculino">Masculino</SelectItem>
+                      <SelectItem value="feminino">Feminino</SelectItem>
+                      <SelectItem value="outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nomeDoPai"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome do Pai</FormLabel>
+                  <FormControl>
+                    <InputCadastro type="text" inputStyle="form" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nomeDaMae"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome da Mãe</FormLabel>
+                  <FormControl>
+                    <InputCadastro type="text" inputStyle="form" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="possuiDeficiencia"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Possui alguma deficiência?</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      if (value === "nao") {
+                        form.setValue("qualDeficiencia", "", {
+                          shouldValidate: true,
+                        });
+                      }
+                    }}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="sim">Sim</SelectItem>
+                      <SelectItem value="nao">Não</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {possuiDeficiencia === "sim" && (
+              <FormField
+                control={form.control}
+                name="qualDeficiencia"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Qual deficiência?</FormLabel>
+                    <FormControl>
+                      <InputCadastro type="text" inputStyle="form" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
+
+          <p className="text-lg font-semibold my-2">Informações de Contato:</p>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="logradouro"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Logradouro</FormLabel>
+                  <FormControl>
+                    <InputCadastro type="text" inputStyle="form" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="numero"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Número</FormLabel>
+                  <FormControl>
+                    <InputCadastro type="text" inputStyle="form" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="bairro"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bairro</FormLabel>
+                  <FormControl>
+                    <InputCadastro type="text" inputStyle="form" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="complemento"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Complemento</FormLabel>
+                  <FormControl>
+                    <InputCadastro type="text" inputStyle="form" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="estado"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Estado</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={`${
+                            !loadingStates
+                              ? "Selecione o estado"
+                              : "Carregando..."
+                          }`}
                         />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {states.map((estado) => (
+                        <SelectItem key={estado.id} value={estado.sigla}>
+                          {estado.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                        <FormField
-                            control={form.control}
-                            name="dataNascimento"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Data de Nascimento</FormLabel>
-                                    <FormControl>
-                                        <CalendarioCadastro
-                                            value={field.value as Date}
-                                            onValueChange={field.onChange}
-                                            disabled={(date) =>
-                                                date > new Date() || date < new Date("1940-01-01")
-                                            }
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+            <FormField
+              control={form.control}
+              name="cidade"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cidade</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={!estadoSelecionado || loadingCities}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            !loadingCities
+                              ? estadoSelecionado
+                                ? "Selecione a cidade"
+                                : "Primeiro, selecione um estado"
+                              : "Carregando..."
+                          }
                         />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {cities.map((cidade) => (
+                        <SelectItem key={cidade.id} value={cidade.nome}>
+                          {cidade.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                        <FormField
-                            control={form.control}
-                            name="cpf"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>CPF</FormLabel>
-                                    <FormControl>
-                                        <IMaskInput
-                                            mask="000.000.000-00"
-                                            // passe todas as props do field para o input
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            onBlur={field.onBlur}
-                                            name={field.name}
-                                            inputRef={field.ref} // ref do react-hook-form
-                                            // Prop importante: envia apenas os números
-                                            unmask={true}
-                                            // onAccept é mais seguro para RHF com unmask
-                                            onAccept={(value) => field.onChange(value)}
-                                            placeholder="000.000.000-00"
-                                            // Adicione as classes do seu input para manter o estilo
-                                            className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+            <FormField
+              control={form.control}
+              name="telefone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone</FormLabel>
+                  <FormControl>
+                    <IMaskInput
+                      mask={[
+                        { mask: "(00) 0000-0000" },
+                        { mask: "(00) 00000-0000" },
+                      ]}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      inputRef={field.ref}
+                      unmask={true}
+                      onAccept={(value) => field.onChange(value)}
+                      placeholder="(99) 9999-9999"
+                      className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                        <FormField
-                            control={form.control}
-                            name="rg"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>RG</FormLabel>
-                                    <FormControl>
-                                        <IMaskInput
-                                            // Máscara para RG (Ex: padrão SP com dígito alfanumérico)
-                                            mask="00.000.000-a"
-                                            definitions={{
-                                                'a': /[0-9a-zA-Z]/ // O último dígito pode ser letra ou número
-                                            }}
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            onBlur={field.onBlur}
-                                            name={field.name}
-                                            inputRef={field.ref}
-                                            unmask={true}
-                                            onAccept={(value) => field.onChange(value)}
-                                            placeholder="00.000.000-0"
-                                            className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+            <FormField
+              control={form.control}
+              name="celular"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Celular</FormLabel>
+                  <FormControl>
+                    <IMaskInput
+                      mask="(00) 00000-0000"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      inputRef={field.ref}
+                      unmask={true}
+                      onAccept={(value) => field.onChange(value)}
+                      placeholder="(99) 99999-9999"
+                      className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                        <FormField
-                            control={form.control}
-                            name="genero"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Gênero</FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                        value={field.value}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecione um gênero" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="masculino">Masculino</SelectItem>
-                                            <SelectItem value="feminino">Feminino</SelectItem>
-                                            <SelectItem value="outro">Outro</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail</FormLabel>
+                  <FormControl>
+                    <InputCadastro type="email" inputStyle="form" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-                        <FormField
-                            control={form.control}
-                            name="nomeDoPai"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Nome do Pai</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="text" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+          {user === "professor" && (
+            <>
+              <p className="text-lg font-semibold my-2">
+                Informação Profissional:
+              </p>
+              <FormField
+                control={form.control}
+                name="matriculaAdpm"
+                render={({ field }) => (
+                  <FormItem className="w-1/4">
+                    <FormLabel>Matrícula ADPM</FormLabel>
+                    <FormControl>
+                      <InputCadastro type="text" inputStyle="form" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
 
-                        <FormField
-                            control={form.control}
-                            name="nomeDaMae"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Nome da Mãe</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="text" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="possuiDeficiencia"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Possui alguma deficiência?</FormLabel>
-                                    <Select
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                            if (value === "nao") {
-                                                form.setValue("qualDeficiencia", "", {
-                                                    shouldValidate: true,
-                                                });
-                                            }
-                                        }}
-                                        defaultValue={field.value}
-                                        value={field.value}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecione" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="sim">Sim</SelectItem>
-                                            <SelectItem value="nao">Não</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        {possuiDeficiencia === "sim" && (
-                            <FormField
-                                control={form.control}
-                                name="qualDeficiencia"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Qual deficiência?</FormLabel>
-                                        <FormControl>
-                                            <InputCadastro camp="text" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        )}
-                    </div>
-
-                    <p className="text-lg font-semibold my-2">Informações de Contato:</p>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="logradouro"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Logradouro</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="text" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="numero"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Número</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="text" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="bairro"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Bairro</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="text" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="complemento"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Complemento</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="text" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="estado"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Estado</FormLabel>
-                                    {/* O Select do shadcn/ui entra aqui */}
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder={`${!loadingStates ? "Selecione o estado" : "Carregando..."}`} />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {/* Aqui nós mapeamos a lista de estados que buscamos na API */}
-                                            {states.map((estado) => (
-                                                <SelectItem key={estado.id} value={estado.sigla}>
-                                                    {estado.nome}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="cidade"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Cidade</FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value} // Usamos 'value' aqui para o RHF controlar o valor
-                                        // Desabilita o campo se nenhum estado foi selecionado
-                                        disabled={!estadoSelecionado || loadingCities}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue
-                                                    placeholder={
-                                                        !loadingCities ? (estadoSelecionado
-                                                            ? "Selecione a cidade"
-                                                            : "Primeiro, selecione um estado") : "Carregando..."
-                                                    }
-                                                />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {/* Mapeamos a lista de cidades do estado selecionado */}
-                                            {cities.map((cidade) => (
-                                                <SelectItem key={cidade.id} value={cidade.nome}>
-                                                    {cidade.nome}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="telefone"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Telefone</FormLabel>
-                                    <FormControl>
-                                        <IMaskInput
-                                            // Máscara dinâmica!
-                                            mask={[
-                                                { mask: '(00) 0000-0000' },  // Fixo
-                                                { mask: '(00) 00000-0000' } // Celular
-                                            ]}
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            onBlur={field.onBlur}
-                                            name={field.name}
-                                            inputRef={field.ref}
-                                            unmask={true}
-                                            onAccept={(value) => field.onChange(value)}
-                                            placeholder="(99) 9999-9999"
-                                            className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="celular"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Celular</FormLabel>
-                                    <FormControl>
-                                        <IMaskInput
-                                            mask="(00) 00000-0000" // Máscara para celular com 9º dígito
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            onBlur={field.onBlur}
-                                            name={field.name}
-                                            inputRef={field.ref}
-                                            unmask={true}
-                                            onAccept={(value) => field.onChange(value)}
-                                            placeholder="(99) 99999-9999"
-                                            className="rounded-2xl bg-primaria text-text1 border-0 placeholder:text-text1 h-12 px-4 appearance-none"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>E-mail</FormLabel>
-                                    <FormControl>
-                                        <InputCadastro camp="email" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    {user === "professor" && (
-                        <>
-                            <p className="text-lg font-semibold my-2">
-                                Informação Profissional:
-                            </p>
-                            <FormField
-                                control={form.control}
-                                name="matriculaAdpm"
-                                render={({ field }) => (
-                                    <FormItem className="w-1/4">
-                                        <FormLabel>Matrícula ADPM</FormLabel>
-                                        <FormControl>
-                                            <InputCadastro camp="text" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </>
-                    )}
-
-                    <Button
-                        type="submit"
-                        variant={"default"}
-                        className="rounded-2xl text-white bg-secundaria h-14 w-25 mt-5 cursor-pointer hover:bg-secundaria hover:opacity-75"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? "Enviando..." : "Cadastrar"}
-                    </Button>
-                </form>
-            </Form>
-        </div>
-    );
+          <Button
+            type="submit"
+            variant={"default"}
+            className="rounded-2xl text-white bg-secundaria h-14 w-25 mt-5 cursor-pointer hover:bg-secundaria hover:opacity-75"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Enviando..." : "Cadastrar"}
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
 };
