@@ -15,12 +15,13 @@ import { Cidade, Estado } from "@/types/endereco";
 import { getFormSchema, type CadastroFormValues } from "@/lib/schemas/cadastroSchema";
 import { TypeProfessorCadastro } from "@/types/professor";
 import { usePageType } from "@/context/pageTypeContext";
+import { useIBGE } from "@/hooks/use-ibge";
 
 
 export const ContainerCadastro = () => {
 
-    const {type: user} = usePageType();
-    if(!user) return;
+    const { type: user } = usePageType();
+    if (!user) return;
 
     const schema = getFormSchema(user);
     const form = useForm<z.infer<typeof schema>>({
@@ -86,43 +87,10 @@ export const ContainerCadastro = () => {
     };
 
     const possuiDeficiencia = form.watch("possuiDeficiencia");
-    
-    const [loadingEstado, setLoadingEstado] = useState(false);
-    const [loadingCidade, setLoadingCidade] = useState(false);
-    const [estados, setEstados] = useState<Estado[]>([]);
-    const [cidades, setCidades] = useState<Cidade[]>([]);
 
-    useEffect(() => {
-        setLoadingEstado(true);
-        const url = "https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome";
-
-        fetch(url)
-            .then((res) => res.json())
-            .then((data) => {
-                setEstados(data); // Guarda a lista recebida no nosso estado
-            }).finally(() => setLoadingEstado(false));
-    }, []);
-
-    const estadoSelecionado: string = form.watch("estado");
-
-    useEffect(() => {
-        if (!estadoSelecionado) {
-            return;
-        }
-
-        setLoadingCidade(true);
-        form.setValue("cidade", "");
-
-        const url = `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoSelecionado}/municipios`;
-
-        fetch(url)
-            .then((res) => res.json())
-            .then((data) => {
-                setCidades(data);
-            })
-            .catch(error => console.error("Falha ao buscar cidades:", error))
-            .finally(() => setLoadingCidade(false));
-    }, [estadoSelecionado, form]);
+    //hook para selecionar o estado/cidade
+    const estadoSelecionado = form.watch("estado");
+    const { states, cities, loadingStates, loadingCities } = useIBGE(estadoSelecionado);
 
     return (
         <div className=" mt-10">
@@ -400,12 +368,12 @@ export const ContainerCadastro = () => {
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder={`${!loadingEstado ? "Selecione o estado" : "Carregando..."}`} />
+                                                <SelectValue placeholder={`${!loadingStates ? "Selecione o estado" : "Carregando..."}`} />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             {/* Aqui nós mapeamos a lista de estados que buscamos na API */}
-                                            {estados.map((estado) => (
+                                            {states.map((estado) => (
                                                 <SelectItem key={estado.id} value={estado.sigla}>
                                                     {estado.nome}
                                                 </SelectItem>
@@ -427,13 +395,13 @@ export const ContainerCadastro = () => {
                                         onValueChange={field.onChange}
                                         value={field.value} // Usamos 'value' aqui para o RHF controlar o valor
                                         // Desabilita o campo se nenhum estado foi selecionado
-                                        disabled={!estadoSelecionado || loadingCidade}
+                                        disabled={!estadoSelecionado || loadingCities}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue
                                                     placeholder={
-                                                        !loadingCidade ? (estadoSelecionado
+                                                        !loadingCities ? (estadoSelecionado
                                                             ? "Selecione a cidade"
                                                             : "Primeiro, selecione um estado") : "Carregando..."
                                                     }
@@ -442,7 +410,7 @@ export const ContainerCadastro = () => {
                                         </FormControl>
                                         <SelectContent>
                                             {/* Mapeamos a lista de cidades do estado selecionado */}
-                                            {cidades.map((cidade) => (
+                                            {cities.map((cidade) => (
                                                 <SelectItem key={cidade.id} value={cidade.nome}>
                                                     {cidade.nome}
                                                 </SelectItem>
