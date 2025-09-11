@@ -1,12 +1,13 @@
 import { MainGerenciar } from "@/components/gerenciar/mainGerenciar";
-import { PageType, PageTypeProvider } from "@/context/pageTypeContext";
+import { PageTypeProvider } from "@/context/pageTypeContext";
+import { PageTypeCentral, ROUTE_TYPES } from "@/types/routerType";
 import { notFound } from "next/navigation";
 
 type ProGerenciarPageProps = {
-  params: Promise<{ type: PageType }>;
+  params: Promise<{ type: PageTypeCentral }>;
 };
 
-const validTypes: PageType[] = ["aluno", "professor", "servidor"];
+const validTypes = ROUTE_TYPES;
 
 const Page = async ({ params }: ProGerenciarPageProps) => {
   const resolvedParams = await params;
