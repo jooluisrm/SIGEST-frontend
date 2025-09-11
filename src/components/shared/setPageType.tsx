@@ -1,10 +1,11 @@
 "use client";
 
-import { PageType, usePageType } from "@/context/pageTypeContext";
+import { usePageType } from "@/context/pageTypeContext";
+import { PageTypeCentral } from "@/types/routerType";
 import { useEffect } from "react";
 
 type Props = {
-    type: PageType;
+    type: PageTypeCentral;
 }
 
 export const SetPageType = ({ type }: Props) => {

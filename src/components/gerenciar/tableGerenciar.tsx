@@ -10,7 +10,7 @@ import {
 import { ActionDialog } from "./actionDialog";
 import { ItemTable } from "./itemTable";
 import { TypeProfessorCadastro } from "@/types/professor";
-import { PageType, usePageType } from "@/context/pageTypeContext";
+import { usePageType } from "@/context/pageTypeContext";
 
 type Props = {
     listUsers: TypeProfessorCadastro[];

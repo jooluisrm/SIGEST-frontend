@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { ButtonCadastro } from "../cadastrar/buttonCadastro";
 import { useRouter } from "next/navigation";
 import { ButtonBackPage } from "./buttonBackPage";
-import { PageType, usePageType } from "@/context/pageTypeContext";
+import { usePageType } from "@/context/pageTypeContext";
 
 type Props = {
     title: string
