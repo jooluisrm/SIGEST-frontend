@@ -15,10 +15,11 @@ import {
 type CalendarioCadastroProps = {
     value: Date;
     onValueChange: (date?: Date) => void;
+    label?: string;
     disabled?: (date: Date) => boolean;
 }
 
-export function CalendarioCadastro({ value, onValueChange, disabled }: CalendarioCadastroProps) {
+export function CalendarioCadastro({ value, onValueChange, disabled, label }: CalendarioCadastroProps) {
     const [open, setOpen] = React.useState(false);
 
     return (

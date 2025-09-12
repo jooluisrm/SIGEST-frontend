@@ -1,15 +1,15 @@
 // src/lib/schemas/cadastroSchema.ts
 
+import { PageTypeCentral } from "@/types/routerType";
 import { z } from "zod";
 
 // IMPORTANTE: Você precisa definir ou importar o tipo para o 'user'.
 // Se o tipo 'Props' está no seu componente, você pode exportá-lo de lá
 // ou, melhor ainda, criar um arquivo de tipos centralizado.
 // Exemplo:
-type UserType = string;
 
 // Sua função, agora com 'export' e usando o UserType
-export const getFormSchema = (user: UserType) =>
+export const cadastroProfessorSchema = (user: PageTypeCentral) =>
     z
         .object({
             nomeCompleto: z
@@ -87,4 +87,4 @@ export const getFormSchema = (user: UserType) =>
 
 // Também é uma boa prática exportar o tipo inferido, se necessário em outros lugares.
 // Para isso, criamos uma versão base do schema e inferimos o tipo dela.
-export type CadastroFormValues = z.infer<ReturnType<typeof getFormSchema>>;
+export type CadastroFormValues = z.infer<ReturnType<typeof cadastroProfessorSchema>>;
