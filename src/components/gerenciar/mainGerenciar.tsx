@@ -16,14 +16,14 @@ import { Loader2Spin } from "../shared/loader2Spin";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 // colocar um type generico para a state
-type GenericUser = any;
+type GenericData = any;
 
 export const MainGerenciar = () => {
 
     const { type } = usePageType();
 
     // hook que faz a chamada GET (aluno, professor...)
-    const { data: listUsers, loading, error } = useGerenciarData<GenericUser>(type);
+    const { data, loading, error } = useGerenciarData<GenericData>(type);
 
     const id = useId();
 
@@ -60,7 +60,7 @@ export const MainGerenciar = () => {
                                 <AlertTitle>Não foi possível carregar os dados</AlertTitle>
                             </Alert>
                         ) : (
-                            <TableGerenciar listUsers={listUsers} />
+                            <TableGerenciar dataList={data} />
                         )}
                     </CardContent>
                     <CardFooter>
