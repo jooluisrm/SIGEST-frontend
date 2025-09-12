@@ -5,65 +5,27 @@ import { TableGerenciar } from "./tableGerenciar";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { PaginationTable } from "./paginationTable";
 import { Input } from "../ui/input";
-import { Search } from "lucide-react";
+import { AlertCircleIcon, Loader2, Search, Terminal } from "lucide-react";
 import { ButtonGerenciar } from "./buttonGerenciar";
 import { getProfessores } from "@/api/professor/professorServices";
 import { TypeProfessorCadastro } from "@/types/professor";
 import { TitlePage } from "../shared/titlePage";
 import { usePageType } from "@/context/pageTypeContext";
+import { useGerenciarData } from "@/hooks/use-gerenciar-data";
+import { Loader2Spin } from "../shared/loader2Spin";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-
+// colocar um type generico para a state
+type GenericUser = any;
 
 export const MainGerenciar = () => {
 
     const { type } = usePageType();
 
-    const [listUsers, setListUsers] = useState<TypeProfessorCadastro[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    // hook que faz a chamada GET (aluno, professor...)
+    const { data: listUsers, loading, error } = useGerenciarData<GenericUser>(type);
 
     const id = useId();
-
-    useEffect(() => {
-        if (!type) return;
-
-        setListUsers([]); // limpa a lista ao trocar de tipo
-        setLoading(true);
-        setError(null);
-
-        const fetchData = async () => {
-            console.log("tipo da pagina:", type);
-
-            try {
-                switch (type) {
-                    case "professor": {
-                        const data = await getProfessores();
-                        setListUsers(data);
-                        break;
-                    }
-                    case "aluno": {
-                        // futuramente: getAlunos()
-                        setListUsers([]);
-                        break;
-                    }
-                    case "servidor": {
-                        setListUsers([]);
-                        break;
-                    }
-                    default:
-                        setListUsers([]);
-                        break;
-                }
-            } catch (error) {
-                setError("Erro ao carregar dados.");
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [type]);
 
 
 
@@ -91,9 +53,12 @@ export const MainGerenciar = () => {
                     </CardHeader>
                     <CardContent>
                         {loading ? (
-                            <p className="text-center animate-pulse">Carregando...</p>
+                            <Loader2Spin />
                         ) : error ? (
-                            <p className="text-center text-red-500">{error}</p>
+                            <Alert variant="destructive">
+                                <AlertCircleIcon />
+                                <AlertTitle>Não foi possível carregar os dados</AlertTitle>
+                            </Alert>
                         ) : (
                             <TableGerenciar listUsers={listUsers} />
                         )}
