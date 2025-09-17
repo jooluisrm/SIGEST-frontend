@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/dialog"
 import { ItemGridDashboard } from "./itemGridDashboard";
 import Image from "next/image";
-import { DialogGridCadastroDashboard } from "./dialogGridCadastroDashboard";
+import { DialogGridGerenciarDashboard } from "./dialogGridGerenciarDashboard";
 
-export const DialogCadastroDashboard = () => {
+export const DialogGerenciarDashboard = () => {
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -36,7 +36,7 @@ export const DialogCadastroDashboard = () => {
                         Selecione uma das opções para Gerenciar.
                     </DialogDescription>
                 </DialogHeader>
-                <DialogGridCadastroDashboard />
+                <DialogGridGerenciarDashboard />
             </DialogContent>
         </Dialog>
     );
