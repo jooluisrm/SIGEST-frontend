@@ -40,16 +40,8 @@ export const HeaderPage = () => {
                     `}>
                     <div className="flex items-center gap-4">
                         <SidebarTrigger />
-                        <Link href={"/dashboard"}>
-                            <Image
-                                alt="logo sigest"
-                                src={'/assets/sigest-logo-mini.png'}
-                                width={120}
-                                height={120}
-                                priority={true}
-                                className="w-auto h-auto"
-                            />
-                        </Link>
+                        
+
                     </div>
                     <div className="flex items-center gap-4 pt-1">
                         <ItemLiDashboard url="#" type="user" />
