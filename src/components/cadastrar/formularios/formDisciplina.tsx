@@ -78,7 +78,7 @@ export const FormDisciplina = () => {
                             placeholder="Selecione uma área de conhecimento"
                         />
                     </div>
-                    <div className="flex gap-4 mt-20">
+                    <div className="flex flex-col gap-2 md:flex-row md:gap-4 mt-20">
                         <Button disabled={isSubmitting} className="bg-secundaria font-bold">
                             {isSubmitting ? "Enviando..." : "Salvar Disciplina"}
                         </Button>
