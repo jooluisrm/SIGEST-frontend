@@ -23,7 +23,7 @@ import { TitleForm } from "./formComponents/titleForm";
 
 export const FormProfessor = () => {
     const { type: user } = usePageType();
-    if (!user) return null;
+    if (user !== "professor" ) return null;
 
     const schema = cadastroProfessorSchema(user);
     const form = useForm<z.infer<typeof schema>>({
@@ -101,7 +101,7 @@ export const FormProfessor = () => {
     }, [possuiDeficiencia, form]);
 
     return (
-        <div className="mt-10">
+        <div>
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
