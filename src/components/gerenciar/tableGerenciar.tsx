@@ -13,10 +13,10 @@ import { TypeProfessorCadastro } from "@/types/professor";
 import { usePageType } from "@/context/pageTypeContext";
 
 type Props = {
-    listUsers: TypeProfessorCadastro[];
+    dataList: TypeProfessorCadastro[];
 }
 
-export const TableGerenciar = ({ listUsers }: Props) => {
+export const TableGerenciar = ({ dataList }: Props) => {
 
     const { type } = usePageType();
 
@@ -32,7 +32,7 @@ export const TableGerenciar = ({ listUsers }: Props) => {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {listUsers.length > 0 && listUsers.map((item, index) => (
+                {dataList.length > 0 && dataList.map((item, index) => (
                     <ItemTable key={index} item={item}/>
                 ))}
             </TableBody>
