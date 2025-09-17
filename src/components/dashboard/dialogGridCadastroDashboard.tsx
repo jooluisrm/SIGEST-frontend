@@ -6,6 +6,7 @@ export const DialogGridCadastroDashboard = () => {
             <ItemGridDashboard bg={2} text="Professor" type="Professor" link="/gerenciar/professor"/>
             <ItemGridDashboard bg={2} text="Aluno" type="Aluno" link="/gerenciar/aluno"/>
             <ItemGridDashboard bg={2} text="Servidor" type="Servidor" link="/gerenciar/servidor"/>
+            <ItemGridDashboard bg={2} text="Disciplina" type="Disciplina" link="/gerenciar/disciplina"/>
         </div>
     );
 }

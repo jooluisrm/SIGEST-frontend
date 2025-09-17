@@ -33,7 +33,7 @@ export const DialogCadastroDashboard = () => {
                         </div>
                     </DialogTitle>
                     <DialogDescription className="sr-only">
-                        Selecione uma das opções para realizar o cadastro no sistema.
+                        Selecione uma das opções para Gerenciar.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogGridCadastroDashboard />

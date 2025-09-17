@@ -3,7 +3,7 @@ import Link from "next/link";
 
 type Props = {
     text: string;
-    type: "Cadastrar" | "Nota" | "Relatorio" | "Professor" | "Aluno" | "Servidor";
+    type: "Cadastrar" | "Nota" | "Relatorio" | "Professor" | "Aluno" | "Servidor" | "Disciplina";
     bg: 1 | 2;
     link?: string;
 };
@@ -16,6 +16,7 @@ const iconMap = {
     Professor: '/assets/professor-icon.png',
     Aluno: '/assets/aluno-icon.png',
     Servidor: '/assets/servidor-icon.png',
+    Disciplina: '/assets/disciplina-icon.png',
 };
 
 export const ItemGridDashboard = ({ text, type, bg, link }: Props) => {
