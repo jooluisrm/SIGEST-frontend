@@ -52,6 +52,7 @@ export const FormDisciplina = () => {
                             form={form}
                             name="nomeDisciplina"
                             label="Nome da Disciplina"
+                            placeholder="Digite o nome da disciplina"
                         />
 
                         <FormFieldSelect
