@@ -98,7 +98,7 @@ export function AppSidebar() {
                                         </SidebarMenuSubItem>
                                         <SidebarMenuSubItem>
                                             <SidebarMenuSubButton asChild>
-                                                <Link href="/cadastrar/servidor">Servidor</Link>
+                                                <Link href="/cadastrar/usuario">Usuário</Link>
                                             </SidebarMenuSubButton>
                                         </SidebarMenuSubItem>
                                     </SidebarMenuSub>

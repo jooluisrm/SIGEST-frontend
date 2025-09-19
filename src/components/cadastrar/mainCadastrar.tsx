@@ -15,7 +15,7 @@ export const MainCadastrar = () => {
                     title="Cadastrar"
                 />
                 <Card>
-                    <IconAvatar />
+                    {/* <IconAvatar /> */}
                     <ContainerCadastro />
                 </Card>
             </div>
