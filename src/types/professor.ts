@@ -1,7 +1,7 @@
 import { ApiLinks, ApiMeta } from "./getRequestType";
 
 export type TypeProfessorCadastro = {
-    id: number;
+    //id: number;
     nome: string;
     data_nascimento: string; // formato ISO ou "YYYY-MM-DD"
     cpf: string;
