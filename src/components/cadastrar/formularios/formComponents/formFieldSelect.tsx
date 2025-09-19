@@ -1,3 +1,4 @@
+import { AppSelect } from "@/components/shared/app-select";
 import {
   FormField,
   FormItem,
@@ -43,22 +44,14 @@ export const FormFieldSelect = ({
       <FormItem>
         <FormLabel>{label}</FormLabel>
         <FormControl>
-          <Select
-            value={field.value}
-            onValueChange={(value) => field.onChange(value)}
+          <AppSelect
+            options={options}
+            placeholder={placeholder}
             disabled={disabled}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            value={field.value} // Conecta o value do form
+            onValueChange={field.onChange} // Conecta o onChange do form
+            className="w-full border-primaria focus-visible:ring-primaria"
+          />
         </FormControl>
         <FormMessage />
       </FormItem>

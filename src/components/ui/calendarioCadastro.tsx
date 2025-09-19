@@ -23,23 +23,23 @@ export function CalendarioCadastro({ value, onValueChange, disabled, label }: Ca
     const [open, setOpen] = React.useState(false);
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col">
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
                         variant="outline"
                         id="date"
-                        className="w-full rounded-2xl bg-primaria border-0 h-12 text-white hover:text-white px-4 appearance-none hover:bg-primaria"
+                        className="w-full border-primaria"
                     >
                         {value ? (
                             format(value, "P", { locale: ptBR })
                         ) : (
-                            <span>Selecione uma data</span>
+                            <span className="text-accent-foreground">Selecione uma data</span>
                         )}
-                        <ChevronDownIcon className="ml-auto text-white h-4 w-4 opacity-50" />
+                        <ChevronDownIcon className="ml-auto h-4 w-4" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                <PopoverContent className="w-auto overflow-hidden" align="start">
                     <Calendar
                         mode="single"
                         locale={ptBR}

@@ -23,7 +23,7 @@ import { TitleForm } from "./formComponents/titleForm";
 
 export const FormProfessor = () => {
     const { type: user } = usePageType();
-    if (user !== "professor" ) return null;
+    if (user !== "professor") return null;
 
     const schema = cadastroProfessorSchema(user);
     const form = useForm<z.infer<typeof schema>>({
@@ -115,9 +115,20 @@ export const FormProfessor = () => {
                             form={form}
                             name="nomeCompleto"
                             label="Nome Completo"
+                            placeholder="Digite seu nome completo"
                         />
-                        <FormFieldText form={form} name="nomeDoPai" label="Nome do Pai" />
-                        <FormFieldText form={form} name="nomeDaMae" label="Nome da Mãe" />
+                        <FormFieldText
+                            form={form}
+                            name="nomeDoPai"
+                            label="Nome do Pai"
+                            placeholder="Digite o nome do pai completo"
+                        />
+                        <FormFieldText
+                            form={form}
+                            name="nomeDaMae"
+                            label="Nome da Mãe"
+                            placeholder="Digite o nome da mãe completo"
+                        />
 
                         <FormFieldMask
                             form={form}
@@ -159,7 +170,7 @@ export const FormProfessor = () => {
                                 </FormItem>
                             )}
                         />
-                        
+
                         <FormFieldSelect
                             form={form}
                             name="possuiDeficiencia"
@@ -176,6 +187,7 @@ export const FormProfessor = () => {
                                 form={form}
                                 name="qualDeficiencia"
                                 label="Qual deficiência?"
+                                placeholder="Informe a deficiência"
                             />
                         )}
                     </div>
@@ -183,10 +195,31 @@ export const FormProfessor = () => {
                     <TitleForm text="Informações de Contato" />
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <FormFieldText form={form} name="logradouro" label="Logradouro" />
-                        <FormFieldText form={form} name="numero" label="Número" />
-                        <FormFieldText form={form} name="bairro" label="Bairro" />
-                        <FormFieldText form={form} name="complemento" label="Complemento" />
+                        <FormFieldText
+                            form={form}
+                            name="logradouro"
+                            label="Logradouro"
+                            placeholder="Ex: Rua, Avenida, Travessa..."
+                        />
+                        <FormFieldText
+                            form={form}
+                            name="numero"
+                            label="Número"
+                            placeholder="Ex: 1234" 
+                        />
+                        
+                        <FormFieldText
+                            form={form}
+                            name="bairro" 
+                            label="Bairro" 
+                            placeholder="Ex: Centro"
+                            />
+                        <FormFieldText
+                            form={form}
+                            name="complemento"
+                            label="Complemento" 
+                            placeholder="Ex: Casa, Apto..."
+                            />
 
                         <FormFieldSelect
                             form={form}
@@ -237,6 +270,7 @@ export const FormProfessor = () => {
                             name="email"
                             label="E-mail"
                             type="email"
+                            placeholder="Digite seu e-mail"
                         />
                     </div>
                     <div className="w-1/4 gap-4">
@@ -245,6 +279,7 @@ export const FormProfessor = () => {
                             form={form}
                             name="matriculaAdpm"
                             label="Matrícula ADPM"
+                            placeholder="Ex: 123456"
                         />
                     </div>
 
