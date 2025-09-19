@@ -134,13 +134,15 @@ export const FormProfessor = () => {
                             form={form}
                             name="cpf"
                             label="CPF"
-                            mask="000.000.000-00"
+                            mask="cpf"
+                            placeholder="Ex: 000.000.000-00"
                         />
                         <FormFieldMask
                             form={form}
                             name="rg"
                             label="RG"
-                            mask="00.000.000-a"
+                            mask="rg"
+                            placeholder="Ex: 00.000.000-0"
                         />
 
                         <FormFieldSelect
@@ -256,13 +258,15 @@ export const FormProfessor = () => {
                             form={form}
                             name="telefone"
                             label="Telefone"
-                            mask={["(00) 0000-0000", "(00) 00000-0000"]}
+                            mask="telefone"
+                            placeholder="Ex: (99) 9999-9999"
                         />
                         <FormFieldMask
                             form={form}
                             name="celular"
                             label="Celular"
-                            mask="(00) 00000-0000"
+                            mask="celular"
+                            placeholder="Ex: (99) 99999-9999"
                         />
 
                         <FormFieldText

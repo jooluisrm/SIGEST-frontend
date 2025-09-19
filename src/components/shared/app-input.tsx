@@ -1,12 +1,11 @@
-// src/components/ui/app-input.tsx (versão com cva)
 import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority" // Importar cva e VariantProps
+import { cva, type VariantProps } from "class-variance-authority" 
 import { cn } from "@/lib/utils"
-
-import { Input as ShadInput } from "@/components/ui/input" // Renomeando para evitar conflito
+import { useMask, type MaskType } from "@/hooks/use-mask";
+import { Input as ShadInput } from "@/components/ui/input" 
 import { Label } from "@/components/ui/label"
 
-// ... (cole o const inputVariants que definimos acima aqui)
+// Configurar os estilos dos inputs
 const inputVariants = cva(
   "flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
   {
@@ -23,22 +22,35 @@ const inputVariants = cva(
   }
 );
 
-
-// Interface agora herda as props de variante do cva
 export interface AppInputProps 
   extends React.InputHTMLAttributes<HTMLInputElement>,
-          VariantProps<typeof inputVariants> { // Mágica do TypeScript aqui!
+          VariantProps<typeof inputVariants> {
   label?: string
   error?: string
   icon?: React.ReactNode
+  mask?: MaskType
 }
 
 const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
-  ({ className, id, label, error, icon, intent, ...props }, ref) => {
+  ({ className, id, label, error, icon, intent, onChange,  mask, ...props }, ref) => {
     const inputId = id || React.useId()
 
-    // O componente <Input> base não deve ter nenhuma classe, pois cva vai controlar tudo
     const Input = ShadInput;
+
+    // Aplica a mascara nos inputs (cpf, rg...)
+    const { applyMask } = useMask(mask);
+    const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const maskedValue = applyMask(e.target.value);
+      const newEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: maskedValue,
+        },
+      };
+
+      onChange?.(newEvent);
+    };
 
     return (
       <div className="w-full grid gap-1.5">
@@ -52,15 +64,14 @@ const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
 
           <Input
             id={inputId}
-            // A MÁGICA ACONTECE AQUI!
             className={cn(
               inputVariants({ intent }), // Aplica os estilos da variante
-              // Condicionais de erro e ícone vêm DEPOIS para sobrescrever se necessário
               icon ? "pl-10" : "pl-3",
               error && "border-destructive focus-visible:ring-destructive text-destructive placeholder:text-destructive/60",
-              className // Permite classes customizadas passadas externamente
+              className 
             )}
             ref={ref}
+            onChange={handleOnChange} 
             {...props}
           />
         </div>
