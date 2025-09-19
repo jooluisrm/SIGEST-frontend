@@ -1,4 +1,7 @@
+import { ApiLinks, ApiMeta } from "./getRequestType";
+
 export type TypeProfessorCadastro = {
+    id: number;
     nome: string;
     data_nascimento: string; // formato ISO ou "YYYY-MM-DD"
     cpf: string;
@@ -18,3 +21,9 @@ export type TypeProfessorCadastro = {
     email: string;
     matricula_adpm?: string;
 }
+
+export type GetProfessoresResponse = {
+    data: TypeProfessorCadastro[];
+    links: ApiLinks;
+    meta: ApiMeta;
+};

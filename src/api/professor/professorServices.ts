@@ -1,11 +1,12 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { TypeProfessorCadastro } from "@/types/professor";
+import { GetProfessoresResponse, TypeProfessorCadastro } from "@/types/professor";
 import { toast } from "sonner"
 
-export const getProfessores = async () => {
-    const response = await axiosInstance.get('api/professors');
-    console.log(response.data);
-    return response.data.data;
+export const getProfessores = async (url: string = 'api/professors'): Promise<GetProfessoresResponse> => {
+    // Agora o get usa a URL recebida. O axios é inteligente: se a URL for completa 
+    // (http://...), ele a usará diretamente.
+    const response = await axiosInstance.get<GetProfessoresResponse>(url);
+    return response.data;
 };
 
 export const postCadastrarProfessor = async (data: TypeProfessorCadastro) => {

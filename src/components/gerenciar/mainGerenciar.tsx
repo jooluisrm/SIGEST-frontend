@@ -21,9 +21,13 @@ export const MainGerenciar = () => {
     const { type } = usePageType();
 
     // hook que faz a chamada GET (aluno, professor...)
-    const { data, loading, error } = useGerenciarData<GenericData>(type);
+    const { data, loading, error, fetchData } = useGerenciarData<GenericData>(type);
 
     const id = useId();
+
+    const handlePageChange = (url: string) => {
+        fetchData(url);
+    };
 
     return (
         <main className="min-h-screen">
@@ -56,11 +60,16 @@ export const MainGerenciar = () => {
                                 <AlertTitle>Não foi possível carregar os dados</AlertTitle>
                             </Alert>
                         ) : (
-                            <TableGerenciar dataList={data} />
+                            <TableGerenciar dataList={data.data} />
                         )}
                     </CardContent>
                     <CardFooter>
-                        <PaginationTable />
+                        {data?.meta && (
+                            <PaginationTable
+                                meta={data.meta}
+                                onPageChange={handlePageChange} // Passe a função de callback
+                            />
+                        )}
                     </CardFooter>
                 </Card>
 

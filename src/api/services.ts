@@ -6,8 +6,8 @@ import { getServidores } from "@/api/servidor/servidorServices";
 import { PageTypeCentral } from "@/types/routerType"; // seu tipo
 import { getDisciplina } from "./disciplina/disciplinaServices";
 
-// O mapa que associa o tipo da rota à função de busca de dados
-export const dataFetchers: Record<PageTypeCentral, () => Promise<any>> = {
+// O tipo da função agora inclui um parâmetro de string opcional
+export const dataFetchers: Record<PageTypeCentral, (url?: string) => Promise<any>> = {
     professor: getProfessores,
     aluno: getAlunos,
     servidor: getServidores,
