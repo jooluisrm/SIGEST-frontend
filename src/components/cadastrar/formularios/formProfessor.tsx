@@ -25,6 +25,7 @@ import { AddressFields } from "./formGroups/addressFields";
 import { ProfessorDataFields } from "./formGroups/professorDataFields";
 import { AuthFields } from "./formGroups/AuthFields";
 
+
 export const FormProfessor = () => {
     const { type: user } = usePageType();
     if (user !== "professor") return null;

@@ -15,7 +15,7 @@ export const AddressFields = () => {
 
     return (
         <>
-            <TitleForm text="Informações de Contato" />
+            <TitleForm text="Informações de Endereço" />
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <FormFieldText
                             form={form}
