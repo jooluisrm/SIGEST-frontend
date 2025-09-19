@@ -1,7 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 import { UseFormReturn } from "react-hook-form";
-import { InputCadastro } from "../../inputCadastro";
 import { AppInput } from "@/components/shared/app-input";
 
 interface Props {
