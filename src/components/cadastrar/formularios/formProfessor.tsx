@@ -20,6 +20,10 @@ import { FormFieldText } from "./formComponents/formFieldText";
 import { FormFieldSelect } from "./formComponents/formFieldSelect";
 import { FormFieldMask } from "./formComponents/formFielMask";
 import { TitleForm } from "./formComponents/titleForm";
+import { PersonalDataFields } from "./formGroups/personalDataFields";
+import { AddressFields } from "./formGroups/addressFields";
+import { ProfessorDataFields } from "./formGroups/professorDataFields";
+import { AuthFields } from "./formGroups/AuthFields";
 
 export const FormProfessor = () => {
     const { type: user } = usePageType();
@@ -47,14 +51,16 @@ export const FormProfessor = () => {
             telefone: "",
             celular: "",
             email: "",
-            matriculaAdpm: user === "professor" ? "" : "",
+            matriculaAdpm: "",
+            codigoDisciplina: "",
+            senha: "",
+            confirmarSenha: ""
         },
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const possuiDeficiencia = form.watch("possuiDeficiencia");
-    const estadoSelecionado = form.watch("estado");
-    const { states, cities, loadingStates, loadingCities } = useIBGE(estadoSelecionado);
+    
+    
 
     const onSubmit = async (data: z.infer<typeof schema>) => {
         if (user !== "professor") return;
@@ -82,6 +88,9 @@ export const FormProfessor = () => {
             celular: data.celular,
             email: data.email,
             matricula_adpm: data.matriculaAdpm,
+            codigoDisciplina: data.codigoDisciplina,
+            senha: data.senha,
+            confirmarSenha: data.confirmarSenha
         };
 
         try {
@@ -93,12 +102,14 @@ export const FormProfessor = () => {
             setIsSubmitting(false);
         }
     };
+    const senhaValue = form.watch("senha");
 
     useEffect(() => {
-        if (possuiDeficiencia === "nao") {
-            form.setValue("qualDeficiencia", "", { shouldValidate: true });
-        }
-    }, [possuiDeficiencia, form]);
+        // Dispara a validação para o campo 'confirmarSenha'
+        form.trigger("confirmarSenha");
+    }, [senhaValue, form.trigger]);
+
+    
 
     return (
         <div>
@@ -108,184 +119,10 @@ export const FormProfessor = () => {
                     className="flex px-5 flex-col mx-1 mb-5 gap-4 w-full md:w-full"
                     noValidate
                 >
-                    <TitleForm text="Informações Pessoais" />
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <FormFieldText
-                            form={form}
-                            name="nomeCompleto"
-                            label="Nome Completo"
-                            placeholder="Digite seu nome completo"
-                        />
-                        <FormFieldText
-                            form={form}
-                            name="nomeDoPai"
-                            label="Nome do Pai"
-                            placeholder="Digite o nome do pai completo"
-                        />
-                        <FormFieldText
-                            form={form}
-                            name="nomeDaMae"
-                            label="Nome da Mãe"
-                            placeholder="Digite o nome da mãe completo"
-                        />
-
-                        <FormFieldMask
-                            form={form}
-                            name="cpf"
-                            label="CPF"
-                            mask="cpf"
-                            placeholder="Ex: 000.000.000-00"
-                        />
-                        <FormFieldMask
-                            form={form}
-                            name="rg"
-                            label="RG"
-                            mask="rg"
-                            placeholder="Ex: 00.000.000-0"
-                        />
-
-                        <FormFieldSelect
-                            form={form}
-                            name="genero"
-                            label="Gênero"
-                            options={[
-                                { value: "masculino", label: "Masculino" },
-                                { value: "feminino", label: "Feminino" },
-                                { value: "outro", label: "Outro" },
-                            ]}
-                            placeholder="Selecione um gênero"
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="dataNascimento"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Data de Nascimento</FormLabel>
-                                    <CalendarioCadastro
-                                        value={field.value}
-                                        onValueChange={field.onChange}
-                                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                                    />
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormFieldSelect
-                            form={form}
-                            name="possuiDeficiencia"
-                            label="Possui alguma deficiência?"
-                            options={[
-                                { value: "sim", label: "Sim" },
-                                { value: "nao", label: "Não" },
-                            ]}
-                            placeholder="Selecione"
-                        />
-
-                        {possuiDeficiencia === "sim" && (
-                            <FormFieldText
-                                form={form}
-                                name="qualDeficiencia"
-                                label="Qual deficiência?"
-                                placeholder="Informe a deficiência"
-                            />
-                        )}
-                    </div>
-
-                    <TitleForm text="Informações de Contato" />
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <FormFieldText
-                            form={form}
-                            name="logradouro"
-                            label="Logradouro"
-                            placeholder="Ex: Rua, Avenida, Travessa..."
-                        />
-                        <FormFieldText
-                            form={form}
-                            name="numero"
-                            label="Número"
-                            placeholder="Ex: 1234" 
-                        />
-                        
-                        <FormFieldText
-                            form={form}
-                            name="bairro" 
-                            label="Bairro" 
-                            placeholder="Ex: Centro"
-                            />
-                        <FormFieldText
-                            form={form}
-                            name="complemento"
-                            label="Complemento" 
-                            placeholder="Ex: Casa, Apto..."
-                            />
-
-                        <FormFieldSelect
-                            form={form}
-                            name="estado"
-                            label="Estado"
-                            options={states.map((estado) => ({
-                                value: estado.sigla,
-                                label: estado.nome,
-                            }))}
-                            placeholder={
-                                !loadingStates ? "Selecione o estado" : "Carregando..."
-                            }
-                        />
-
-                        <FormFieldSelect
-                            form={form}
-                            name="cidade"
-                            label="Cidade"
-                            options={cities.map((cidade) => ({
-                                value: cidade.nome,
-                                label: cidade.nome,
-                            }))}
-                            placeholder={
-                                !loadingCities
-                                    ? estadoSelecionado
-                                        ? "Selecione a cidade"
-                                        : "Primeiro selecione um estado"
-                                    : "Carregando..."
-                            }
-                            disabled={!estadoSelecionado || loadingCities}
-                        />
-
-                        <FormFieldMask
-                            form={form}
-                            name="telefone"
-                            label="Telefone"
-                            mask="telefone"
-                            placeholder="Ex: (99) 9999-9999"
-                        />
-                        <FormFieldMask
-                            form={form}
-                            name="celular"
-                            label="Celular"
-                            mask="celular"
-                            placeholder="Ex: (99) 99999-9999"
-                        />
-
-                        <FormFieldText
-                            form={form}
-                            name="email"
-                            label="E-mail"
-                            type="email"
-                            placeholder="Digite seu e-mail"
-                        />
-                    </div>
-                    <div className="w-1/4 gap-4">
-                        <TitleForm text="Informação Profissional" />
-                        <FormFieldText
-                            form={form}
-                            name="matriculaAdpm"
-                            label="Matrícula ADPM"
-                            placeholder="Ex: 123456"
-                        />
-                    </div>
+                    <PersonalDataFields />
+                    <AddressFields />
+                    <ProfessorDataFields />
+                    <AuthFields />
 
                     <Button
                         type="submit"

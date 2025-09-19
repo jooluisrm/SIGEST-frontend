@@ -1,14 +1,8 @@
-// src/lib/schemas/cadastroSchema.ts
+// src/lib/schemas/cadastroProfessorSchema.ts
 
 import { PageTypeCentral } from "@/types/routerType";
 import { z } from "zod";
 
-// IMPORTANTE: Você precisa definir ou importar o tipo para o 'user'.
-// Se o tipo 'Props' está no seu componente, você pode exportá-lo de lá
-// ou, melhor ainda, criar um arquivo de tipos centralizado.
-// Exemplo:
-
-// Sua função, agora com 'export' e usando o UserType
 export const cadastroProfessorSchema = (user: PageTypeCentral) =>
     z
         .object({
@@ -27,7 +21,7 @@ export const cadastroProfessorSchema = (user: PageTypeCentral) =>
                         message: "Data de nascimento inválida",
                     }
                 ),
-            cpf: z.string().min(11, "O CPF completo (apenas números) é obrigatório."), // Ajustado para unmasked
+            cpf: z.string().min(11, "O CPF completo (apenas números) é obrigatório."),
             rg: z
                 .string({ required_error: "RG é obrigatório" })
                 .min(5, "RG inválido"),
@@ -65,12 +59,20 @@ export const cadastroProfessorSchema = (user: PageTypeCentral) =>
             email: z
                 .string({ required_error: "O e-mail é obrigatório." })
                 .email("O formato do e-mail é inválido."),
-            matriculaAdpm:
-                user === "professor"
-                    ? z
-                        .string({ required_error: "A matrícula ADPM é obrigatória" })
-                        .min(1, "A matrícula ADPM não pode ser vazia.")
-                    : z.string().optional(),
+            matriculaAdpm: z
+                .string({ required_error: "A matrícula ADPM é obrigatória" })
+                .min(1, "A matrícula ADPM não pode ser vazia."),
+            codigoDisciplina: z
+                .string().min(1, "O código da disciplina é obrigatório."),
+            senha: z
+                .string({ required_error: "A senha é obrigatória" })
+                .min(6, "A senha deve ter no mínimo 6 caracteres"),
+            confirmarSenha: z
+                .string({ required_error: "A confirmação de senha é obrigatória" }),
+
+        }).refine((data) => data.senha === data.confirmarSenha, {
+            path: ["confirmarSenha"],
+            message: "As senhas não conferem",
         })
         .superRefine((data, ctx) => {
             if (

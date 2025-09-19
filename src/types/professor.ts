@@ -20,6 +20,9 @@ export type TypeProfessorCadastro = {
     celular: string;
     email: string;
     matricula_adpm?: string;
+    codigoDisciplina: string;
+    senha: string;
+    confirmarSenha: string;
 }
 
 export type GetProfessoresResponse = {
