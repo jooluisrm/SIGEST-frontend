@@ -1,47 +1,46 @@
-// app/hooks/useGerenciarData.ts
+// src/hooks/use-gerenciar-data.ts (VERSÃO ATUALIZADA)
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PageTypeCentral } from "@/types/routerType";
 import { dataFetchers } from "@/api/services";
 
-
-// O hook aceita um tipo genérico T para os dados
 export const useGerenciarData = <T>(type: PageTypeCentral | null) => {
-    const [data, setData] = useState<T[]>([]);
+
+    const [data, setData] = useState<T | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        // Se não houver tipo, não faz nada
+    // Envolvemos a lógica de busca em uma função que pode receber uma URL
+    const fetchData = useCallback(async (url?: string) => {
         if (!type) {
             setLoading(false);
             return;
         }
 
-        const fetchData = async () => {
-            // Reinicia o estado para a nova busca
-            setData([]);
-            setLoading(true);
-            setError(null);
+        setLoading(true);
+        setError(null);
 
-            try {
-                // Seleciona a função correta do nosso mapa
-                const fetcher = dataFetchers[type];
-                if (!fetcher) {
-                    throw new Error(`Nenhuma função de busca de dados definida para o tipo: ${type}`);
-                }
-                const result = await fetcher();
-                setData(result as T[]);
-            } catch (err) {
-                console.error(err);
-                setError("Erro ao carregar os dados.");
-            } finally {
-                setLoading(false);
+        try {
+            const fetcher = dataFetchers[type];
+            if (!fetcher) {
+                throw new Error(`Nenhuma função de busca definida para o tipo: ${type}`);
             }
-        };
+            // Passa a URL para o fetcher. Se for undefined, o fetcher usará seu valor padrão.
+            const result = await fetcher(url); 
+            setData(result as T);
+        } catch (err) {
+            console.error(err);
+            setError("Erro ao carregar os dados.");
+        } finally {
+            setLoading(false);
+        }
+    }, [type]); // A função é recriada se o 'type' mudar
 
+    // Efeito para a busca inicial (quando o componente monta ou o 'type' muda)
+    useEffect(() => {
         fetchData();
-    }, [type]); // Executa sempre que o 'type' mudar
+    }, [fetchData]);
 
-    return { data, loading, error };
+    // Retorne a função fetchData para que o componente possa usá-la
+    return { data, loading, error, fetchData };
 };
