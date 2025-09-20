@@ -23,7 +23,8 @@ import { TitleForm } from "./formComponents/titleForm";
 import { PersonalDataFields } from "./formGroups/personalDataFields";
 import { AddressFields } from "./formGroups/addressFields";
 import { ProfessorDataFields } from "./formGroups/professorDataFields";
-import { AuthFields } from "./formGroups/AuthFields";
+import { AuthFields } from "./formGroups/authFields";
+
 
 
 export const FormProfessor = () => {

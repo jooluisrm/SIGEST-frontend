@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 import { PersonalDataFields } from "./formGroups/personalDataFields";
 import { AddressFields } from "./formGroups/addressFields";
-import { AuthFields } from "./formGroups/AuthFields";
+import { AuthFields } from "./formGroups/authFields";
 import { Button } from "@/components/ui/button";
 import { UsuarioDataFields } from "./formGroups/usuarioDataFields";
 
