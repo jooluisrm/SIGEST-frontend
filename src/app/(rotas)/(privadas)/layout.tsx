@@ -13,7 +13,7 @@ export default async function PrivateLayout({
     const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
 
     return (
-        <SidebarProvider defaultOpen={defaultOpen}>
+     <SidebarProvider defaultOpen={defaultOpen}>
             <PrivateLayoutContent>
                 {children}
             </PrivateLayoutContent>

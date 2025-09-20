@@ -1,20 +1,16 @@
+import { InitialPage } from "@/components/PaginaInicial/initialPage";
+import { HeaderPage } from "@/components/shared/headerPage";
 import { redirect } from "next/navigation";
 
 const Page = () => {
-
-    const logado = false;
-
-    if(logado) {
-        redirect('/dashboard');
-    } else {
-        redirect('/login');
-    }
-
-    return (
-        <main className="bg-secundaria">
-            page de controle
-        </main>
-    );
-}
+  return (
+    <div>
+        <header></header>
+      <div className="flex justify-center items-center">
+        <InitialPage />
+      </div>
+    </div>
+  );
+};
 
 export default Page;
