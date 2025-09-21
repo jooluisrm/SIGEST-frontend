@@ -25,44 +25,80 @@ import { AddressFields } from "./formGroups/addressFields";
 import { ProfessorDataFields } from "./formGroups/professorDataFields";
 import { AuthFields } from "./formGroups/authFields";
 
+type Props = {
+    isEdit?: boolean;
+    defaultValues?: TypeProfessorCadastro;
+};
 
-
-export const FormProfessor = () => {
+export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
     const { type: user } = usePageType();
     if (user !== "professor") return null;
 
     const schema = cadastroProfessorSchema(user);
-    const form = useForm<z.infer<typeof schema>>({
-        resolver: zodResolver(schema),
-        defaultValues: {
-            nomeCompleto: "",
-            dataNascimento: undefined,
-            cpf: "",
-            rg: "",
-            genero: "",
-            nomeDoPai: "",
-            nomeDaMae: "",
-            possuiDeficiencia: "nao",
-            qualDeficiencia: "",
-            logradouro: "",
-            numero: "",
-            bairro: "",
-            complemento: "",
-            cidade: "",
-            estado: "",
-            telefone: "",
-            celular: "",
-            email: "",
-            matriculaAdpm: "",
-            codigoDisciplina: "",
-            senha: "",
-            confirmarSenha: ""
-        },
-    });
+    let form = useForm<z.infer<typeof schema>>();
+
+    if (isEdit) {
+        if (!defaultValues) return null;
+        form = useForm<z.infer<typeof schema>>({
+            resolver: zodResolver(schema),
+            defaultValues: {
+                nomeCompleto: defaultValues.nome,
+                dataNascimento: new Date(defaultValues.data_nascimento),
+                cpf: defaultValues.cpf,
+                rg: defaultValues.rg,
+                genero: defaultValues.genero,
+                nomeDoPai: defaultValues.nome_pai,
+                nomeDaMae: defaultValues.nome_mae,
+                possuiDeficiencia: defaultValues.deficiencia ? "sim" : "nao",
+                qualDeficiencia: defaultValues.deficiencia || "",
+                logradouro: defaultValues.logradouro,
+                numero: defaultValues.numero,
+                bairro: defaultValues.bairro,
+                complemento: defaultValues.complemento || "",
+                cidade: defaultValues.cidade,
+                estado: defaultValues.estado,
+                telefone: defaultValues.telefone,
+                celular: defaultValues.celular,
+                email: defaultValues.email,
+                matriculaAdpm: defaultValues.matricula_adpm,
+                codigoDisciplina: "",
+                senha: "",
+                confirmarSenha: ""
+            },
+        });
+    } else {
+        form = useForm<z.infer<typeof schema>>({
+            resolver: zodResolver(schema),
+            defaultValues: {
+                nomeCompleto: "",
+                dataNascimento: undefined,
+                cpf: "",
+                rg: "",
+                genero: "",
+                nomeDoPai: "",
+                nomeDaMae: "",
+                possuiDeficiencia: "nao",
+                qualDeficiencia: "",
+                logradouro: "",
+                numero: "",
+                bairro: "",
+                complemento: "",
+                cidade: "",
+                estado: "",
+                telefone: "",
+                celular: "",
+                email: "",
+                matriculaAdpm: "",
+                codigoDisciplina: "",
+                senha: "",
+                confirmarSenha: ""
+            },
+        });
+    };
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    
+
+
 
     const onSubmit = async (data: z.infer<typeof schema>) => {
         if (user !== "professor") return;
@@ -111,7 +147,7 @@ export const FormProfessor = () => {
         form.trigger("confirmarSenha");
     }, [senhaValue, form.trigger]);
 
-    
+
 
     return (
         <div>
@@ -121,10 +157,10 @@ export const FormProfessor = () => {
                     className="flex px-5 flex-col mx-1 mb-5 gap-4 w-full md:w-full"
                     noValidate
                 >
-                    <PersonalDataFields />
-                    <AddressFields />
-                    <ProfessorDataFields />
-                    <AuthFields />
+                    <PersonalDataFields isEdit={isEdit} />
+                    <AddressFields isEdit={isEdit} />
+                    <ProfessorDataFields isEdit={isEdit} />
+                    <AuthFields isEdit={isEdit} />
 
                     <Button
                         type="submit"

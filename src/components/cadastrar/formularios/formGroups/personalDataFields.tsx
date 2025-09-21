@@ -11,10 +11,10 @@ import { useEffect } from "react";
 
 
 type Props = {
-    possuiDeficiencia: string;
+    isEdit?: boolean;
 }
 
-export const PersonalDataFields = () => {
+export const PersonalDataFields = ({ isEdit = false }: Props) => {
 
     const form = useFormContext();
 
@@ -28,7 +28,7 @@ export const PersonalDataFields = () => {
     return (
         <>
             <TitleForm text="Informações Pessoais" />
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className={`${!isEdit ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-4' : 'grid md:grid-cols-1 lg:grid-cols-2 gap-4'}`}>
                 <FormFieldText
                     form={form}
                     name="nomeCompleto"

@@ -7,7 +7,11 @@ import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/for
 import { CalendarioCadastro } from "@/components/ui/calendarioCadastro";
 import { useIBGE } from "@/hooks/use-ibge";
 
-export const AddressFields = () => {
+type Props = {
+    isEdit?: boolean;
+}
+
+export const AddressFields = ({ isEdit = false }: Props) => {
 
     const form = useFormContext();
     const estadoSelecionado = form.watch("estado");
@@ -16,7 +20,7 @@ export const AddressFields = () => {
     return (
         <>
             <TitleForm text="Informações de Endereço" />
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className={`${!isEdit ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-4' : 'grid md:grid-cols-1 lg:grid-cols-2 gap-4'}`}>
                         <FormFieldText
                             form={form}
                             name="logradouro"

@@ -7,15 +7,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { ButtonGerenciar, ButtonIconType } from "./buttonGerenciar"; 
+import { ButtonGerenciar, ButtonIconType } from "./buttonGerenciar";
 import React from "react";
 
 type Props = {
-    triggerIcon: ButtonIconType; 
+    triggerIcon: ButtonIconType;
     triggerTooltip: string;
     triggerClassName?: string;
     dialogTitle: string;
-    children: React.ReactNode; 
+    children: React.ReactNode;
 }
 
 export const ActionDialog = ({
@@ -40,7 +40,9 @@ export const ActionDialog = ({
                     <DialogTitle>{dialogTitle}</DialogTitle>
                 </DialogHeader>
                 {/* Aqui entra o conteúdo específico (formulário, detalhes, etc.) */}
-                {children}
+                <main className="overflow-y-auto max-h-[calc(100vh-10rem)] overflow-x-hidden">
+                    {children}
+                </main>
             </DialogContent>
         </Dialog>
     );

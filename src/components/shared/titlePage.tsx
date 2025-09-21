@@ -7,7 +7,7 @@ type Props = {
     title: string
 }
 
-const typeDisplayMap: Record<string, string> = {
+export const typeDisplayMap: Record<string, string> = {
     aluno: "Aluno",
     professor: "Professor",
     servidor: "Servidor",

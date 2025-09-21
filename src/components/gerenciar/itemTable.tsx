@@ -4,6 +4,7 @@ import { ActionDialog } from "./actionDialog";
 import { AlertDialogComponent } from "../shared/alertComponent";
 import { DropDownMenuCell } from "./dropDownMenuCell";
 import { usePageType } from "@/context/pageTypeContext";
+import { FormProfessor } from "../cadastrar/formularios/formProfessor";
 
 type Props = {
     item: TypeProfessorCadastro;
@@ -32,12 +33,11 @@ export const ItemTable = ({ item }: Props) => {
                     />
                     <ActionDialog
                         triggerIcon="edit"
-                        triggerTooltip={`Editar ${type}`}
+                        triggerTooltip={`Alterar Dados ${type}`}
                         triggerClassName="bg-secundaria"
                         dialogTitle={`Editar ${type}`}
                     >
-                        <p>Aqui dentro vai o seu formulário de edição para o {type}...</p>
-                        {/* Ex: <EditUserForm user={...} /> */}
+                        <FormProfessor isEdit={true} defaultValues={item} />
                     </ActionDialog>
 
                     <ActionDialog

@@ -2,14 +2,18 @@ import { useFormContext } from "react-hook-form";
 import { FormFieldText } from "../formComponents/formFieldText";
 import { TitleForm } from "../formComponents/titleForm";
 
-export const AuthFields = () => {
+type Props = {
+    isEdit?: boolean;
+}
+
+export const AuthFields = ({ isEdit = false }: Props) => {
 
     const form = useFormContext();
 
     return (
         <>
             <TitleForm text="Senha e Segurança" />
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className={`${!isEdit ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-4' : 'grid md:grid-cols-1 lg:grid-cols-2 gap-4'}`}>
 
                 <FormFieldText
                     form={form}
