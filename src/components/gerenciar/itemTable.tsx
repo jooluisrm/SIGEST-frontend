@@ -5,14 +5,32 @@ import { AlertDialogComponent } from "../shared/alertComponent";
 import { DropDownMenuCell } from "./dropDownMenuCell";
 import { usePageType } from "@/context/pageTypeContext";
 import { FormProfessor } from "../cadastrar/formularios/formProfessor";
+import { FormAluno } from "../cadastrar/formularios/formAluno";
+import { FormDisciplina } from "../cadastrar/formularios/formDisciplina";
 
 type Props = {
-    item: TypeProfessorCadastro;
+    item: TypeProfessorCadastro | any;
 }
 
 export const ItemTable = ({ item }: Props) => {
 
     const { type } = usePageType();
+
+    let renderPageEdit: React.ReactNode = null;
+
+    switch (type) {
+        case "professor":
+            renderPageEdit = <FormProfessor isEdit={true} defaultValues={item} />;
+            break;
+        case "aluno":
+            renderPageEdit = <FormAluno isEdit={true} defaultValues={item} />;
+            break;
+        case "disciplina":
+            renderPageEdit = <FormDisciplina isEdit={true} defaultValues={item} />;
+            break;
+    }
+
+    if (!renderPageEdit) return null;
 
     return (
         <TableRow>
@@ -37,7 +55,7 @@ export const ItemTable = ({ item }: Props) => {
                         triggerClassName="bg-secundaria"
                         dialogTitle={`Editar ${type}`}
                     >
-                        <FormProfessor isEdit={true} defaultValues={item} />
+                        {renderPageEdit}
                     </ActionDialog>
 
                     <ActionDialog

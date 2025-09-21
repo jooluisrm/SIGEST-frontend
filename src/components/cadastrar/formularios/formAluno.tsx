@@ -5,20 +5,55 @@ import { PersonalDataFields } from "./formGroups/personalDataFields"
 import { AddressFields } from "./formGroups/addressFields"
 import { Button } from "@/components/ui/button"
 import { usePageType } from "@/context/pageTypeContext"
-import { cadastroAlunoSchema } from "@/lib/schemas/cadastroAlunoSchema"
+import { CadastroAlunoSchema, cadastroAlunoSchema } from "@/lib/schemas/cadastroAlunoSchema"
 import { useForm } from "react-hook-form"
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import z from "zod"
 import { AlunoDataFields } from "./formGroups/alunoDataFields"
 
-export const FormAluno = () => {
+type Props = {
+    isEdit?: boolean;
+    defaultValues?: CadastroAlunoSchema;
+}
+
+export const FormAluno = ({ isEdit = false, defaultValues }: Props) => {
 
     const { type } = usePageType();
         if (type !== "aluno") return null;
     
         const schema = cadastroAlunoSchema();
-        const form = useForm<z.infer<typeof schema>>({
+        let form = useForm<z.infer<typeof schema>>();
+
+        if (isEdit) { //colocar os default values dps
+            if (!defaultValues) return null;
+            form = useForm<z.infer<typeof schema>>({
+                resolver: zodResolver(schema),
+                defaultValues: {
+                    nomeCompleto: "",
+                    dataNascimento: undefined,
+                    cpf: "",
+                    rg: "",
+                    genero: "",
+                    nomeDoPai: "",
+                    nomeDaMae: "",
+                    possuiDeficiencia: "nao",
+                    qualDeficiencia: "",
+                    logradouro: "",
+                    numero: "",
+                    bairro: "",
+                    complemento: "",
+                    cidade: "",
+                    estado: "",
+                    telefone: "",
+                    celular: "",
+                    email: "",
+                    matricula: "",
+                    turma: ""
+                },
+            });
+        } else {
+            form = useForm<z.infer<typeof schema>>({
             resolver: zodResolver(schema),
             defaultValues: {
                 nomeCompleto: "",
@@ -43,6 +78,8 @@ export const FormAluno = () => {
                 turma: ""
             },
         });
+        }
+        
     
         const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -93,9 +130,9 @@ export const FormAluno = () => {
                     className="flex px-5 flex-col mx-1 mb-5 gap-4 w-full md:w-full"
                     noValidate
                 >
-                    <PersonalDataFields />
-                    <AddressFields />
-                    <AlunoDataFields />
+                    <PersonalDataFields isEdit={isEdit} />
+                    <AddressFields isEdit={isEdit} />
+                    <AlunoDataFields isEdit={isEdit} />
 
                     <Button
                         type="submit"
