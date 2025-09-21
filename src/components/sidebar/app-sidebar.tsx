@@ -32,7 +32,7 @@ const linksData = {
             { subtitle: "Usuário", link: "/cadastrar/usuario" },
             { subtitle: "Professor", link: "/cadastrar/professor" },
             { subtitle: "Aluno", link: "/cadastrar/aluno" },
-            { subtitle: "Disciplina", link: "/gerenciar/disciplina" },
+            { subtitle: "Disciplina", link: "/cadastrar/disciplina" },
         ]
     }
 }
