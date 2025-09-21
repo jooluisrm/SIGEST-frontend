@@ -1,34 +1,71 @@
-// src/components/sidebar/app-sidebar.tsx
-
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
     SidebarHeader,
     SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
+    SidebarSeparator,
     useSidebar,
 } from "@/components/ui/sidebar";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"; // Importe o Collapsible
-import { Home, PanelLeft, Plus, Settings, ChevronDown } from "lucide-react"; // Importe o ícone
+import { Home, Plus, Settings, ChevronDown, CircleQuestionMark } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { MenuRetratil } from "./menuRetratil";
+import { ItemMenu } from "./itemMenu";
+import { useRef } from "react";
+
+const linksData = {
+    gerenciar: {
+        title: "Gerenciar",
+        icon: <Settings size={16} />,
+        data: [
+            { subtitle: "Usuário", link: "/gerenciar/usuario" },
+            { subtitle: "Professor", link: "/gerenciar/professor" },
+            { subtitle: "Aluno", link: "/gerenciar/aluno" },
+            { subtitle: "Disciplina", link: "/gerenciar/disciplina" },
+        ]
+    },
+    cadastrar: {
+        title: "Cadastrar",
+        icon: <Plus />,
+        data: [
+            { subtitle: "Usuário", link: "/cadastrar/usuario" },
+            { subtitle: "Professor", link: "/cadastrar/professor" },
+            { subtitle: "Aluno", link: "/cadastrar/aluno" },
+            { subtitle: "Disciplina", link: "/gerenciar/disciplina" },
+        ]
+    }
+}
 
 export function AppSidebar() {
+    const { open, setOpen } = useSidebar();
 
-    const { open } = useSidebar();
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleMouseEnter = () => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+        if (!open) {
+            setOpen(true);
+        }
+    };
+
+    const handleMouseLeave = () => {
+
+        timerRef.current = setTimeout(() => {
+            setOpen(false);
+        }, 100);
+    };
 
     return (
-        <aside className="fixed inset-y-0 left-0 bg-background z-100">
-            <Sidebar variant="sidebar" collapsible="icon">
-                <SidebarHeader className="flex  p-2">
 
+        <aside
+            className="fixed inset-y-0 left-0 bg-background z-100"
+        >
+            <Sidebar variant="sidebar" collapsible="icon">
+                <SidebarHeader className="flex p-2">
                     <div className="relative h-15 w-full">
-                        {/* Imagem Grande (Logo Completo) */}
                         <Link href={"/dashboard"}>
                             <Image
                                 alt="logo sigest completo"
@@ -37,81 +74,52 @@ export function AppSidebar() {
                                 height={200}
                                 priority={true}
                                 className={`
-                absolute inset-0 w-full h-full object-contain
-                transition-opacity duration-300 ease-in-out
-                ${open ? 'opacity-100' : 'opacity-0'}
-            `}
+                                    absolute inset-0 w-full h-full object-contain
+                                    transition-opacity duration-300 ease-in-out
+                                    ${open ? 'opacity-100' : 'opacity-0'}
+                                `}
                             />
                         </Link>
-
                         <Link href={"/dashboard"}>
                             <Image
                                 alt="logo sigest mini"
                                 src={"/assets/favicon.ico"}
-                                width={60} // Defina um tamanho explícito para o favicon
+                                width={60}
                                 height={60}
                                 className={`
-                absolute inset-0 w-full h-full object-contain
-                transition-opacity duration-300 ease-in-out
-                ${!open ? 'opacity-100' : 'opacity-0'}
-            `}
+                                    absolute inset-0 w-full h-full object-contain
+                                    transition-opacity duration-300 ease-in-out
+                                    ${!open ? 'opacity-100' : 'opacity-0'}
+                                `}
                             />
                         </Link>
                     </div>
                 </SidebarHeader>
 
-                <SidebarContent>
+                <SidebarContent
+                    className={`transition-all ${!open ? "mx-auto" : "mx-0"}`}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                >
                     <SidebarMenu>
-                        {/* Exemplo de item de menu normal */}
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild>
-                                <Link href="/dashboard">
-                                    <Home size={16} />
-                                    <span>Dashboard</span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-
-                        {/* --- AQUI COMEÇA O MENU RETRÁTIL --- */}
-                        <Collapsible defaultOpen className="group/collapsible">
-                            <SidebarMenuItem>
-                                <CollapsibleTrigger asChild>
-                                    <SidebarMenuButton>
-                                        <Plus size={16} />
-                                        <span>Cadastros</span>
-                                        {/* Ícone que gira ao abrir/fechar */}
-                                        <ChevronDown className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                                    </SidebarMenuButton>
-                                </CollapsibleTrigger>
-
-                                <CollapsibleContent>
-                                    <SidebarMenuSub>
-                                        <SidebarMenuSubItem>
-                                            <SidebarMenuSubButton asChild>
-                                                <Link href="/cadastrar/professor">Professor</Link>
-                                            </SidebarMenuSubButton>
-                                        </SidebarMenuSubItem>
-                                        <SidebarMenuSubItem>
-                                            <SidebarMenuSubButton asChild>
-                                                <Link href="/cadastrar/aluno">Aluno</Link>
-                                            </SidebarMenuSubButton>
-                                        </SidebarMenuSubItem>
-                                        <SidebarMenuSubItem>
-                                            <SidebarMenuSubButton asChild>
-                                                <Link href="/cadastrar/usuario">Usuário</Link>
-                                            </SidebarMenuSubButton>
-                                        </SidebarMenuSubItem>
-                                    </SidebarMenuSub>
-                                </CollapsibleContent>
-                            </SidebarMenuItem>
-                        </Collapsible>
-                        {/* --- AQUI TERMINA O MENU RETRÁTIL --- */}
-
+                        <ItemMenu
+                            icon={<Home size={16} />}
+                            link="/dashboard"
+                            title="Dashboard"
+                        />
+                        <MenuRetratil itemLinks={linksData.gerenciar} />
+                        <MenuRetratil itemLinks={linksData.cadastrar} />
                     </SidebarMenu>
                 </SidebarContent>
 
+                <SidebarSeparator className="my-2" />
+
                 <SidebarFooter>
-                    {/* Pode adicionar um menu de usuário ou configurações aqui */}
+                    <ItemMenu
+                        icon={<CircleQuestionMark size={16} />}
+                        link="/ajuda"
+                        title="Ajuda"
+                    />
                 </SidebarFooter>
             </Sidebar>
         </aside>

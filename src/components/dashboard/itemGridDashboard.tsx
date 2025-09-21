@@ -3,7 +3,7 @@ import Link from "next/link";
 
 type Props = {
     text: string;
-    type: "Cadastrar" | "Nota" | "Relatorio" | "Professor" | "Aluno" | "Servidor" | "Disciplina";
+    type: "Cadastrar" | "Nota" | "Relatorio" | "Professor" | "Aluno" | "Usuario" | "Disciplina";
     bg: 1 | 2;
     link?: string;
 };
@@ -15,7 +15,7 @@ const iconMap = {
     Relatorio: '/assets/relatorio-icon.png',
     Professor: '/assets/professor-icon.png',
     Aluno: '/assets/aluno-icon.png',
-    Servidor: '/assets/servidor-icon.png',
+    Usuario: '/assets/servidor-icon.png',
     Disciplina: '/assets/disciplina-icon.png',
 };
 
