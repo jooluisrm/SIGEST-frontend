@@ -7,6 +7,7 @@ import { usePageType } from "@/context/pageTypeContext";
 import { FormProfessor } from "../cadastrar/formularios/formProfessor";
 import { FormAluno } from "../cadastrar/formularios/formAluno";
 import { FormDisciplina } from "../cadastrar/formularios/formDisciplina";
+import { FormUsuario } from "../cadastrar/formularios/formUsuario";
 
 type Props = {
     item: TypeProfessorCadastro | any;
@@ -27,6 +28,9 @@ export const ItemTable = ({ item }: Props) => {
             break;
         case "disciplina":
             renderPageEdit = <FormDisciplina isEdit={true} defaultValues={item} />;
+            break;
+        case "usuario":
+            renderPageEdit = <FormUsuario isEdit={true} defaultValues={item} />;
             break;
     }
 

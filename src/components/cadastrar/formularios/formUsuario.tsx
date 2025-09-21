@@ -1,6 +1,6 @@
 import { Form } from "@/components/ui/form";
 import { usePageType } from "@/context/pageTypeContext";
-import { cadastroUsuarioSchema } from "@/lib/schemas/cadastroUsuarioSchema";
+import { CadastroUsuarioSchema, cadastroUsuarioSchema } from "@/lib/schemas/cadastroUsuarioSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -11,13 +11,22 @@ import { AuthFields } from "./formGroups/authFields";
 import { Button } from "@/components/ui/button";
 import { UsuarioDataFields } from "./formGroups/usuarioDataFields";
 
-export const FormUsuario = () => {
+type Props = {
+    isEdit?: boolean;
+    defaultValues?: CadastroUsuarioSchema;
+}
+
+export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
 
     const { type } = usePageType();
-        if (type !== "usuario") return null;
-    
-        const schema = cadastroUsuarioSchema();
-        const form = useForm<z.infer<typeof schema>>({
+    if (type !== "usuario") return null;
+
+    const schema = cadastroUsuarioSchema();
+    let form = useForm<z.infer<typeof schema>>();
+
+    if (isEdit) { //colocar os default values dps
+        if (!defaultValues) return null;
+        form = useForm<z.infer<typeof schema>>({
             resolver: zodResolver(schema),
             defaultValues: {
                 nomeCompleto: "",
@@ -43,16 +52,45 @@ export const FormUsuario = () => {
                 confirmarSenha: ""
             },
         });
-    
+    } else {
+        form = useForm<z.infer<typeof schema>>({
+            resolver: zodResolver(schema),
+            defaultValues: {
+                nomeCompleto: "",
+                dataNascimento: undefined,
+                cpf: "",
+                rg: "",
+                genero: "",
+                nomeDoPai: "",
+                nomeDaMae: "",
+                possuiDeficiencia: "nao",
+                qualDeficiencia: "",
+                logradouro: "",
+                numero: "",
+                bairro: "",
+                complemento: "",
+                cidade: "",
+                estado: "",
+                telefone: "",
+                celular: "",
+                email: "",
+                acesso: "",
+                senha: "",
+                confirmarSenha: ""
+            },
+        });
+    }
+
+
         const [isSubmitting, setIsSubmitting] = useState(false);
-        
-        
-    
+
+
+
         const onSubmit = async (data: z.infer<typeof schema>) => {
             if (type !== "usuario") return;
-    
+
             setIsSubmitting(true);
-    
+
             const dataToSend: any = {
                 nome: data.nomeCompleto,
                 data_nascimento: new Date(data.dataNascimento)
@@ -77,7 +115,7 @@ export const FormUsuario = () => {
                 senha: data.senha,
                 confirmarSenha: data.confirmarSenha
             };
-    
+
             try {
                 //await postCadastrarProfessor(dataToSend);
                 console.log("Dados enviados:", dataToSend);
@@ -88,35 +126,35 @@ export const FormUsuario = () => {
             }
         };
         const senhaValue = form.watch("senha");
-    
+
         useEffect(() => {
             // Dispara a validação para o campo 'confirmarSenha'
             form.trigger("confirmarSenha");
         }, [senhaValue, form.trigger]);
 
-    return (
-        <div>
-            <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex px-5 flex-col mx-1 mb-5 gap-4 w-full md:w-full"
-                    noValidate
-                >
-                    <PersonalDataFields />
-                    <AddressFields />
-                    <UsuarioDataFields />
-                    <AuthFields />
-
-                    <Button
-                        type="submit"
-                        variant="default"
-                        className="rounded-2xl text-white bg-secundaria h-14 w-25 mt-5 cursor-pointer hover:bg-secundaria hover:opacity-75"
-                        disabled={isSubmitting}
+        return (
+            <div>
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="flex px-5 flex-col mx-1 mb-5 gap-4 w-full md:w-full"
+                        noValidate
                     >
-                        {isSubmitting ? "Enviando..." : "Cadastrar"}
-                    </Button>
-                </form>
-            </Form>
-        </div>
-    );
-}
+                        <PersonalDataFields isEdit={isEdit} />
+                        <AddressFields isEdit={isEdit} />
+                        <UsuarioDataFields isEdit={isEdit} />
+                        <AuthFields isEdit={isEdit} />
+
+                        <Button
+                            type="submit"
+                            variant="default"
+                            className="rounded-2xl text-white bg-secundaria h-14 w-25 mt-5 cursor-pointer hover:bg-secundaria hover:opacity-75"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? "Enviando..." : "Cadastrar"}
+                        </Button>
+                    </form>
+                </Form>
+            </div>
+        );
+    }

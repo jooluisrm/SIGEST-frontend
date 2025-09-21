@@ -25,7 +25,7 @@ export const FormDisciplina = ({ isEdit = false, defaultValues }: Props) => {
     const schema = cadastroDisciplinaSchema();
     let form = useForm<z.infer<typeof schema>>();
 
-    if (isEdit) {
+    if (isEdit) { //colocar os default values dps
         if (!defaultValues) return null;
         form = useForm<z.infer<typeof schema>>({
             resolver: zodResolver(schema),
