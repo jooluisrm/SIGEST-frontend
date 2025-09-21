@@ -1,9 +1,9 @@
-// src/lib/schemas/cadastroProfessorSchema.ts
+// src/lib/schemas/cadastroUsuarioSchema.ts
 
 import { PageTypeCentral } from "@/types/routerType";
 import { z } from "zod";
 
-export const cadastroProfessorSchema = (user: PageTypeCentral) =>
+export const cadastroUsuarioSchema = () =>
     z
         .object({
             nomeCompleto: z
@@ -59,11 +59,9 @@ export const cadastroProfessorSchema = (user: PageTypeCentral) =>
             email: z
                 .string({ required_error: "O e-mail é obrigatório." })
                 .email("O formato do e-mail é inválido."),
-            matriculaAdpm: z
-                .string({ required_error: "A matrícula ADPM é obrigatória" })
-                .min(1, "A matrícula ADPM não pode ser vazia."),
-            codigoDisciplina: z
-                .string().min(1, "O código da disciplina é obrigatório."),
+            acesso: z
+                .string({ required_error: "A acesso é obrigatório" })
+                .min(1, "A acesso não pode ser vazio."),
             senha: z
                 .string({ required_error: "A senha é obrigatória" })
                 .min(6, "A senha deve ter no mínimo 6 caracteres"),
@@ -89,4 +87,4 @@ export const cadastroProfessorSchema = (user: PageTypeCentral) =>
 
 // Também é uma boa prática exportar o tipo inferido, se necessário em outros lugares.
 // Para isso, criamos uma versão base do schema e inferimos o tipo dela.
-export type CadastroFormValues = z.infer<ReturnType<typeof cadastroProfessorSchema>>;
+export type CadastroUsuarioSchema = z.infer<ReturnType<typeof cadastroUsuarioSchema>>;

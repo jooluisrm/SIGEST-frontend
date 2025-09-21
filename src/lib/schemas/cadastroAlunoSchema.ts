@@ -1,9 +1,9 @@
-// src/lib/schemas/cadastroProfessorSchema.ts
+// src/lib/schemas/cadastroAlunoSchema.ts
 
 import { PageTypeCentral } from "@/types/routerType";
 import { z } from "zod";
 
-export const cadastroProfessorSchema = (user: PageTypeCentral) =>
+export const cadastroAlunoSchema = () =>
     z
         .object({
             nomeCompleto: z
@@ -59,20 +59,12 @@ export const cadastroProfessorSchema = (user: PageTypeCentral) =>
             email: z
                 .string({ required_error: "O e-mail é obrigatório." })
                 .email("O formato do e-mail é inválido."),
-            matriculaAdpm: z
-                .string({ required_error: "A matrícula ADPM é obrigatória" })
-                .min(1, "A matrícula ADPM não pode ser vazia."),
-            codigoDisciplina: z
-                .string().min(1, "O código da disciplina é obrigatório."),
-            senha: z
-                .string({ required_error: "A senha é obrigatória" })
-                .min(6, "A senha deve ter no mínimo 6 caracteres"),
-            confirmarSenha: z
-                .string({ required_error: "A confirmação de senha é obrigatória" }),
+            matricula: z
+                .string({ required_error: "A matrícula é obrigatória" })
+                .min(1, "A matrícula não pode ser vazia."),
+            turma: z
+                .string().min(1, "O código da turma é obrigatório.")
 
-        }).refine((data) => data.senha === data.confirmarSenha, {
-            path: ["confirmarSenha"],
-            message: "As senhas não conferem",
         })
         .superRefine((data, ctx) => {
             if (
@@ -89,4 +81,4 @@ export const cadastroProfessorSchema = (user: PageTypeCentral) =>
 
 // Também é uma boa prática exportar o tipo inferido, se necessário em outros lugares.
 // Para isso, criamos uma versão base do schema e inferimos o tipo dela.
-export type CadastroFormValues = z.infer<ReturnType<typeof cadastroProfessorSchema>>;
+export type CadastroAlunoSchema = z.infer<ReturnType<typeof cadastroAlunoSchema>>;
