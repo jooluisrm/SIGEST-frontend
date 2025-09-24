@@ -1,15 +1,13 @@
-import { InitialPage } from "@/components/PaginaInicial/initialPage";
-import { HeaderPage } from "@/components/shared/headerPage";
-import { redirect } from "next/navigation";
+import { GlobalLayout } from "@/components/layout/global-layout";
+import { MainInitialPage } from "@/components/PaginaInicial/mainInitialPage";
 
 const Page = () => {
   return (
-    <div>
-        <header></header>
+    <GlobalLayout>
       <div className="flex justify-center items-center">
-        <InitialPage />
+        <MainInitialPage />
       </div>
-    </div>
+    </GlobalLayout>
   );
 };
 
