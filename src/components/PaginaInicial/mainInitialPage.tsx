@@ -3,7 +3,7 @@ import { InicialItem } from "./inicialItem"
 
 
 
-export const InitialPage = () => {
+export const MainInitialPage = () => {
     return (
         <div className="flex justify-center flex-col items-center my-10 mx-10 gap-10 w-[300px] sm:w-[500px] md:w-[1000px]">
             <BemVindo />

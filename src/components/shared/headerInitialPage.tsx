@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "../ui/card";
 import Image from "next/image";
 
-export const HeaderGlobal = () => {
+export const HeaderInitialPage = () => {
   const router = useRouter();
   return (
     <header className="fixed top-0 z-50 w-full">
@@ -19,7 +19,7 @@ export const HeaderGlobal = () => {
           </div>
           <div className="flex items-center gap-4 pt-1">
             <button
-              className="text-white"
+              className="text-white cursor-pointer hover:underline"
               onClick={() => router.push("/login")}
             >
               Acessar o Sistema

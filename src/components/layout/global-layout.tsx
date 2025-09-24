@@ -1,7 +1,7 @@
 "use client";
 
 import { LogoFundo } from "@/components/shared/logo-fundo";
-import { HeaderGlobal } from "../shared/headerGlobal";
+import { HeaderInitialPage } from "../shared/headerInitialPage";
 import { usePathname } from "next/navigation";
 
 type Props = {
@@ -18,7 +18,7 @@ export const GlobalLayout = ({ children }: Props) => {
 
   return (
     <div>
-      <HeaderGlobal />
+      <HeaderInitialPage />
       <main className="mt-20">
         <LogoFundo />
         <div className="bg-white/70 min-h-screen pb-20">{children}</div>
