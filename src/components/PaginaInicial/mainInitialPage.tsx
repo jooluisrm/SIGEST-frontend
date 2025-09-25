@@ -1,15 +1,13 @@
-import { BemVindo } from "./bemVindo"
-import { InicialItem } from "./inicialItem"
-
-
+import { BemVindo } from "./bemVindo";
+import { InicialItem } from "./inicialItem";
 
 export const MainInitialPage = () => {
-    return (
-        <div className="flex justify-center flex-col items-center my-10 mx-10 gap-10 w-[300px] sm:w-[500px] md:w-[1000px]">
-            <BemVindo />
-            <InicialItem title="Todas as Notícias"/>
-            <InicialItem title="Alunos destaque turma B"/>
-            <InicialItem title=""/>
-        </div>
-    )
-}
+  return (
+    <div className="flex justify-center items-center flex-col my-10 gap-12 w-full">
+      <BemVindo />
+      <InicialItem title="Todas as Notícias" />
+      <InicialItem title="Alunos destaque turma B" />
+      <InicialItem title="" />
+    </div>
+  );
+};
