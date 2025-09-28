@@ -10,6 +10,7 @@ import { AddressFields } from "./formGroups/addressFields";
 import { AuthFields } from "./formGroups/AuthFields";
 import { Button } from "@/components/ui/button";
 import { UsuarioDataFields } from "./formGroups/usuarioDataFields";
+import { FormButtons } from "./formComponents/formButtons";
 
 type Props = {
     isEdit?: boolean;
@@ -145,14 +146,7 @@ export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
                         <UsuarioDataFields isEdit={isEdit} />
                         <AuthFields isEdit={isEdit} />
 
-                        <Button
-                            type="submit"
-                            variant="default"
-                            className="rounded-2xl text-white bg-secundaria h-14 w-25 mt-5 cursor-pointer hover:bg-secundaria hover:opacity-75"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? "Enviando..." : "Cadastrar"}
-                        </Button>
+                        <FormButtons isSubmitting={isSubmitting} />
                     </form>
                 </Form>
             </div>

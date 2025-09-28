@@ -11,6 +11,7 @@ import { FormFieldText } from "./formComponents/formFieldText";
 import { FormFieldSelect } from "./formComponents/formFieldSelect";
 import { Button } from "@/components/ui/button";
 import { DisciplinaFields } from "./formGroups/disciplinaFields";
+import { FormButtons } from "./formComponents/formButtons";
 
 type Props = {
     isEdit?: boolean;
@@ -70,14 +71,7 @@ export const FormDisciplina = ({ isEdit = false, defaultValues }: Props) => {
                 >
                     <DisciplinaFields isEdit={isEdit} />
 
-                    <div className="flex flex-col gap-2 md:flex-row md:gap-4 mt-20">
-                        <Button disabled={isSubmitting} className="bg-secundaria font-bold">
-                            {isSubmitting ? "Enviando..." : "Salvar Disciplina"}
-                        </Button>
-                        <Button variant={"destructive"} className="">
-                            Cancelar
-                        </Button>
-                    </div>
+                    <FormButtons isSubmitting={isSubmitting} />
                 </form>
             </Form>
         </div>

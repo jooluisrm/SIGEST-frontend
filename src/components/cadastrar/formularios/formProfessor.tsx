@@ -24,6 +24,8 @@ import { PersonalDataFields } from "./formGroups/personalDataFields";
 import { AddressFields } from "./formGroups/addressFields";
 import { ProfessorDataFields } from "./formGroups/professorDataFields";
 import { AuthFields } from "./formGroups/AuthFields";
+import { AppButton } from "@/components/shared/app-button";
+import { FormButtons } from "./formComponents/formButtons";
 
 type Props = {
     isEdit?: boolean;
@@ -162,14 +164,7 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
                     <ProfessorDataFields isEdit={isEdit} />
                     <AuthFields isEdit={isEdit} />
 
-                    <Button
-                        type="submit"
-                        variant="default"
-                        className="rounded-2xl text-white bg-secundaria h-14 w-25 mt-5 cursor-pointer hover:bg-secundaria hover:opacity-75"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? "Enviando..." : "Cadastrar"}
-                    </Button>
+                    <FormButtons isSubmitting={isSubmitting} />
                 </form>
             </Form>
         </div>
