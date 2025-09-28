@@ -5,6 +5,7 @@ import {
     SidebarHeader,
     SidebarMenu,
     SidebarSeparator,
+    SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar";
 import { Home, Plus, Settings, ChevronDown, CircleQuestionMark } from "lucide-react";
@@ -46,13 +47,17 @@ export function AppSidebar() {
         if (timerRef.current) {
             clearTimeout(timerRef.current);
         }
-        if (!open) {
-            setOpen(true);
-        }
+        timerRef.current = setTimeout(() => {
+            if (!open) {
+                setOpen(true);
+            }
+        }, 200);
     };
 
     const handleMouseLeave = () => {
-
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
         timerRef.current = setTimeout(() => {
             setOpen(false);
         }, 100);
@@ -65,7 +70,11 @@ export function AppSidebar() {
         >
             <Sidebar variant="sidebar" collapsible="icon">
                 <SidebarHeader className="flex p-2">
-                    <div className="relative h-15 w-full">
+                    <SidebarTrigger />
+                    {
+                        /*
+                        <div className="relative h-15 w-full">
+
                         <Link href={"/dashboard"}>
                             <Image
                                 alt="logo sigest completo"
@@ -94,6 +103,8 @@ export function AppSidebar() {
                             />
                         </Link>
                     </div>
+                        */
+                    }
                 </SidebarHeader>
 
                 <SidebarContent

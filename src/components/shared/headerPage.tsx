@@ -39,8 +39,19 @@ export const HeaderPage = () => {
                         ${!open && !isMobile && "md:px-[3rem]"}
                     `}>
                     <div className="flex items-center gap-4">
-                        <SidebarTrigger />
                         
+                    <Link href={"/dashboard"}>
+                            <Image
+                                alt="logo sigest completo"
+                                src={'/assets/sigest-logo.png'}
+                                width={200}
+                                height={200}
+                                priority={true}
+                                className={`
+                                    w-40 h-14
+                                `}
+                            />
+                        </Link>
 
                     </div>
                     <div className="flex items-center gap-4 pt-1">
