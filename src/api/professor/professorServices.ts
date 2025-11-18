@@ -19,3 +19,8 @@ export const postCadastrarProfessor = async (data: TypeProfessorCadastro) => {
         toast.error(error.response.data.message);
     }
 };
+
+export const getProfessoresBySearch = async (search: string) => {
+    const response = await axiosInstance.get(`api/professors/search-name?nome=${search}`);
+    return response.data;
+};

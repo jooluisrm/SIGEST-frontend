@@ -12,6 +12,7 @@ import { useGerenciarData } from "@/hooks/use-gerenciar-data";
 import { Loader2Spin } from "../shared/loader2Spin";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppInput } from "../shared/app-input";
+import { getProfessoresBySearch } from "@/api/professor/professorServices";
 
 // colocar um type generico para a state
 type GenericData = any;
@@ -19,6 +20,8 @@ type GenericData = any;
 export const MainGerenciar = () => {
 
     const { type } = usePageType();
+    const [search, setSearch] = useState("");
+    const [filteredData, setFilteredData] = useState<GenericData | null>(null);
 
     // hook que faz a chamada GET (aluno, professor...)
     const { data, loading, error, fetchData } = useGerenciarData<GenericData>(type);
@@ -27,8 +30,35 @@ export const MainGerenciar = () => {
 
     const handlePageChange = (url: string) => {
         fetchData(url);
+        setFilteredData(null);
     };
 
+    const keyDownSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            if (search.trim() === "") {
+                setFilteredData(null);
+                return;
+            }
+            try {
+                const result = await getProfessoresBySearch(search);
+                if (result.professors) {
+                    setFilteredData({
+                        data: result.professors,
+                        meta: result.meta || null,
+                        links: result.links || null
+                    });
+                } else if (result.data) {
+                    setFilteredData(result);
+                } else {
+                    setFilteredData({ data: result, meta: null, links: null });
+                }
+            } catch (error) {
+                console.error("Erro ao buscar:", error);
+            }
+        }
+    };
+
+    const displayData = filteredData || data;
     return (
         <main className="min-h-screen">
             <div className="container mx-auto px-5 min-h-screen">
@@ -48,6 +78,9 @@ export const MainGerenciar = () => {
                                 type="search"
                                 placeholder="Buscar"
                                 icon={<Search size={20} />}
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                onKeyDown={keyDownSearch}
                             />
                         </div>
                     </CardHeader>
@@ -60,14 +93,14 @@ export const MainGerenciar = () => {
                                 <AlertTitle>Não foi possível carregar os dados</AlertTitle>
                             </Alert>
                         ) : (
-                            <TableGerenciar dataList={data.data} />
+                            <TableGerenciar dataList={displayData?.data || []} />
                         )}
                     </CardContent>
                     <CardFooter>
-                        {data?.meta && (
+                        {displayData?.meta && (
                             <PaginationTable
-                                meta={data.meta}
-                                onPageChange={handlePageChange} // Passe a função de callback
+                                meta={displayData.meta}
+                                onPageChange={handlePageChange}
                             />
                         )}
                     </CardFooter>
