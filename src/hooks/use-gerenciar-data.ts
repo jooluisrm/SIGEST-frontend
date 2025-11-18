@@ -26,7 +26,8 @@ export const useGerenciarData = <T>(type: PageTypeCentral | null) => {
                 throw new Error(`Nenhuma função de busca definida para o tipo: ${type}`);
             }
             // Passa a URL para o fetcher. Se for undefined, o fetcher usará seu valor padrão.
-            const result = await fetcher(url); 
+            const result = await fetcher(url);
+            console.log(result.data);
             setData(result as T);
         } catch (err) {
             console.error(err);

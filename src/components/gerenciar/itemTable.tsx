@@ -38,7 +38,7 @@ export const ItemTable = ({ item }: Props) => {
 
     return (
         <TableRow>
-            <TableCell className="font-medium">{item.nome}</TableCell>
+            <TableCell className="font-medium">{item.user}</TableCell>
             <TableCell className="hidden md:table-cell">{item.email}</TableCell>
             <TableCell className="hidden md:table-cell">{item.telefone}</TableCell>
             <TableCell>
