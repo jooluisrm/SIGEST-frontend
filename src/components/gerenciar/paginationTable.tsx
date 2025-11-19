@@ -38,8 +38,8 @@ export const PaginationTable = ({ meta, onPageChange  }: Props) => {
         <Pagination>
             <PaginationContent>
                 {meta.links.map((link, index) => {
-                    
-                    if (link.label.includes('Previous')) {
+                    // Verifica se é o botão "Previous" (case-insensitive)
+                    if (link.label.toLowerCase().includes('previous')) {
                         return (
                             <PaginationItem key={index}>
                                 <PaginationPrevious 
@@ -47,13 +47,14 @@ export const PaginationTable = ({ meta, onPageChange  }: Props) => {
                                     aria-disabled={!link.url}
                                     tabIndex={!link.url ? -1 : undefined}
                                     className={!link.url ? "pointer-events-none opacity-50" : undefined}
-                                     onClick={(e) => handleLinkClick(e, link)}
+                                    onClick={(e) => handleLinkClick(e, link)}
                                 />
                             </PaginationItem>
                         );
                     }
 
-                    if (link.label.includes('Next')) {
+                    // Verifica se é o botão "Next" (case-insensitive)
+                    if (link.label.toLowerCase().includes('next')) {
                         return (
                             <PaginationItem key={index}>
                                 <PaginationNext 
@@ -61,7 +62,7 @@ export const PaginationTable = ({ meta, onPageChange  }: Props) => {
                                     aria-disabled={!link.url}
                                     tabIndex={!link.url ? -1 : undefined}
                                     className={!link.url ? "pointer-events-none opacity-50" : undefined}
-                                     onClick={(e) => handleLinkClick(e, link)} 
+                                    onClick={(e) => handleLinkClick(e, link)} 
                                 />
                             </PaginationItem>
                         );

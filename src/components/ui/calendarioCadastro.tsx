@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/popover";
 
 type CalendarioCadastroProps = {
-    value: Date;
+    value: Date | undefined;
     onValueChange: (date?: Date) => void;
     label?: string;
     disabled?: (date: Date) => boolean;
@@ -31,7 +31,7 @@ export function CalendarioCadastro({ value, onValueChange, disabled, label }: Ca
                         id="date"
                         className="w-full border-primaria"
                     >
-                        {value ? (
+                        {value && !isNaN(value.getTime()) ? (
                             format(value, "P", { locale: ptBR })
                         ) : (
                             <span className="text-accent-foreground">Selecione uma data</span>
@@ -43,7 +43,7 @@ export function CalendarioCadastro({ value, onValueChange, disabled, label }: Ca
                     <Calendar
                         mode="single"
                         locale={ptBR}
-                        selected={value}
+                        selected={value && !isNaN(value.getTime()) ? value : undefined}
                         captionLayout="dropdown"
                         onSelect={(selectedDate) => {
                             onValueChange(selectedDate);

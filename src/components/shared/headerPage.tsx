@@ -7,6 +7,7 @@ import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { SidebarTrigger, useSidebar } from "../ui/sidebar";
+import { DropDownMenuProfile } from "../header/dropDownMenuProfile";
 
 export const HeaderPage = () => {
     
@@ -54,10 +55,9 @@ export const HeaderPage = () => {
                         </Link>
 
                     </div>
-                    <div className="flex items-center gap-4 pt-1">
+                    <div className="flex items-center gap-1 pt-1">
                         <ItemLiDashboard url="#" type="user" />
-                        <span>Fulano Da Silva</span>
-                        <LogOut color="#F00" />
+                        <DropDownMenuProfile />
                     </div>
                 </div>
             </Card>

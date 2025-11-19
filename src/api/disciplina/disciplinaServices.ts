@@ -1,7 +1,7 @@
 import axiosInstance from "@/lib/axiosInstance";
+import { GetDisciplinasResponse } from "@/types/disciplina";
 
-export const getDisciplina = async () => {
-    const response = await axiosInstance.get('api/disciplina');
-    console.log(response.data);
-    return response.data.data;
+export const getDisciplina = async (url: string = 'api/disciplinas'): Promise<GetDisciplinasResponse> => {
+    const response = await axiosInstance.get<GetDisciplinasResponse>(url);
+    return response.data;
 };
