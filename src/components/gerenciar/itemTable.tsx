@@ -8,9 +8,10 @@ import { FormProfessor } from "../cadastrar/formularios/formProfessor";
 import { FormAluno } from "../cadastrar/formularios/formAluno";
 import { FormDisciplina } from "../cadastrar/formularios/formDisciplina";
 import { FormUsuario } from "../cadastrar/formularios/formUsuario";
+import { Aluno } from "@/types/aluno";
 
 type Props = {
-    item: TypeProfessorCadastro | any;
+    item: TypeProfessorCadastro | Aluno | any;
 }
 
 export const ItemTable = ({ item }: Props) => {
@@ -36,11 +37,17 @@ export const ItemTable = ({ item }: Props) => {
 
     if (!renderPageEdit) return null;
 
+    // Para aluno: todos os campos estão em user_data
+    // Para professor: pode ter estrutura plana ou aninhada
+    const name = item.user_data?.name || item.name || item.nome || "";
+    const email = item.user_data?.email || item.email || "";
+    const telefone = item.user_data?.telefone || item.telefone || "";
+
     return (
         <TableRow>
-            <TableCell className="font-medium">{item.user}</TableCell>
-            <TableCell className="hidden md:table-cell">{item.email}</TableCell>
-            <TableCell className="hidden md:table-cell">{item.telefone}</TableCell>
+            <TableCell className="font-medium">{name}</TableCell>
+            <TableCell className="hidden md:table-cell">{email}</TableCell>
+            <TableCell className="hidden md:table-cell">{telefone}</TableCell>
             <TableCell>
                 <div className="flex lg:hidden items-center justify-end">
                     <DropDownMenuCell />

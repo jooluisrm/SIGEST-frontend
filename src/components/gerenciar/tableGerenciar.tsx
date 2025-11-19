@@ -11,9 +11,10 @@ import { ActionDialog } from "./actionDialog";
 import { ItemTable } from "./itemTable";
 import { TypeProfessorCadastro } from "@/types/professor";
 import { usePageType } from "@/context/pageTypeContext";
+import { Aluno } from "@/types/aluno";
 
 type Props = {
-    dataList: TypeProfessorCadastro[];
+    dataList: TypeProfessorCadastro[] | Aluno[];
 }
 
 export const TableGerenciar = ({ dataList }: Props) => {

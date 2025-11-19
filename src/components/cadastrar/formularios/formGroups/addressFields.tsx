@@ -6,6 +6,7 @@ import { FormFieldSelect } from "../formComponents/formFieldSelect";
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { CalendarioCadastro } from "@/components/ui/calendarioCadastro";
 import { useIBGE } from "@/hooks/use-ibge";
+import { useEffect, useRef } from "react";
 
 type Props = {
     isEdit?: boolean;
@@ -15,7 +16,35 @@ export const AddressFields = ({ isEdit = false }: Props) => {
 
     const form = useFormContext();
     const estadoSelecionado = form.watch("estado");
+    const cidadeAtual = form.watch("cidade");
     const { states, cities, loadingStates, loadingCities } = useIBGE(estadoSelecionado);
+    const cidadeJaSetada = useRef(false);
+
+    // Reseta a flag quando o estado mudar
+    useEffect(() => {
+        cidadeJaSetada.current = false;
+    }, [estadoSelecionado]);
+
+    // Seta a cidade quando as cidades forem carregadas e o estado estiver selecionado
+    useEffect(() => {
+        if (isEdit && estadoSelecionado && !loadingCities && cities.length > 0 && cidadeAtual && !cidadeJaSetada.current) {
+            // Verifica se a cidade atual existe na lista de cidades carregadas
+            const cidadeExiste = cities.some(cidade => cidade.nome === cidadeAtual);
+            if (cidadeExiste) {
+                // A cidade já está setada corretamente
+                cidadeJaSetada.current = true;
+            } else if (cidadeAtual) {
+                // Tenta encontrar uma cidade com nome similar (case-insensitive)
+                const cidadeEncontrada = cities.find(
+                    cidade => cidade.nome.toLowerCase() === cidadeAtual.toLowerCase()
+                );
+                if (cidadeEncontrada) {
+                    form.setValue("cidade", cidadeEncontrada.nome);
+                    cidadeJaSetada.current = true;
+                }
+            }
+        }
+    }, [isEdit, estadoSelecionado, loadingCities, cities, cidadeAtual, form]);
 
     return (
         <>
