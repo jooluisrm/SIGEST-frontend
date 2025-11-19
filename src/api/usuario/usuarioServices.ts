@@ -1,7 +1,7 @@
 import axiosInstance from "@/lib/axiosInstance";
+import { GetServidoresResponse } from "@/types/servidor";
 
-export const getUsuarios = async () => {
-    const response = await axiosInstance.get('api/servidor');
-    console.log(response.data);
-    return response.data.data;
+export const getUsuarios = async (url: string = 'api/servidors'): Promise<GetServidoresResponse> => {
+    const response = await axiosInstance.get<GetServidoresResponse>(url);
+    return response.data;
 }
