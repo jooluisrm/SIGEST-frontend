@@ -9,9 +9,11 @@ import { FormAluno } from "../cadastrar/formularios/formAluno";
 import { FormDisciplina } from "../cadastrar/formularios/formDisciplina";
 import { FormUsuario } from "../cadastrar/formularios/formUsuario";
 import { Aluno } from "@/types/aluno";
+import { Servidor } from "@/types/servidor";
+import { Disciplina } from "@/types/disciplina";
 
 type Props = {
-    item: TypeProfessorCadastro | Aluno | any;
+    item: TypeProfessorCadastro | Aluno | Servidor | Disciplina | any;
 }
 
 export const ItemTable = ({ item }: Props) => {
@@ -37,11 +39,22 @@ export const ItemTable = ({ item }: Props) => {
 
     if (!renderPageEdit) return null;
 
-    // Para aluno: todos os campos estão em user_data
+    // Para aluno e servidor: todos os campos estão em user_data
     // Para professor: pode ter estrutura plana ou aninhada
-    const name = item.user_data?.name || item.name || item.nome || "";
-    const email = item.user_data?.email || item.email || "";
-    const telefone = item.user_data?.telefone || item.telefone || "";
+    // Para disciplina: estrutura diferente (nome, sigla, etc)
+    let name = "";
+    let email = "";
+    let telefone = "";
+
+    if (type === "disciplina") {
+        name = item.nome || "";
+        email = item.sigla || "";
+        telefone = item.area_conhecimento || "";
+    } else {
+        name = item.user_data?.name || item.name || item.nome || "";
+        email = item.user_data?.email || item.email || "";
+        telefone = item.user_data?.telefone || item.telefone || "";
+    }
 
     return (
         <TableRow>
