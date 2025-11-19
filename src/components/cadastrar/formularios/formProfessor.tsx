@@ -3,28 +3,16 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { Button } from "@/components/ui/button";
-import { CalendarioCadastro } from "@/components/ui/calendarioCadastro";
 import { usePageType } from "@/context/pageTypeContext";
-import { useIBGE } from "@/hooks/use-ibge";
 import { postCadastrarProfessor } from "@/api/professor/professorServices";
-
 import { cadastroProfessorSchema } from "@/lib/schemas/cadastroProfessorSchema";
 import { TypeProfessorCadastro } from "@/types/professor";
-
 import { useEffect, useState } from "react";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { FormFieldText } from "./formComponents/formFieldText";
-
-import { FormFieldSelect } from "./formComponents/formFieldSelect";
-import { FormFieldMask } from "./formComponents/formFielMask";
-import { TitleForm } from "./formComponents/titleForm";
+import { Form } from "@/components/ui/form";
 import { PersonalDataFields } from "./formGroups/personalDataFields";
 import { AddressFields } from "./formGroups/addressFields";
 import { ProfessorDataFields } from "./formGroups/professorDataFields";
 import { AuthFields } from "./formGroups/AuthFields";
-import { AppButton } from "@/components/shared/app-button";
 import { FormButtons } from "./formComponents/formButtons";
 
 type Props = {
@@ -41,29 +29,47 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
 
     if (isEdit) {
         if (!defaultValues) return null;
+        
+        // Função auxiliar para criar Date válida
+        const createValidDate = (dateString: string | null | undefined): Date | undefined => {
+            if (!dateString) return undefined;
+            const date = new Date(dateString);
+            return isNaN(date.getTime()) ? undefined : date;
+        };
+
+        // Verifica se defaultValues tem estrutura aninhada (user_data) ou plana
+        const userData = (defaultValues as any).user_data || defaultValues;
+        const professorData = (defaultValues as any).professor_data || defaultValues;
+
+        // Normaliza o gênero para minúsculo (API retorna "Masculino", "Feminino", mas form espera "masculino", "feminino")
+        const normalizeGenero = (genero: string | null | undefined): string => {
+            if (!genero) return "";
+            return genero.toLowerCase();
+        };
+
         form = useForm<z.infer<typeof schema>>({
             resolver: zodResolver(schema),
             defaultValues: {
-                nomeCompleto: defaultValues.nome,
-                dataNascimento: new Date(defaultValues.data_nascimento),
-                cpf: defaultValues.cpf,
-                rg: defaultValues.rg,
-                genero: defaultValues.genero,
-                nomeDoPai: defaultValues.nome_pai,
-                nomeDaMae: defaultValues.nome_mae,
-                possuiDeficiencia: defaultValues.deficiencia ? "sim" : "nao",
-                qualDeficiencia: defaultValues.deficiencia || "",
-                logradouro: defaultValues.logradouro,
-                numero: defaultValues.numero,
-                bairro: defaultValues.bairro,
-                complemento: defaultValues.complemento || "",
-                cidade: defaultValues.cidade,
-                estado: defaultValues.estado,
-                telefone: defaultValues.telefone,
-                celular: defaultValues.celular,
-                email: defaultValues.email,
-                matriculaAdpm: defaultValues.matricula_adpm,
-                codigoDisciplina: "",
+                nomeCompleto: userData.name || userData.nome || "",
+                dataNascimento: createValidDate(userData.data_nascimento),
+                cpf: userData.cpf || "",
+                rg: userData.rg || "",
+                genero: normalizeGenero(userData.genero),
+                nomeDoPai: userData.nome_pai || "",
+                nomeDaMae: userData.nome_mae || "",
+                possuiDeficiencia: userData.deficiencia && userData.deficiencia !== "Nenhuma" ? "sim" : "nao",
+                qualDeficiencia: userData.deficiencia && userData.deficiencia !== "Nenhuma" ? userData.deficiencia : "",
+                logradouro: userData.logradouro || "",
+                numero: userData.numero || "",
+                bairro: userData.bairro || "",
+                complemento: userData.complemento || "",
+                cidade: userData.cidade || "",
+                estado: userData.estado || "",
+                telefone: userData.telefone || "",
+                celular: userData.celular || "",
+                email: userData.email || "",
+                matriculaAdpm: professorData.matricula_adpm || "",
+                codigoDisciplina: professorData.codigo_disciplina || "",
                 senha: "",
                 confirmarSenha: ""
             },
@@ -109,9 +115,9 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
 
         const dataToSend: TypeProfessorCadastro = {
             nome: data.nomeCompleto,
-            data_nascimento: new Date(data.dataNascimento)
-                .toISOString()
-                .split("T")[0],
+            data_nascimento: data.dataNascimento 
+                ? new Date(data.dataNascimento).toISOString().split("T")[0]
+                : "",
             cpf: data.cpf,
             rg: data.rg,
             genero: data.genero,
@@ -148,8 +154,6 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
         // Dispara a validação para o campo 'confirmarSenha'
         form.trigger("confirmarSenha");
     }, [senhaValue, form.trigger]);
-
-
 
     return (
         <div>

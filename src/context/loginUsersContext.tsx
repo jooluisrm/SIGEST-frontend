@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import Cookies from "js-cookie";
 
 export type UserData = {
   id_user: number;
@@ -25,9 +26,7 @@ export type UserData = {
 
 export type LoginResponse = {
   message: string;
-  user: {
-    "User Data": UserData;
-  };
+  user: UserData; // Mudança: user já é UserData diretamente, não tem "User Data"
   access_token: string;
   token_type: string;
 };
@@ -59,15 +58,23 @@ export const UserProvider = ({
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [tokenType, setTokenType] = useState<string | null>(null);
 
-  // Carregar dados do localStorage na inicialização
+  // Carregar dados dos cookies na inicialização
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
-      const storedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
-      const storedTokenType = localStorage.getItem(STORAGE_KEYS.TOKEN_TYPE);
+    try {
+      const storedUser = Cookies.get(STORAGE_KEYS.USER);
+      const storedToken = Cookies.get(STORAGE_KEYS.TOKEN);
+      const storedTokenType = Cookies.get(STORAGE_KEYS.TOKEN_TYPE);
 
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          if (parsedUser && typeof parsedUser === 'object') {
+            setUser(parsedUser);
+          }
+        } catch (e) {
+          console.error("Erro ao parsear dados do usuário:", e);
+          Cookies.remove(STORAGE_KEYS.USER);
+        }
       }
       if (storedToken) {
         setAccessToken(storedToken);
@@ -75,21 +82,23 @@ export const UserProvider = ({
       if (storedTokenType) {
         setTokenType(storedTokenType);
       }
+    } catch (error) {
+      console.error("Erro ao carregar dados dos cookies:", error);
     }
   }, []);
 
   const setUserData = (loginResponse: LoginResponse) => {
-    const userData = loginResponse.user["User Data"];
+    // Mudança: user já é UserData diretamente
+    const userData = loginResponse.user;
     setUser(userData);
     setAccessToken(loginResponse.access_token);
     setTokenType(loginResponse.token_type);
 
-    // Salvar no localStorage
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
-      localStorage.setItem(STORAGE_KEYS.TOKEN, loginResponse.access_token);
-      localStorage.setItem(STORAGE_KEYS.TOKEN_TYPE, loginResponse.token_type);
-    }
+    // Salvar nos cookies (expira em 7 dias)
+    const expires = 7; // dias
+    Cookies.set(STORAGE_KEYS.USER, JSON.stringify(userData), { expires, sameSite: 'strict' });
+    Cookies.set(STORAGE_KEYS.TOKEN, loginResponse.access_token, { expires, sameSite: 'strict' });
+    Cookies.set(STORAGE_KEYS.TOKEN_TYPE, loginResponse.token_type, { expires, sameSite: 'strict' });
   };
 
   const clearUser = () => {
@@ -97,14 +106,13 @@ export const UserProvider = ({
     setAccessToken(null);
     setTokenType(null);
 
-    // Limpar localStorage
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(STORAGE_KEYS.USER);
-      localStorage.removeItem(STORAGE_KEYS.TOKEN);
-      localStorage.removeItem(STORAGE_KEYS.TOKEN_TYPE);
-      // Redirecionar para login
-      window.location.href = '/login';
-    }
+    // Limpar cookies
+    Cookies.remove(STORAGE_KEYS.USER);
+    Cookies.remove(STORAGE_KEYS.TOKEN);
+    Cookies.remove(STORAGE_KEYS.TOKEN_TYPE);
+    
+    // Redirecionar para login
+    window.location.href = '/login';
   };
 
   return (

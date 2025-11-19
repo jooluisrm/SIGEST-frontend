@@ -1,6 +1,7 @@
 // lib/axiosInstance.ts
 
 import axios, { InternalAxiosRequestConfig } from 'axios';
+import Cookies from "js-cookie";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 if (!BASE_URL) {
@@ -19,8 +20,8 @@ axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         // Verificar se estamos no cliente (browser)
         if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('sigest_access_token');
-            const tokenType = localStorage.getItem('sigest_token_type') || 'Bearer';
+            const token = Cookies.get('sigest_access_token');
+            const tokenType = Cookies.get('sigest_token_type') || 'Bearer';
 
             if (token) {
                 config.headers.Authorization = `${tokenType} ${token}`;
@@ -42,9 +43,9 @@ axiosInstance.interceptors.response.use(
         // Se receber 401 (Unauthorized), limpar os dados do usuário
         if (error.response?.status === 401) {
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('sigest_user');
-                localStorage.removeItem('sigest_access_token');
-                localStorage.removeItem('sigest_token_type');
+                Cookies.remove('sigest_user');
+                Cookies.remove('sigest_access_token');
+                Cookies.remove('sigest_token_type');
                 // Redirecionar para login se necessário
                 // window.location.href = '/login';
             }
