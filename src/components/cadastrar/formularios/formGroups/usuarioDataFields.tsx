@@ -17,9 +17,15 @@ export const UsuarioDataFields = ({ isEdit = false }: Props) => {
             <div className={`${!isEdit ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-4' : 'grid md:grid-cols-1 lg:grid-cols-2 gap-4'}`}>
                 <FormFieldText
                     form={form}
-                    name="acesso"
-                    label="Acesso"
-                    placeholder="Ex: Professor"
+                    name="cargo"
+                    label="Cargo"
+                    placeholder="Ex: Diretora"
+                />
+                <FormFieldText
+                    form={form}
+                    name="setor"
+                    label="Setor"
+                    placeholder="Ex: Secretaria"
                 />
             </div>
         </>

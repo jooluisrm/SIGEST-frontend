@@ -3,7 +3,7 @@
 import { PageTypeCentral } from "@/types/routerType";
 import { z } from "zod";
 
-export const cadastroUsuarioSchema = () =>
+export const cadastroUsuarioSchema = (isEdit: boolean = false) =>
     z
         .object({
             nomeCompleto: z
@@ -59,16 +59,27 @@ export const cadastroUsuarioSchema = () =>
             email: z
                 .string({ required_error: "O e-mail é obrigatório." })
                 .email("O formato do e-mail é inválido."),
-            acesso: z
-                .string({ required_error: "A acesso é obrigatório" })
-                .min(1, "A acesso não pode ser vazio."),
-            senha: z
-                .string({ required_error: "A senha é obrigatória" })
-                .min(6, "A senha deve ter no mínimo 6 caracteres"),
-            confirmarSenha: z
-                .string({ required_error: "A confirmação de senha é obrigatória" }),
+            cargo: z
+                .string({ required_error: "O cargo é obrigatório" })
+                .min(1, "O cargo não pode ser vazio."),
+            setor: z
+                .string({ required_error: "O setor é obrigatório" })
+                .min(1, "O setor não pode ser vazio."),
+            senha: isEdit 
+                ? z.string().min(6, "A senha deve ter no mínimo 6 caracteres").optional().or(z.literal(""))
+                : z.string({ required_error: "A senha é obrigatória" })
+                    .min(6, "A senha deve ter no mínimo 6 caracteres"),
+            confirmarSenha: isEdit
+                ? z.string().optional().or(z.literal(""))
+                : z.string({ required_error: "A confirmação de senha é obrigatória" }),
 
-        }).refine((data) => data.senha === data.confirmarSenha, {
+        }).refine((data) => {
+            // Se estiver em modo de edição e senha vazia, não validar
+            if (isEdit && (!data.senha || data.senha === "")) {
+                return true;
+            }
+            return data.senha === data.confirmarSenha;
+        }, {
             path: ["confirmarSenha"],
             message: "As senhas não conferem",
         })

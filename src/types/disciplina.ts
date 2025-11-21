@@ -21,3 +21,15 @@ export type GetDisciplinasResponse = {
     meta: ApiMeta;
 };
 
+export type TypeDisciplinaCadastro = {
+    nome: string;
+    sigla: string;
+    area_conhecimento: string;
+    unidade: string;
+    carga_horaria: string;
+    data_inicio: string; // formato "YYYY-MM-DD"
+    data_encerramento: string; // formato "YYYY-MM-DD"
+    ementa: string;
+    bibliografia: string;
+};
+

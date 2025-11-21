@@ -17,9 +17,10 @@ type Props = {
     triggerClassName?: string;
     dialogTitle: string;
     dialogDescription: string;
+    onConfirm?: () => void;
 }
 
-export const AlertDialogComponent = ({ dialogTitle, triggerIcon, triggerTooltip, triggerClassName, dialogDescription }: Props) => {
+export const AlertDialogComponent = ({ onConfirm, dialogTitle, triggerIcon, triggerTooltip, triggerClassName, dialogDescription }: Props) => {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -39,7 +40,7 @@ export const AlertDialogComponent = ({ dialogTitle, triggerIcon, triggerTooltip,
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction>Confirmar</AlertDialogAction>
+                    <AlertDialogAction onClick={onConfirm}>Confirmar</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

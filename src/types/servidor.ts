@@ -1,5 +1,28 @@
 import { ApiLinks, ApiMeta } from "./getRequestType";
 
+export type TypeServidorCadastro = {
+    name: string;
+    data_nascimento: string;
+    cpf: string;
+    rg: string;
+    genero: string;
+    nome_pai: string;
+    nome_mae: string;
+    deficiencia?: string;
+    logradouro: string;
+    numero: string;
+    bairro: string;
+    complemento?: string;
+    cidade: string;
+    estado: string;
+    telefone: string;
+    celular: string;
+    email: string;
+    password?: string;  // Opcional para permitir atualização sem senha
+    cargo: string;
+    setor: string;
+};
+
 export type Servidor = {
     user_data: {
         id_user: number;

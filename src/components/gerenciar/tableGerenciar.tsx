@@ -17,9 +17,10 @@ import { Disciplina } from "@/types/disciplina";
 
 type Props = {
     dataList: TypeProfessorCadastro[] | Aluno[] | Servidor[] | Disciplina[];
+    onRefresh?: () => void;
 }
 
-export const TableGerenciar = ({ dataList }: Props) => {
+export const TableGerenciar = ({ dataList, onRefresh }: Props) => {
 
     const { type } = usePageType();
 
@@ -55,7 +56,7 @@ export const TableGerenciar = ({ dataList }: Props) => {
             </TableHeader>
             <TableBody>
                 {dataList.length > 0 && dataList.map((item, index) => (
-                    <ItemTable key={index} item={item}/>
+                    <ItemTable key={index} item={item} onRefresh={onRefresh} />
                 ))}
             </TableBody>
         </Table>

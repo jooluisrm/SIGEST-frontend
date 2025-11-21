@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePageType } from "@/context/pageTypeContext";
-import { postCadastrarProfessor } from "@/api/professor/professorServices";
+import { postCadastrarProfessor, putAtualizarProfessor } from "@/api/professor/professorServices";
 import { cadastroProfessorSchema } from "@/lib/schemas/cadastroProfessorSchema";
 import { TypeProfessorCadastro } from "@/types/professor";
 import { useEffect, useState } from "react";
@@ -18,14 +18,22 @@ import { FormButtons } from "./formComponents/formButtons";
 type Props = {
     isEdit?: boolean;
     defaultValues?: TypeProfessorCadastro;
+    onRefresh?: () => void;
 };
 
-export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
+export const FormProfessor = ({ isEdit = false, defaultValues, onRefresh }: Props) => {
     const { type: user } = usePageType();
     if (user !== "professor") return null;
 
-    const schema = cadastroProfessorSchema(user);
+    const schema = cadastroProfessorSchema(user, isEdit);
     let form = useForm<z.infer<typeof schema>>();
+
+    // Extrair o ID do professor para uso posterior
+    let professorId: number | null = null;
+    if (isEdit && defaultValues) {
+        const userData = (defaultValues as any).user_data || defaultValues;
+        professorId = userData.id_user || (defaultValues as any).id_user || null;
+    }
 
     if (isEdit) {
         if (!defaultValues) return null;
@@ -69,7 +77,7 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
                 celular: userData.celular || "",
                 email: userData.email || "",
                 matriculaAdpm: professorData.matricula_adpm || "",
-                codigoDisciplina: professorData.codigo_disciplina || "",
+                codigoDisciplina: professorData.codigo_disciplina || professorData.codigoDisciplina || "",
                 senha: "",
                 confirmarSenha: ""
             },
@@ -113,37 +121,63 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
 
         setIsSubmitting(true);
 
-        const dataToSend: TypeProfessorCadastro = {
-            nome: data.nomeCompleto,
-            data_nascimento: data.dataNascimento 
-                ? new Date(data.dataNascimento).toISOString().split("T")[0]
-                : "",
+        // Construir objeto de dados para envio
+        const dataToSend: any = {
+            name: data.nomeCompleto,
             cpf: data.cpf,
             rg: data.rg,
-            genero: data.genero,
-            nome_pai: data.nomeDoPai,
             nome_mae: data.nomeDaMae,
-            deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "",
+            deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "Nenhuma",
             logradouro: data.logradouro,
             numero: data.numero,
             bairro: data.bairro,
-            complemento: data.complemento,
             cidade: data.cidade,
             estado: data.estado,
-            telefone: data.telefone,
             celular: data.celular,
             email: data.email,
-            matricula_adpm: data.matriculaAdpm,
-            codigoDisciplina: data.codigoDisciplina,
-            senha: data.senha,
-            confirmarSenha: data.confirmarSenha
+            codigo_disciplina: data.codigoDisciplina,
         };
 
+        // Campos opcionais - só incluir se tiverem valor (evita enviar strings vazias)
+        if (data.dataNascimento) {
+            dataToSend.data_nascimento = new Date(data.dataNascimento).toISOString().split("T")[0];
+        }
+        if (data.genero && data.genero.trim() !== "") {
+            dataToSend.genero = data.genero;
+        }
+        if (data.nomeDoPai && data.nomeDoPai.trim() !== "") {
+            dataToSend.nome_pai = data.nomeDoPai;
+        }
+        if (data.complemento && data.complemento.trim() !== "") {
+            dataToSend.complemento = data.complemento;
+        }
+        if (data.telefone && data.telefone.trim() !== "") {
+            dataToSend.telefone = data.telefone;
+        }
+        if (data.matriculaAdpm && data.matriculaAdpm.trim() !== "") {
+            dataToSend.matricula_adpm = data.matriculaAdpm;
+        }
+
+        // Só incluir senha se foi preenchida (em modo de edição)
+        if (data.senha && data.senha.trim() !== "") {
+            dataToSend.password = data.senha;
+        }
+
         try {
-            await postCadastrarProfessor(dataToSend);
-            console.log("Dados enviados:", dataToSend);
+            if (isEdit && professorId) {
+                await putAtualizarProfessor(professorId, dataToSend);
+                console.log("Dados atualizados:", dataToSend);
+                // Atualizar a tabela após sucesso
+                if (onRefresh) {
+                    onRefresh();
+                }
+            } else {
+                await postCadastrarProfessor(dataToSend);
+                console.log("Dados enviados:", dataToSend);
+            }
         } catch (error: any) {
             console.log(error.message);
+            // O toast já é exibido nas funções de serviço
         } finally {
             setIsSubmitting(false);
         }
@@ -168,7 +202,7 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
                     <ProfessorDataFields isEdit={isEdit} />
                     <AuthFields isEdit={isEdit} />
 
-                    <FormButtons isSubmitting={isSubmitting} />
+                    <FormButtons isSubmitting={isSubmitting} isEdit={isEdit} />
                 </form>
             </Form>
         </div>

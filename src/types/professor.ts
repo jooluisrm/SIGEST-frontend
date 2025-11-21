@@ -1,9 +1,8 @@
 import { ApiLinks, ApiMeta } from "./getRequestType";
 
 export type TypeProfessorCadastro = {
-    //id: number;
-    nome: string;
-    data_nascimento: string; // formato ISO ou "YYYY-MM-DD"
+    name: string;  // era "nome"
+    data_nascimento: string;
     cpf: string;
     rg: string;
     genero: string;
@@ -20,9 +19,9 @@ export type TypeProfessorCadastro = {
     celular: string;
     email: string;
     matricula_adpm?: string;
-    codigoDisciplina: string;
-    senha: string;
-    confirmarSenha: string;
+    codigo_disciplina: string;  // era "codigoDisciplina"
+    password?: string;  // Opcional para permitir atualização sem senha
+    // confirmarSenha removido do tipo (não vai no payload)
 }
 
 export type GetProfessoresResponse = {

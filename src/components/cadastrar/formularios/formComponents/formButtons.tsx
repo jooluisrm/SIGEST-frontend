@@ -4,9 +4,10 @@ import { useFormContext } from "react-hook-form";
 
 type Props = {
     isSubmitting: boolean;
+    isEdit?: boolean;
 }
 
-export const FormButtons = ({ isSubmitting }: Props) => {
+export const FormButtons = ({ isSubmitting, isEdit }: Props) => {
 
     const { reset } = useFormContext();
 
@@ -19,7 +20,7 @@ export const FormButtons = ({ isSubmitting }: Props) => {
                     intent={"done1"}
                     className="min-w-[120px]"
                 >
-                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <span>Cadastrar</span>}
+                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <span>{isEdit ? "Salvar" : "Cadastrar"}</span>}
                 </AppButton>
                 <AppButton
                     isLoading={isSubmitting}
