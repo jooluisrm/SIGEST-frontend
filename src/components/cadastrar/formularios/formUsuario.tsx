@@ -10,21 +10,30 @@ import { AddressFields } from "./formGroups/addressFields";
 import { AuthFields } from "./formGroups/AuthFields";
 import { UsuarioDataFields } from "./formGroups/usuarioDataFields";
 import { FormButtons } from "./formComponents/formButtons";
-import { postCadastrarUsuario } from "@/api/usuario/usuarioServices";
+import { postCadastrarUsuario, putAtualizarUsuario } from "@/api/usuario/usuarioServices";
 import { toast } from "sonner";
 import { TypeServidorCadastro } from "@/types/servidor";
+
 type Props = {
     isEdit?: boolean;
     defaultValues?: CadastroUsuarioSchema;
+    onRefresh?: () => void;
 }
 
-export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
+export const FormUsuario = ({ isEdit = false, defaultValues, onRefresh }: Props) => {
 
     const { type } = usePageType();
     if (type !== "usuario") return null;
 
-    const schema = cadastroUsuarioSchema();
+    const schema = cadastroUsuarioSchema(isEdit);
     let form = useForm<z.infer<typeof schema>>();
+
+    // Extrair o ID do usuário para uso posterior
+    let usuarioId: number | null = null;
+    if (isEdit && defaultValues) {
+        const userData = (defaultValues as any).user_data || defaultValues;
+        usuarioId = userData.id_user || (defaultValues as any).id_user || null;
+    }
 
     if (isEdit) {
         if (!defaultValues) return null;
@@ -105,8 +114,6 @@ export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
 
         const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-
         const onSubmit = async (data: z.infer<typeof schema>) => {
             if (type !== "usuario") return;
 
@@ -125,7 +132,7 @@ export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
                     : "",
                 cpf: data.cpf,
                 rg: data.rg,
-                genero: capitalizeGenero(data.genero),  // Capitalizar gênero
+                genero: capitalizeGenero(data.genero),
                 nome_pai: data.nomeDoPai,
                 nome_mae: data.nomeDaMae,
                 deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "Nenhuma",
@@ -138,16 +145,30 @@ export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
                 telefone: data.telefone,
                 celular: data.celular,
                 email: data.email,
-                password: data.senha,
                 cargo: data.cargo,
                 setor: data.setor
             };
 
+            // Só incluir senha se foi preenchida (em modo de edição)
+            if (data.senha && data.senha.trim() !== "") {
+                (dataToSend as any).password = data.senha;
+            }
+
             try {
-                const response = await postCadastrarUsuario(dataToSend);
-                toast.success(response.mensagem);
+                if (isEdit && usuarioId) {
+                    await putAtualizarUsuario(usuarioId, dataToSend);
+                    console.log("Dados atualizados:", dataToSend);
+                    // Atualizar a tabela após sucesso
+                    if (onRefresh) {
+                        onRefresh();
+                    }
+                } else {
+                    await postCadastrarUsuario(dataToSend);
+                    console.log("Dados enviados:", dataToSend);
+                }
             } catch (error: any) {
-                toast.error("Erro ao cadastrar usuario");
+                console.log(error.message);
+                // O toast já é exibido nas funções de serviço
             } finally {
                 setIsSubmitting(false);
             }
@@ -172,7 +193,7 @@ export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
                         <UsuarioDataFields isEdit={isEdit} />
                         <AuthFields isEdit={isEdit} />
 
-                        <FormButtons isSubmitting={isSubmitting} />
+                        <FormButtons isSubmitting={isSubmitting} isEdit={isEdit} />
                     </form>
                 </Form>
             </div>

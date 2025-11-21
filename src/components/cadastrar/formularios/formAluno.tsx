@@ -12,22 +12,31 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import z from "zod"
 import { AlunoDataFields } from "./formGroups/alunoDataFields"
 import { FormButtons } from "./formComponents/formButtons"
-import { postCadastrarAluno } from "@/api/aluno/alunoServices"
+import { postCadastrarAluno, putAtualizarAluno } from "@/api/aluno/alunoServices"
 import { toast } from "sonner"
 import { AuthFields } from "./formGroups/AuthFields";
+import { TypeAlunoCadastro } from "@/types/aluno";
 
 type Props = {
     isEdit?: boolean;
     defaultValues?: CadastroAlunoSchema;
+    onRefresh?: () => void;
 }
 
-export const FormAluno = ({ isEdit = false, defaultValues }: Props) => {
+export const FormAluno = ({ isEdit = false, defaultValues, onRefresh }: Props) => {
 
     const { type } = usePageType();
         if (type !== "aluno") return null;
     
-        const schema = cadastroAlunoSchema();
+        const schema = cadastroAlunoSchema(isEdit);
         let form = useForm<z.infer<typeof schema>>();
+
+        // Extrair o ID do aluno para uso posterior
+        let alunoId: number | null = null;
+        if (isEdit && defaultValues) {
+            const userData = (defaultValues as any).user_data || defaultValues;
+            alunoId = userData.id_user || (defaultValues as any).id_user || null;
+        }
 
         if (isEdit) {
             if (!defaultValues) return null;
@@ -113,8 +122,8 @@ export const FormAluno = ({ isEdit = false, defaultValues }: Props) => {
         
                 setIsSubmitting(true);
         
-                const dataToSend: any = {
-                    name: data.nomeCompleto,  // era "nome"
+                const dataToSend: TypeAlunoCadastro = {
+                    name: data.nomeCompleto,
                     data_nascimento: data.dataNascimento 
                         ? new Date(data.dataNascimento).toISOString().split("T")[0]
                         : "",
@@ -123,7 +132,7 @@ export const FormAluno = ({ isEdit = false, defaultValues }: Props) => {
                     genero: data.genero,
                     nome_pai: data.nomeDoPai,
                     nome_mae: data.nomeDaMae,
-                    deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "Nenhuma",  // mudança aqui
+                    deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "Nenhuma",
                     logradouro: data.logradouro,
                     numero: data.numero,
                     bairro: data.bairro,
@@ -133,16 +142,30 @@ export const FormAluno = ({ isEdit = false, defaultValues }: Props) => {
                     telefone: data.telefone,
                     celular: data.celular,
                     email: data.email,
-                    password: data.senha,  // novo campo
                     matricula: data.matricula,
                     turma: data.turma
                 };
+
+                // Só incluir senha se foi preenchida (em modo de edição)
+                if (data.senha && data.senha.trim() !== "") {
+                    (dataToSend as any).password = data.senha;
+                }
         
                 try {
-                    await postCadastrarAluno(dataToSend);
-                    toast.success("Aluno cadastrado com sucesso");
+                    if (isEdit && alunoId) {
+                        await putAtualizarAluno(alunoId, dataToSend);
+                        console.log("Dados atualizados:", dataToSend);
+                        // Atualizar a tabela após sucesso
+                        if (onRefresh) {
+                            onRefresh();
+                        }
+                    } else {
+                        await postCadastrarAluno(dataToSend);
+                        console.log("Dados enviados:", dataToSend);
+                    }
                 } catch (error: any) {
-                    toast.error("Erro ao cadastrar aluno");
+                    console.log(error.message);
+                    // O toast já é exibido nas funções de serviço
                 } finally {
                     setIsSubmitting(false);
                 }
@@ -161,7 +184,7 @@ export const FormAluno = ({ isEdit = false, defaultValues }: Props) => {
                     <AlunoDataFields isEdit={isEdit} />
                     <AuthFields isEdit={isEdit} />  {/* Adicionar esta linha */}
 
-                    <FormButtons isSubmitting={isSubmitting} />
+                    <FormButtons isSubmitting={isSubmitting} isEdit={isEdit} />
                 </form>
             </Form>
         </div>

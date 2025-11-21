@@ -93,7 +93,10 @@ export const MainGerenciar = () => {
                                 <AlertTitle>Não foi possível carregar os dados</AlertTitle>
                             </Alert>
                         ) : (
-                            <TableGerenciar dataList={displayData?.data || []} />
+                            <TableGerenciar 
+                                dataList={displayData?.data || []} 
+                                onRefresh={fetchData}
+                            />
                         )}
                     </CardContent>
                     <CardFooter>

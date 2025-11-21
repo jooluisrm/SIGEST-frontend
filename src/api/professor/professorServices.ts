@@ -9,6 +9,11 @@ export const getProfessores = async (url: string = 'api/professors'): Promise<Ge
     return response.data;
 };
 
+export const getProfessoresBySearch = async (search: string) => {
+    const response = await axiosInstance.get(`api/professors/search-name?nome=${search}`);
+    return response.data;
+};
+
 export const postCadastrarProfessor = async (data: TypeProfessorCadastro) => {
     try {
         const response = await axiosInstance.post('api/professors', data);
@@ -20,9 +25,16 @@ export const postCadastrarProfessor = async (data: TypeProfessorCadastro) => {
     }
 };
 
-export const getProfessoresBySearch = async (search: string) => {
-    const response = await axiosInstance.get(`api/professors/search-name?nome=${search}`);
-    return response.data;
+export const putAtualizarProfessor = async (id: number, data: TypeProfessorCadastro) => {
+    try {
+        const response = await axiosInstance.put(`api/professors/${id}`, data);
+        toast.success(response.data.mensagem || "Professor atualizado com sucesso!");
+        return response.data;
+    } catch (error: any) {
+        console.log(error.response?.data?.message);
+        toast.error(error.response?.data?.message || "Erro ao atualizar professor");
+        throw error;
+    }
 };
 
 export const deleteProfessor = async (id: number) => {

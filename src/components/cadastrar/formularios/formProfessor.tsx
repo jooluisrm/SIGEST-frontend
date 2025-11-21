@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePageType } from "@/context/pageTypeContext";
-import { postCadastrarProfessor } from "@/api/professor/professorServices";
+import { postCadastrarProfessor, putAtualizarProfessor } from "@/api/professor/professorServices";
 import { cadastroProfessorSchema } from "@/lib/schemas/cadastroProfessorSchema";
 import { TypeProfessorCadastro } from "@/types/professor";
 import { useEffect, useState } from "react";
@@ -18,14 +18,22 @@ import { FormButtons } from "./formComponents/formButtons";
 type Props = {
     isEdit?: boolean;
     defaultValues?: TypeProfessorCadastro;
+    onRefresh?: () => void;
 };
 
-export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
+export const FormProfessor = ({ isEdit = false, defaultValues, onRefresh }: Props) => {
     const { type: user } = usePageType();
     if (user !== "professor") return null;
 
-    const schema = cadastroProfessorSchema(user);
+    const schema = cadastroProfessorSchema(user, isEdit);
     let form = useForm<z.infer<typeof schema>>();
+
+    // Extrair o ID do professor para uso posterior
+    let professorId: number | null = null;
+    if (isEdit && defaultValues) {
+        const userData = (defaultValues as any).user_data || defaultValues;
+        professorId = userData.id_user || (defaultValues as any).id_user || null;
+    }
 
     if (isEdit) {
         if (!defaultValues) return null;
@@ -135,14 +143,28 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
             email: data.email,
             matricula_adpm: data.matriculaAdpm,
             codigo_disciplina: data.codigoDisciplina,
-            password: data.senha
         };
 
+        // Só incluir senha se foi preenchida (em modo de edição)
+        if (data.senha && data.senha.trim() !== "") {
+            (dataToSend as any).password = data.senha;
+        }
+
         try {
-            await postCadastrarProfessor(dataToSend);
-            console.log("Dados enviados:", dataToSend);
+            if (isEdit && professorId) {
+                await putAtualizarProfessor(professorId, dataToSend);
+                console.log("Dados atualizados:", dataToSend);
+                // Atualizar a tabela após sucesso
+                if (onRefresh) {
+                    onRefresh();
+                }
+            } else {
+                await postCadastrarProfessor(dataToSend);
+                console.log("Dados enviados:", dataToSend);
+            }
         } catch (error: any) {
             console.log(error.message);
+            // O toast já é exibido nas funções de serviço
         } finally {
             setIsSubmitting(false);
         }
@@ -167,7 +189,7 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
                     <ProfessorDataFields isEdit={isEdit} />
                     <AuthFields isEdit={isEdit} />
 
-                    <FormButtons isSubmitting={isSubmitting} />
+                    <FormButtons isSubmitting={isSubmitting} isEdit={isEdit} />
                 </form>
             </Form>
         </div>

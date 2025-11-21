@@ -20,25 +20,26 @@ import { deleteProfessor } from "@/api/professor/professorServices";
 
 type Props = {
   item: TypeProfessorCadastro | Aluno | Servidor | Disciplina | any;
+  onRefresh?: () => void;
 }
 
-export const ItemTable = ({ item }: Props) => {
+export const ItemTable = ({ item, onRefresh }: Props) => {
   const { type } = usePageType();
 
   let renderPageEdit: React.ReactNode = null;
 
   switch (type) {
     case "professor":
-      renderPageEdit = <FormProfessor isEdit={true} defaultValues={item} />;
+      renderPageEdit = <FormProfessor isEdit={true} defaultValues={item} onRefresh={onRefresh} />;
       break;
     case "aluno":
-      renderPageEdit = <FormAluno isEdit={true} defaultValues={item} />;
+      renderPageEdit = <FormAluno isEdit={true} defaultValues={item} onRefresh={onRefresh} />;
       break;
     case "disciplina":
-      renderPageEdit = <FormDisciplina isEdit={true} defaultValues={item} />;
+      renderPageEdit = <FormDisciplina isEdit={true} defaultValues={item} onRefresh={onRefresh} />;
       break;
     case "usuario":
-      renderPageEdit = <FormUsuario isEdit={true} defaultValues={item} />;
+      renderPageEdit = <FormUsuario isEdit={true} defaultValues={item} onRefresh={onRefresh} />;
       break;
   }
   const handleDelete = async (id: number) => {
@@ -59,7 +60,9 @@ export const ItemTable = ({ item }: Props) => {
       }
       toast.success(`${type} deletado com sucesso!`);
       // Recarregar a página ou atualizar a lista
-      window.location.reload(); // Solução temporária
+      if (onRefresh) {
+        onRefresh();
+      }
       // TODO: Melhor seria passar uma função de callback do componente pai para atualizar a lista
     } catch (error: any) {
       console.error("Erro ao deletar:", error);

@@ -18,7 +18,7 @@ export type TypeServidorCadastro = {
     telefone: string;
     celular: string;
     email: string;
-    password: string;
+    password?: string;  // Opcional para permitir atualização sem senha
     cargo: string;
     setor: string;
 };

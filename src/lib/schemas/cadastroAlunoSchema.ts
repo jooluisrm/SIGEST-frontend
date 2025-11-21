@@ -3,7 +3,7 @@
 import { PageTypeCentral } from "@/types/routerType";
 import { z } from "zod";
 
-export const cadastroAlunoSchema = () =>
+export const cadastroAlunoSchema = (isEdit: boolean = false) =>
     z
         .object({
             nomeCompleto: z
@@ -64,14 +64,22 @@ export const cadastroAlunoSchema = () =>
                 .min(1, "A matrícula não pode ser vazia."),
             turma: z
                 .string().min(1, "O código da turma é obrigatório."),
-            senha: z
-                .string({ required_error: "A senha é obrigatória" })
-                .min(6, "A senha deve ter no mínimo 6 caracteres"),
-            confirmarSenha: z
-                .string({ required_error: "A confirmação de senha é obrigatória" }),
+            senha: isEdit 
+                ? z.string().min(6, "A senha deve ter no mínimo 6 caracteres").optional().or(z.literal(""))
+                : z.string({ required_error: "A senha é obrigatória" })
+                    .min(6, "A senha deve ter no mínimo 6 caracteres"),
+            confirmarSenha: isEdit
+                ? z.string().optional().or(z.literal(""))
+                : z.string({ required_error: "A confirmação de senha é obrigatória" }),
 
         })
-        .refine((data) => data.senha === data.confirmarSenha, {
+        .refine((data) => {
+            // Se estiver em modo de edição e senha vazia, não validar
+            if (isEdit && (!data.senha || data.senha === "")) {
+                return true;
+            }
+            return data.senha === data.confirmarSenha;
+        }, {
             path: ["confirmarSenha"],
             message: "As senhas não conferem",
         })

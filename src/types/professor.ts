@@ -20,7 +20,7 @@ export type TypeProfessorCadastro = {
     email: string;
     matricula_adpm?: string;
     codigo_disciplina: string;  // era "codigoDisciplina"
-    password: string;  // era "senha"
+    password?: string;  // Opcional para permitir atualização sem senha
     // confirmarSenha removido do tipo (não vai no payload)
 }
 

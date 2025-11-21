@@ -12,16 +12,17 @@ import { FormFieldSelect } from "./formComponents/formFieldSelect";
 import { Button } from "@/components/ui/button";
 import { DisciplinaFields } from "./formGroups/disciplinaFields";
 import { FormButtons } from "./formComponents/formButtons";
-import { postCadastrarDisciplina } from "@/api/disciplina/disciplinaServices";
+import { postCadastrarDisciplina, putAtualizarDisciplina } from "@/api/disciplina/disciplinaServices";
 import { TypeDisciplinaCadastro } from "@/types/disciplina";
 import { toast } from "sonner";
 
 type Props = {
     isEdit?: boolean;
     defaultValues?: CadastroDisciplinaFormValues;
+    onRefresh?: () => void;
 }
 
-export const FormDisciplina = ({ isEdit = false, defaultValues }: Props) => {
+export const FormDisciplina = ({ isEdit = false, defaultValues, onRefresh }: Props) => {
 
     const { type } = usePageType();
     if (type !== "disciplina") return null;
@@ -37,18 +38,26 @@ export const FormDisciplina = ({ isEdit = false, defaultValues }: Props) => {
         return isNaN(date.getTime()) ? undefined : date;
     };
 
+    // Extrair o ID da disciplina para uso posterior
+    // O defaultValues pode vir como Disciplina (da API) ou CadastroDisciplinaFormValues
+    let disciplinaId: number | null = null;
+    if (isEdit && defaultValues) {
+        disciplinaId = (defaultValues as any).id || null;
+    }
+
     const form = useForm<CadastroDisciplinaFormValues>({
         resolver: zodResolver(schema) as any,
         defaultValues: isEdit && defaultValues ? {
-            nomeDisciplina: defaultValues.nomeDisciplina || "",
-            sigla: defaultValues.sigla || "",
-            areaConhecimento: defaultValues.areaConhecimento || "",
-            unidade: defaultValues.unidade || "",
-            cargaHoraria: defaultValues.cargaHoraria || "",
-            dataInicio: createValidDate(defaultValues.dataInicio as any) || new Date(),
-            dataEncerramento: createValidDate(defaultValues.dataEncerramento as any) || new Date(),
-            ementa: defaultValues.ementa || "",
-            bibliografia: defaultValues.bibliografia || ""
+            // Mapear campos da API (Disciplina) para o formato do formulário
+            nomeDisciplina: (defaultValues as any).nome || defaultValues.nomeDisciplina || "",
+            sigla: (defaultValues as any).sigla || defaultValues.sigla || "",
+            areaConhecimento: (defaultValues as any).area_conhecimento || defaultValues.areaConhecimento || "",
+            unidade: (defaultValues as any).unidade || defaultValues.unidade || "",
+            cargaHoraria: (defaultValues as any).carga_horaria || defaultValues.cargaHoraria || "",
+            dataInicio: createValidDate((defaultValues as any).data_inicio || defaultValues.dataInicio as any) || new Date(),
+            dataEncerramento: createValidDate((defaultValues as any).data_encerramento || defaultValues.dataEncerramento as any) || new Date(),
+            ementa: (defaultValues as any).ementa || defaultValues.ementa || "",
+            bibliografia: (defaultValues as any).bibliografia || defaultValues.bibliografia || ""
         } : {
             nomeDisciplina: "",
             sigla: "",
@@ -85,10 +94,17 @@ export const FormDisciplina = ({ isEdit = false, defaultValues }: Props) => {
         };
 
         try {
-            const response = await postCadastrarDisciplina(dataToSend);
-            toast.success(response.mensagem || "Disciplina cadastrada com sucesso");
+            if (isEdit && disciplinaId) {
+                await putAtualizarDisciplina(disciplinaId, dataToSend);
+                // Atualizar a tabela após sucesso
+                if (onRefresh) {
+                    onRefresh();
+                }
+            } else {
+                await postCadastrarDisciplina(dataToSend);
+            }
         } catch (error: any) {
-            toast.error(error.response?.data?.message || "Erro ao cadastrar disciplina");
+            // O toast já é exibido nas funções de serviço
         } finally {
             setIsSubmitting(false);
         }
@@ -104,7 +120,7 @@ export const FormDisciplina = ({ isEdit = false, defaultValues }: Props) => {
                 >
                     <DisciplinaFields isEdit={isEdit} />
 
-                    <FormButtons isSubmitting={isSubmitting} />
+                    <FormButtons isSubmitting={isSubmitting} isEdit={isEdit} />
                 </form>
             </Form>
         </div>
