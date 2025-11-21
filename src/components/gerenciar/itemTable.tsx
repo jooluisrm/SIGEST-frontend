@@ -126,7 +126,7 @@ export const ItemTable = ({ item, onRefresh }: Props) => {
             dialogClassName="min-w-[75vw]"
             dialogTitle={`Visualizar ${type}`}
           >
-            <ItemView id={item.id_user} />
+            <ItemView id={id} />
           </ActionDialog>
         </div>
       </TableCell>
