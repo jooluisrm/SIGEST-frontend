@@ -8,11 +8,14 @@ import { FormProfessor } from "../cadastrar/formularios/formProfessor";
 import { FormAluno } from "../cadastrar/formularios/formAluno";
 import { FormDisciplina } from "../cadastrar/formularios/formDisciplina";
 import { FormUsuario } from "../cadastrar/formularios/formUsuario";
+import { Aluno } from "@/types/aluno";
+import { Servidor } from "@/types/servidor";
+import { Disciplina } from "@/types/disciplina";
 import { ItemView } from "./itemView";
 
 type Props = {
-  item: TypeProfessorCadastro | any;
-};
+  item: TypeProfessorCadastro | Aluno | Servidor | Disciplina | any;
+}
 
 export const ItemTable = ({ item }: Props) => {
   const { type } = usePageType();
@@ -36,11 +39,28 @@ export const ItemTable = ({ item }: Props) => {
 
   if (!renderPageEdit) return null;
 
+  // Para aluno e servidor: todos os campos estão em user_data
+  // Para professor: pode ter estrutura plana ou aninhada
+  // Para disciplina: estrutura diferente (nome, sigla, etc)
+  let name = "";
+  let email = "";
+  let telefone = "";
+
+  if (type === "disciplina") {
+    name = item.nome || "";
+    email = item.sigla || "";
+    telefone = item.area_conhecimento || "";
+  } else {
+    name = item.user_data?.name || item.name || item.nome || "";
+    email = item.user_data?.email || item.email || "";
+    telefone = item.user_data?.telefone || item.telefone || "";
+  }
+
   return (
     <TableRow>
-      <TableCell className="font-medium">{item.nome}</TableCell>
-      <TableCell className="hidden md:table-cell">{item.email}</TableCell>
-      <TableCell className="hidden md:table-cell">{item.telefone}</TableCell>
+      <TableCell className="font-medium">{name}</TableCell>
+      <TableCell className="hidden md:table-cell">{email}</TableCell>
+      <TableCell className="hidden md:table-cell">{telefone}</TableCell>
       <TableCell>
         <div className="flex lg:hidden items-center justify-end">
           <DropDownMenuCell />
