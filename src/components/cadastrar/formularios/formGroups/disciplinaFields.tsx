@@ -1,9 +1,10 @@
 import { FormFieldText } from "../formComponents/formFieldText"
 import { useFormContext } from "react-hook-form";
 import { FormFieldSelect } from "../formComponents/formFieldSelect";
-import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/components/ui/form";
 import { CalendarioCadastro } from "@/components/ui/calendarioCadastro";
 import { TitleForm } from "../formComponents/titleForm";
+import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
     isEdit?: boolean;
@@ -79,8 +80,8 @@ export const DisciplinaFields = ({ isEdit = false }: Props) => {
                                 onValueChange={field.onChange}
                                 disabled={(date) => {
                                     const dataInicio = form.watch("dataInicio");
-                                    return date < new Date("1900-01-01") || 
-                                           (dataInicio && date < dataInicio);
+                                    return date < new Date("1900-01-01") ||
+                                        (dataInicio && date < dataInicio);
                                 }}
                             />
                             <FormMessage />
@@ -88,20 +89,45 @@ export const DisciplinaFields = ({ isEdit = false }: Props) => {
                     )}
                 />
 
-                <FormFieldText
-                    form={form}
-                    name="ementa"
-                    label="Ementa"
-                    placeholder="Digite a ementa da disciplina"
-                />
-
-                <FormFieldText
-                    form={form}
-                    name="bibliografia"
-                    label="Bibliografia"
-                    placeholder="Digite a bibliografia"
-                />
+                
             </div>
+            <div className="flex flex-col gap-4">
+                    <FormField
+                        control={form.control}
+                        name="ementa"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Ementa</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        {...field}
+                                        placeholder="Digite a ementa da disciplina"
+                                        className="min-h-[100px] resize-y"
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="bibliografia"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Bibliografia</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        {...field}
+                                        placeholder="Digite a bibliografia"
+                                        className="min-h-[100px] resize-y"
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
         </>
     )
 }
