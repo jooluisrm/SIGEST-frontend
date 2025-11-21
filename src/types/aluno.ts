@@ -31,3 +31,26 @@ export type GetAlunosResponse = {
     meta: ApiMeta;
 };
 
+export type TypeAlunoCadastro = {
+    name: string;
+    data_nascimento: string;
+    cpf: string;
+    rg: string;
+    genero: string;
+    nome_pai: string;
+    nome_mae: string;
+    deficiencia?: string;
+    logradouro: string;
+    numero: string;
+    bairro: string;
+    complemento?: string;
+    cidade: string;
+    estado: string;
+    telefone: string;
+    celular: string;
+    email: string;
+    password: string;
+    matricula: string;
+    turma: string;
+};
+

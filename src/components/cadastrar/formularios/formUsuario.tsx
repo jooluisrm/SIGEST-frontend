@@ -8,10 +8,11 @@ import z from "zod";
 import { PersonalDataFields } from "./formGroups/personalDataFields";
 import { AddressFields } from "./formGroups/addressFields";
 import { AuthFields } from "./formGroups/AuthFields";
-import { Button } from "@/components/ui/button";
 import { UsuarioDataFields } from "./formGroups/usuarioDataFields";
 import { FormButtons } from "./formComponents/formButtons";
-
+import { postCadastrarUsuario } from "@/api/usuario/usuarioServices";
+import { toast } from "sonner";
+import { TypeServidorCadastro } from "@/types/servidor";
 type Props = {
     isEdit?: boolean;
     defaultValues?: CadastroUsuarioSchema;
@@ -25,30 +26,48 @@ export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
     const schema = cadastroUsuarioSchema();
     let form = useForm<z.infer<typeof schema>>();
 
-    if (isEdit) { //colocar os default values dps
+    if (isEdit) {
         if (!defaultValues) return null;
+        
+        // Função auxiliar para criar Date válida
+        const createValidDate = (dateString: string | null | undefined): Date | undefined => {
+            if (!dateString) return undefined;
+            const date = new Date(dateString);
+            return isNaN(date.getTime()) ? undefined : date;
+        };
+
+        // Verifica se defaultValues tem estrutura aninhada (user_data) ou plana
+        const userData = (defaultValues as any).user_data || defaultValues;
+
+        // Normaliza o gênero para minúsculo
+        const normalizeGenero = (genero: string | null | undefined): string => {
+            if (!genero) return "";
+            return genero.toLowerCase();
+        };
+
         form = useForm<z.infer<typeof schema>>({
             resolver: zodResolver(schema),
             defaultValues: {
-                nomeCompleto: "",
-                dataNascimento: undefined,
-                cpf: "",
-                rg: "",
-                genero: "",
-                nomeDoPai: "",
-                nomeDaMae: "",
-                possuiDeficiencia: "nao",
-                qualDeficiencia: "",
-                logradouro: "",
-                numero: "",
-                bairro: "",
-                complemento: "",
-                cidade: "",
-                estado: "",
-                telefone: "",
-                celular: "",
-                email: "",
-                acesso: "",
+                nomeCompleto: userData.name || userData.nome || "",
+                dataNascimento: createValidDate(userData.data_nascimento),
+                cpf: userData.cpf || "",
+                rg: userData.rg || "",
+                genero: normalizeGenero(userData.genero),
+                nomeDoPai: userData.nome_pai || "",
+                nomeDaMae: userData.nome_mae || "",
+                possuiDeficiencia: userData.deficiencia && userData.deficiencia !== "Nenhuma" ? "sim" : "nao",
+                qualDeficiencia: userData.deficiencia && userData.deficiencia !== "Nenhuma" ? userData.deficiencia : "",
+                logradouro: userData.logradouro || "",
+                numero: userData.numero || "",
+                bairro: userData.bairro || "",
+                complemento: userData.complemento || "",
+                cidade: userData.cidade || "",
+                estado: userData.estado || "",
+                telefone: userData.telefone || "",
+                celular: userData.celular || "",
+                email: userData.email || "",
+                cargo: userData.cargo || "",  // mudança aqui
+                setor: userData.setor || "",  // mudança aqui
                 senha: "",
                 confirmarSenha: ""
             },
@@ -75,7 +94,8 @@ export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
                 telefone: "",
                 celular: "",
                 email: "",
-                acesso: "",
+                cargo: "",  // mudança aqui
+                setor: "",  // mudança aqui
                 senha: "",
                 confirmarSenha: ""
             },
@@ -92,17 +112,23 @@ export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
 
             setIsSubmitting(true);
 
-            const dataToSend: any = {
-                nome: data.nomeCompleto,
-                data_nascimento: new Date(data.dataNascimento)
-                    .toISOString()
-                    .split("T")[0],
+            // Função para capitalizar primeira letra do gênero
+            const capitalizeGenero = (genero: string): string => {
+                if (!genero) return "";
+                return genero.charAt(0).toUpperCase() + genero.slice(1).toLowerCase();
+            };
+
+            const dataToSend: TypeServidorCadastro = {
+                name: data.nomeCompleto,
+                data_nascimento: data.dataNascimento 
+                    ? new Date(data.dataNascimento).toISOString().split("T")[0]
+                    : "",
                 cpf: data.cpf,
                 rg: data.rg,
-                genero: data.genero,
+                genero: capitalizeGenero(data.genero),  // Capitalizar gênero
                 nome_pai: data.nomeDoPai,
                 nome_mae: data.nomeDaMae,
-                deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "",
+                deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "Nenhuma",
                 logradouro: data.logradouro,
                 numero: data.numero,
                 bairro: data.bairro,
@@ -112,16 +138,16 @@ export const FormUsuario = ({ isEdit = false, defaultValues }: Props) => {
                 telefone: data.telefone,
                 celular: data.celular,
                 email: data.email,
-                acesso: data.acesso,
-                senha: data.senha,
-                confirmarSenha: data.confirmarSenha
+                password: data.senha,
+                cargo: data.cargo,
+                setor: data.setor
             };
 
             try {
-                //await postCadastrarProfessor(dataToSend);
-                console.log("Dados enviados:", dataToSend);
+                const response = await postCadastrarUsuario(dataToSend);
+                toast.success(response.mensagem);
             } catch (error: any) {
-                console.log(error.message);
+                toast.error("Erro ao cadastrar usuario");
             } finally {
                 setIsSubmitting(false);
             }

@@ -12,6 +12,9 @@ import { FormFieldSelect } from "./formComponents/formFieldSelect";
 import { Button } from "@/components/ui/button";
 import { DisciplinaFields } from "./formGroups/disciplinaFields";
 import { FormButtons } from "./formComponents/formButtons";
+import { postCadastrarDisciplina } from "@/api/disciplina/disciplinaServices";
+import { TypeDisciplinaCadastro } from "@/types/disciplina";
+import { toast } from "sonner";
 
 type Props = {
     isEdit?: boolean;
@@ -23,39 +26,69 @@ export const FormDisciplina = ({ isEdit = false, defaultValues }: Props) => {
     const { type } = usePageType();
     if (type !== "disciplina") return null;
 
-    const schema = cadastroDisciplinaSchema();
-    let form = useForm<z.infer<typeof schema>>();
+    if (isEdit && !defaultValues) return null;
 
-    if (isEdit) { //colocar os default values dps
-        if (!defaultValues) return null;
-        form = useForm<z.infer<typeof schema>>({
-            resolver: zodResolver(schema),
-            defaultValues: {
-                nomeDisciplina: defaultValues.nomeDisciplina,
-                areaConhecimento: defaultValues.areaConhecimento,
-                serie: defaultValues.serie
-            }
-        });
-    } else {
-        form = useForm<z.infer<typeof schema>>({
-            resolver: zodResolver(schema),
-            defaultValues: {
-                nomeDisciplina: "",
-                areaConhecimento: "",
-                serie: ""
-            }
-        });
-    }
+    const schema = cadastroDisciplinaSchema();
+
+    // Função auxiliar para criar Date válida
+    const createValidDate = (dateString: string | null | undefined): Date | undefined => {
+        if (!dateString) return undefined;
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? undefined : date;
+    };
+
+    const form = useForm<CadastroDisciplinaFormValues>({
+        resolver: zodResolver(schema) as any,
+        defaultValues: isEdit && defaultValues ? {
+            nomeDisciplina: defaultValues.nomeDisciplina || "",
+            sigla: defaultValues.sigla || "",
+            areaConhecimento: defaultValues.areaConhecimento || "",
+            unidade: defaultValues.unidade || "",
+            cargaHoraria: defaultValues.cargaHoraria || "",
+            dataInicio: createValidDate(defaultValues.dataInicio as any) || new Date(),
+            dataEncerramento: createValidDate(defaultValues.dataEncerramento as any) || new Date(),
+            ementa: defaultValues.ementa || "",
+            bibliografia: defaultValues.bibliografia || ""
+        } : {
+            nomeDisciplina: "",
+            sigla: "",
+            areaConhecimento: "",
+            unidade: "",
+            cargaHoraria: "",
+            dataInicio: new Date(),
+            dataEncerramento: new Date(),
+            ementa: "",
+            bibliografia: ""
+        }
+    });
 
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const onSubmit = async (data: z.infer<typeof schema>) => {
+    const onSubmit = async (data: CadastroDisciplinaFormValues) => {
         setIsSubmitting(true);
+        
+        const dataToSend: TypeDisciplinaCadastro = {
+            nome: data.nomeDisciplina,
+            sigla: data.sigla,
+            area_conhecimento: data.areaConhecimento,
+            unidade: data.unidade,
+            carga_horaria: data.cargaHoraria,
+            data_inicio: data.dataInicio 
+                ? new Date(data.dataInicio).toISOString().split("T")[0]
+                : "",
+            data_encerramento: data.dataEncerramento 
+                ? new Date(data.dataEncerramento).toISOString().split("T")[0]
+                : "",
+            ementa: data.ementa,
+            bibliografia: data.bibliografia
+        };
+
         try {
-            console.log(data);
+            const response = await postCadastrarDisciplina(dataToSend);
+            toast.success(response.mensagem || "Disciplina cadastrada com sucesso");
         } catch (error: any) {
-            console.log(error.message);
+            toast.error(error.response?.data?.message || "Erro ao cadastrar disciplina");
         } finally {
             setIsSubmitting(false);
         }

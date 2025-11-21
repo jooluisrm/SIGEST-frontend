@@ -69,7 +69,7 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
                 celular: userData.celular || "",
                 email: userData.email || "",
                 matriculaAdpm: professorData.matricula_adpm || "",
-                codigoDisciplina: professorData.codigo_disciplina || "",
+                codigoDisciplina: professorData.codigo_disciplina || professorData.codigoDisciplina || "",
                 senha: "",
                 confirmarSenha: ""
             },
@@ -114,7 +114,7 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
         setIsSubmitting(true);
 
         const dataToSend: TypeProfessorCadastro = {
-            nome: data.nomeCompleto,
+            name: data.nomeCompleto,
             data_nascimento: data.dataNascimento 
                 ? new Date(data.dataNascimento).toISOString().split("T")[0]
                 : "",
@@ -123,7 +123,7 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
             genero: data.genero,
             nome_pai: data.nomeDoPai,
             nome_mae: data.nomeDaMae,
-            deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "",
+            deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "Nenhuma",
             logradouro: data.logradouro,
             numero: data.numero,
             bairro: data.bairro,
@@ -134,9 +134,8 @@ export const FormProfessor = ({ isEdit = false, defaultValues }: Props) => {
             celular: data.celular,
             email: data.email,
             matricula_adpm: data.matriculaAdpm,
-            codigoDisciplina: data.codigoDisciplina,
-            senha: data.senha,
-            confirmarSenha: data.confirmarSenha
+            codigo_disciplina: data.codigoDisciplina,
+            password: data.senha
         };
 
         try {

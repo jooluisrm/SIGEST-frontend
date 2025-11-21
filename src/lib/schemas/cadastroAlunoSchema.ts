@@ -63,8 +63,17 @@ export const cadastroAlunoSchema = () =>
                 .string({ required_error: "A matrícula é obrigatória" })
                 .min(1, "A matrícula não pode ser vazia."),
             turma: z
-                .string().min(1, "O código da turma é obrigatório.")
+                .string().min(1, "O código da turma é obrigatório."),
+            senha: z
+                .string({ required_error: "A senha é obrigatória" })
+                .min(6, "A senha deve ter no mínimo 6 caracteres"),
+            confirmarSenha: z
+                .string({ required_error: "A confirmação de senha é obrigatória" }),
 
+        })
+        .refine((data) => data.senha === data.confirmarSenha, {
+            path: ["confirmarSenha"],
+            message: "As senhas não conferem",
         })
         .superRefine((data, ctx) => {
             if (

@@ -59,9 +59,12 @@ export const cadastroUsuarioSchema = () =>
             email: z
                 .string({ required_error: "O e-mail é obrigatório." })
                 .email("O formato do e-mail é inválido."),
-            acesso: z
-                .string({ required_error: "A acesso é obrigatório" })
-                .min(1, "A acesso não pode ser vazio."),
+            cargo: z
+                .string({ required_error: "O cargo é obrigatório" })
+                .min(1, "O cargo não pode ser vazio."),
+            setor: z
+                .string({ required_error: "O setor é obrigatório" })
+                .min(1, "O setor não pode ser vazio."),
             senha: z
                 .string({ required_error: "A senha é obrigatória" })
                 .min(6, "A senha deve ter no mínimo 6 caracteres"),
