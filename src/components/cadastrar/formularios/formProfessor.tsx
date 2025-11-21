@@ -121,33 +121,46 @@ export const FormProfessor = ({ isEdit = false, defaultValues, onRefresh }: Prop
 
         setIsSubmitting(true);
 
-        const dataToSend: TypeProfessorCadastro = {
+        // Construir objeto de dados para envio
+        const dataToSend: any = {
             name: data.nomeCompleto,
-            data_nascimento: data.dataNascimento 
-                ? new Date(data.dataNascimento).toISOString().split("T")[0]
-                : "",
             cpf: data.cpf,
             rg: data.rg,
-            genero: data.genero,
-            nome_pai: data.nomeDoPai,
             nome_mae: data.nomeDaMae,
             deficiencia: data.possuiDeficiencia === "sim" ? data.qualDeficiencia : "Nenhuma",
             logradouro: data.logradouro,
             numero: data.numero,
             bairro: data.bairro,
-            complemento: data.complemento,
             cidade: data.cidade,
             estado: data.estado,
-            telefone: data.telefone,
             celular: data.celular,
             email: data.email,
-            matricula_adpm: data.matriculaAdpm,
             codigo_disciplina: data.codigoDisciplina,
         };
 
+        // Campos opcionais - só incluir se tiverem valor (evita enviar strings vazias)
+        if (data.dataNascimento) {
+            dataToSend.data_nascimento = new Date(data.dataNascimento).toISOString().split("T")[0];
+        }
+        if (data.genero && data.genero.trim() !== "") {
+            dataToSend.genero = data.genero;
+        }
+        if (data.nomeDoPai && data.nomeDoPai.trim() !== "") {
+            dataToSend.nome_pai = data.nomeDoPai;
+        }
+        if (data.complemento && data.complemento.trim() !== "") {
+            dataToSend.complemento = data.complemento;
+        }
+        if (data.telefone && data.telefone.trim() !== "") {
+            dataToSend.telefone = data.telefone;
+        }
+        if (data.matriculaAdpm && data.matriculaAdpm.trim() !== "") {
+            dataToSend.matricula_adpm = data.matriculaAdpm;
+        }
+
         // Só incluir senha se foi preenchida (em modo de edição)
         if (data.senha && data.senha.trim() !== "") {
-            (dataToSend as any).password = data.senha;
+            dataToSend.password = data.senha;
         }
 
         try {

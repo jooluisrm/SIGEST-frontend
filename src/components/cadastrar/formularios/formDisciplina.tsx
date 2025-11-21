@@ -77,21 +77,37 @@ export const FormDisciplina = ({ isEdit = false, defaultValues, onRefresh }: Pro
     const onSubmit = async (data: CadastroDisciplinaFormValues) => {
         setIsSubmitting(true);
         
-        const dataToSend: TypeDisciplinaCadastro = {
-            nome: data.nomeDisciplina,
-            sigla: data.sigla,
-            area_conhecimento: data.areaConhecimento,
-            unidade: data.unidade,
-            carga_horaria: data.cargaHoraria,
-            data_inicio: data.dataInicio 
-                ? new Date(data.dataInicio).toISOString().split("T")[0]
-                : "",
-            data_encerramento: data.dataEncerramento 
-                ? new Date(data.dataEncerramento).toISOString().split("T")[0]
-                : "",
-            ementa: data.ementa,
-            bibliografia: data.bibliografia
-        };
+        // Construir objeto de dados para envio
+        // Todos os campos são opcionais na atualização - só incluir se tiverem valor
+        const dataToSend: any = {};
+
+        if (data.nomeDisciplina && data.nomeDisciplina.trim() !== "") {
+            dataToSend.nome = data.nomeDisciplina;
+        }
+        if (data.sigla && data.sigla.trim() !== "") {
+            dataToSend.sigla = data.sigla;
+        }
+        if (data.areaConhecimento && data.areaConhecimento.trim() !== "") {
+            dataToSend.area_conhecimento = data.areaConhecimento;
+        }
+        if (data.unidade && data.unidade.trim() !== "") {
+            dataToSend.unidade = data.unidade;
+        }
+        if (data.cargaHoraria && data.cargaHoraria.trim() !== "") {
+            dataToSend.carga_horaria = data.cargaHoraria;
+        }
+        if (data.dataInicio) {
+            dataToSend.data_inicio = new Date(data.dataInicio).toISOString().split("T")[0];
+        }
+        if (data.dataEncerramento) {
+            dataToSend.data_encerramento = new Date(data.dataEncerramento).toISOString().split("T")[0];
+        }
+        if (data.ementa && data.ementa.trim() !== "") {
+            dataToSend.ementa = data.ementa;
+        }
+        if (data.bibliografia && data.bibliografia.trim() !== "") {
+            dataToSend.bibliografia = data.bibliografia;
+        }
 
         try {
             if (isEdit && disciplinaId) {
