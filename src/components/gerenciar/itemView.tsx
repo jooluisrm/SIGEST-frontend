@@ -4,7 +4,7 @@ import { Card } from "../ui/card";
 import Image from "next/image";
 import { AppButton } from "../shared/app-button";
 
-export const ItemView = () => {
+export const ItemView = ({ id }: { id: number }) => {
   const { type } = usePageType();
 
   return (
@@ -13,7 +13,7 @@ export const ItemView = () => {
         <div className="flex flex-col mt-10 justify-center items-center">
           <div className="w-35 h-35 p-4 bg-gray-300 rounded-full md:w-50 md:h-50">
             <Image
-              src={`/assets/${type}-icon.png`}
+              src={`/assets/aluno-icon.png`}
               alt={`${type} avatar`}
               width={170}
               height={170}
