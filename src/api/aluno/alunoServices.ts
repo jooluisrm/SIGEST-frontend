@@ -10,3 +10,8 @@ export const postCadastrarAluno = async (data: TypeAlunoCadastro) => {
     const response = await axiosInstance.post('api/alunos', data);
     return response.data;
 }
+
+export const deleteAluno = async (id: number) => {
+    const response = await axiosInstance.delete(`api/alunos/${id}`);
+    return response.data;
+}

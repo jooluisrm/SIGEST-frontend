@@ -12,6 +12,11 @@ import { Aluno } from "@/types/aluno";
 import { Servidor } from "@/types/servidor";
 import { Disciplina } from "@/types/disciplina";
 import { ItemView } from "./itemView";
+import { deleteAluno } from "@/api/aluno/alunoServices";
+import { toast } from "sonner";
+import { deleteDisciplina } from "@/api/disciplina/disciplinaServices";
+import { deleteUsuario } from "@/api/usuario/usuarioServices";
+import { deleteProfessor } from "@/api/professor/professorServices";
 
 type Props = {
   item: TypeProfessorCadastro | Aluno | Servidor | Disciplina | any;
@@ -36,6 +41,31 @@ export const ItemTable = ({ item }: Props) => {
       renderPageEdit = <FormUsuario isEdit={true} defaultValues={item} />;
       break;
   }
+  const handleDelete = async (id: number) => {
+    try {
+      switch (type) {
+        case "aluno":
+          await deleteAluno(id);
+          break;
+        case "professor":
+          await deleteProfessor(id);
+          break;
+        case "disciplina":
+          await deleteDisciplina(id);
+          break;
+        case "usuario":
+          await deleteUsuario(id);
+          break;
+      }
+      toast.success(`${type} deletado com sucesso!`);
+      // Recarregar a página ou atualizar a lista
+      window.location.reload(); // Solução temporária
+      // TODO: Melhor seria passar uma função de callback do componente pai para atualizar a lista
+    } catch (error: any) {
+      console.error("Erro ao deletar:", error);
+      toast.error(error.response?.data?.message || `Erro ao deletar ${type}`);
+    }
+  }
 
   if (!renderPageEdit) return null;
 
@@ -45,15 +75,18 @@ export const ItemTable = ({ item }: Props) => {
   let name = "";
   let email = "";
   let telefone = "";
+  let id = null;
 
   if (type === "disciplina") {
     name = item.nome || "";
     email = item.sigla || "";
     telefone = item.area_conhecimento || "";
+    id = item.id || "";
   } else {
     name = item.user_data?.name || item.name || item.nome || "";
     email = item.user_data?.email || item.email || "";
     telefone = item.user_data?.telefone || item.telefone || "";
+    id = item.user_data?.id_user || item.id_user || "";
   }
 
   return (
@@ -67,6 +100,7 @@ export const ItemTable = ({ item }: Props) => {
         </div>
         <div className="hidden lg:flex items-center justify-end gap-1">
           <AlertDialogComponent
+            onConfirm={() => handleDelete(id as number)}
             triggerClassName="bg-red-500"
             triggerIcon="delete"
             triggerTooltip={`Deletar ${type}`}
@@ -89,7 +123,7 @@ export const ItemTable = ({ item }: Props) => {
             dialogClassName="min-w-[75vw]"
             dialogTitle={`Visualizar ${type}`}
           >
-            <ItemView id={item.id} />
+            <ItemView id={item.id_user} />
           </ActionDialog>
         </div>
       </TableCell>

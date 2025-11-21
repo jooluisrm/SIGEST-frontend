@@ -10,3 +10,8 @@ export const postCadastrarUsuario = async (data: TypeServidorCadastro) => {
     const response = await axiosInstance.post('api/servidors', data);
     return response.data;
 }
+
+export const deleteUsuario = async (id: number) => {
+    const response = await axiosInstance.delete(`api/servidors/${id}`);
+    return response.data;
+}

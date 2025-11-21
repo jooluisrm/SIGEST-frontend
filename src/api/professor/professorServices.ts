@@ -24,3 +24,8 @@ export const getProfessoresBySearch = async (search: string) => {
     const response = await axiosInstance.get(`api/professors/search-name?nome=${search}`);
     return response.data;
 };
+
+export const deleteProfessor = async (id: number) => {
+    const response = await axiosInstance.delete(`api/professors/${id}`);
+    return response.data;
+}
