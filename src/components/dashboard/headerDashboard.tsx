@@ -13,7 +13,7 @@ export const HeaderDashboard = () => {
                     className="w-[400px] h-20 -translate-x-2"
                 />
                 <h1 className="absolute top-1/2 left-1/2 -translate-x-[62%] -translate-y-1/2 text-text1 text-xl sm:text-3xl md:text-5xl text-nowrap font-bold">
-                    Bem Vindo!
+                    Bem-Vindo!
                 </h1>
             </div>
             <nav className="pr-5">
