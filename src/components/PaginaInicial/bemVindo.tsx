@@ -10,7 +10,7 @@ export const BemVindo = () => {
 
       <div className="flex justify-center items-center h-full px-4">
         <h1 className="text-2xl sm:text-5xl md:text-7xl font-bold text-[#008C35] text-center">
-          Bem Vindo
+          Bem-Vindo
         </h1>
       </div>
     </Card>
