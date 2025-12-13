@@ -5,7 +5,6 @@ import { FormProfessor } from "./formularios/formProfessor";
 import { FormAluno } from "./formularios/formAluno";
 import { FormDisciplina } from "./formularios/formDisciplina";
 import { FormUsuario } from "./formularios/formUsuario";
-import { FormTurma } from "./formularios/formTurma"; // ✅ NOVO
 
 export const ContainerCadastro = () => {
     const { type } = usePageType();
@@ -17,22 +16,14 @@ export const ContainerCadastro = () => {
         case "professor":
             pageRender = <FormProfessor />;
             break;
-
         case "aluno":
             pageRender = <FormAluno />;
             break;
-
         case "disciplina":
             pageRender = <FormDisciplina />;
             break;
-
-        case "usuario":
+        case "usuario": 
             pageRender = <FormUsuario />;
-            break;
-
-        case "turma":             
-            pageRender = <FormTurma />;
-            break;
     }
 
     return <div className="mt-10">{pageRender}</div>;
