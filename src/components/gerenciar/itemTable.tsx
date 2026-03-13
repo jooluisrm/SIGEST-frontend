@@ -18,6 +18,7 @@ import { deleteDisciplina } from "@/api/disciplina/disciplinaServices";
 import { deleteUsuario } from "@/api/usuario/usuarioServices";
 import { deleteProfessor } from "@/api/professor/professorServices";
 
+
 type Props = {
   item: TypeProfessorCadastro | Aluno | Servidor | Disciplina | any;
   onRefresh?: () => void;
@@ -72,9 +73,6 @@ export const ItemTable = ({ item, onRefresh }: Props) => {
 
   if (!renderPageEdit) return null;
 
-  // Para aluno e servidor: todos os campos estão em user_data
-  // Para professor: pode ter estrutura plana ou aninhada
-  // Para disciplina: estrutura diferente (nome, sigla, etc)
   let name = "";
   let email = "";
   let telefone = "";
@@ -113,7 +111,7 @@ export const ItemTable = ({ item, onRefresh }: Props) => {
           <ActionDialog
             triggerIcon="edit"
             triggerTooltip={`Alterar Dados ${type}`}
-            triggerClassName="bg-secundaria"
+            triggerClassName="bg-[#FF9B3F]"
             dialogTitle={`Editar ${type}`}
           >
             {renderPageEdit}
@@ -122,7 +120,7 @@ export const ItemTable = ({ item, onRefresh }: Props) => {
           <ActionDialog
             triggerIcon="view"
             triggerTooltip={`Ver mais`}
-            triggerClassName="bg-secundaria1"
+            triggerClassName="bg-[#2D6086]"
             dialogClassName="min-w-[75vw]"
             dialogTitle={`Visualizar ${type}`}
           >

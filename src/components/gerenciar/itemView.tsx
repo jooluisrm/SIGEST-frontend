@@ -8,21 +8,21 @@ export const ItemView = ({ id }: { id: number }) => {
   const { type } = usePageType();
 
   return (
-    <div className="container">
-      <Card className="border-0 flex">
-        <div className="flex flex-col mt-10 justify-center items-center">
-          <div className="w-35 h-35 p-4 bg-gray-300 rounded-full md:w-50 md:h-50">
+    <div className="container min-w-full p-0 md:p-4">
+      <Card className="border-0 flex flex-col md:flex-row gap-8 md:gap-4 w-full">
+        <div className="flex flex-col mt-4 md:mt-10 justify-start items-center md:w-1/3">
+          <div className="w-32 h-32 md:w-48 md:h-48 p-4 bg-gray-300 rounded-full flex items-center justify-center">
             <Image
               src={`/assets/aluno-icon.png`}
               alt={`${type} avatar`}
               width={170}
               height={170}
-              className="rounded-full w-full h-full"
+              className="rounded-full w-full h-full object-cover"
               priority={true}
             />
           </div>
-          <div className="mt-10 font-bold text-2xl">Fulano da Silva Soares</div>
-          <div className="mt-10 font-bold text-xl">
+          <div className="mt-6 md:mt-10 font-bold text-xl md:text-2xl text-center px-4">Fulano da Silva Soares</div>
+          <div className="mt-4 md:mt-10 font-bold text-lg md:text-xl text-center">
             {type === "professor" && <p>Matrícula ADPM: 12345</p>}
             {type != "professor" && <p>Matrícula: 12345</p>}
           </div>
@@ -31,14 +31,14 @@ export const ItemView = ({ id }: { id: number }) => {
             type="button"
             intent={"done2"}
             children="Alterar"
-            className="px-10 mt-2 text-xl"
+            className="px-10 mt-8 md:mt-4 text-xl"
           />
         </div>
         {type === "aluno" && (
-          <div className="flex w-60vw justify-between m-10">
-            <div>
-              <p className="mx-2 font-bold">Disciplinas em Curso:</p>
-              <Card className="w-100 border-0 mt-5">
+          <div className="flex flex-col xl:flex-row w-full md:w-2/3 justify-start xl:justify-between mt-8 md:mt-10 px-4 md:px-10 gap-8 pb-8">
+            <div className="w-full xl:w-1/2">
+              <p className="mx-2 font-bold mb-4">Disciplinas em Curso:</p>
+              <Card className="w-full border-0 space-y-2">
                 <div className="w-full bg-gray-200 border border-primaria rounded-md p-3">
                   Geografia
                 </div>
@@ -56,9 +56,9 @@ export const ItemView = ({ id }: { id: number }) => {
                 </div>
               </Card>
             </div>
-            <div>
-              <p className="mx-2 font-bold">Aulas de Hoje</p>
-              <Card className="flex flex-row justify-between w-100 bg-gray-200 border border-primaria rounded-md mt-5">
+            <div className="w-full xl:w-1/2">
+              <p className="mx-2 font-bold mb-4">Aulas de Hoje</p>
+              <Card className="flex flex-row justify-between w-full bg-gray-200 border border-primaria rounded-md py-4 px-2 sm:px-4">
                 <div className="mx-4">
                   <p className="mb-3 font-bold">Horário:</p>
                   <div className="flex flex-col gap-2">

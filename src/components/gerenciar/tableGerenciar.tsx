@@ -24,7 +24,6 @@ export const TableGerenciar = ({ dataList, onRefresh }: Props) => {
 
     const { type } = usePageType();
 
-    // Adaptar cabeçalhos da tabela para disciplina
     const getTableHeaders = () => {
         if (type === "disciplina") {
             return (
