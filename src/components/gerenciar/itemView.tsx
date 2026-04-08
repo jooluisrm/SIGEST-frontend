@@ -1,90 +1,112 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { detailFetchers } from "@/api/services";
+import {
+  DetailSection,
+  moduleRegistry,
+  RelatedSection,
+} from "@/config/module-registry";
 import { usePageType } from "@/context/pageTypeContext";
-import { IconAvatar } from "../cadastrar/iconAvatar";
+import { Alert, AlertTitle } from "../ui/alert";
 import { Card } from "../ui/card";
-import Image from "next/image";
-import { AppButton } from "../shared/app-button";
+import { Skeleton } from "../ui/skeleton";
 
 export const ItemView = ({ id }: { id: number }) => {
   const { type } = usePageType();
+  const [sections, setSections] = useState<DetailSection[]>([]);
+  const [relatedSections, setRelatedSections] = useState<RelatedSection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadData = async () => {
+      if (!type) {
+        return;
+      }
+
+      const registryEntry = moduleRegistry[type];
+      const detailPromise = detailFetchers[type](id);
+      const relatedPromise = registryEntry.getRelatedSections
+        ? registryEntry.getRelatedSections(id)
+        : Promise.resolve([]);
+
+      try {
+        const [detail, related] = await Promise.all([detailPromise, relatedPromise]);
+
+        if (!active) {
+          return;
+        }
+
+        setSections(registryEntry.detailSections(detail));
+        setRelatedSections(related);
+      } catch {
+        if (active) {
+          setError("Não foi possível carregar os detalhes.");
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      active = false;
+    };
+  }, [id, type]);
+
+  if (loading) {
+    return <Skeleton className="h-64 w-full" />;
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertTitle>{error}</AlertTitle>
+      </Alert>
+    );
+  }
 
   return (
-    <div className="container">
-      <Card className="border-0 flex">
-        <div className="flex flex-col mt-10 justify-center items-center">
-          <div className="w-35 h-35 p-4 bg-gray-300 rounded-full md:w-50 md:h-50">
-            <Image
-              src={`/assets/aluno-icon.png`}
-              alt={`${type} avatar`}
-              width={170}
-              height={170}
-              className="rounded-full w-full h-full"
-              priority={true}
-            />
+    <div className="grid gap-4">
+      {sections.map((section) => (
+        <Card key={section.title} className="p-4">
+          <h2 className="text-lg font-semibold">{section.title}</h2>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {section.items.map((item) => (
+              <div key={`${section.title}-${item.label}`} className="grid gap-1">
+                <span className="text-sm font-medium text-muted-foreground">
+                  {item.label}
+                </span>
+                <span className="break-words">{item.value}</span>
+              </div>
+            ))}
           </div>
-          <div className="mt-10 font-bold text-2xl">Fulano da Silva Soares</div>
-          <div className="mt-10 font-bold text-xl">
-            {type === "professor" && <p>Matrícula ADPM: 12345</p>}
-            {type != "professor" && <p>Matrícula: 12345</p>}
+        </Card>
+      ))}
+      {relatedSections.map((section) => (
+        <Card key={section.title} className="p-4">
+          <h2 className="text-lg font-semibold">{section.title}</h2>
+          <div className="mt-4 grid gap-3">
+            {section.entries.map((entry) => (
+              <div
+                key={`${section.title}-${entry.title}`}
+                className="rounded-md border border-border p-3"
+              >
+                <p className="font-medium">{entry.title}</p>
+                {entry.description && (
+                  <p className="text-sm text-muted-foreground">{entry.description}</p>
+                )}
+              </div>
+            ))}
           </div>
-
-          <AppButton
-            type="button"
-            intent={"done2"}
-            children="Alterar"
-            className="px-10 mt-2 text-xl"
-          />
-        </div>
-        {type === "aluno" && (
-          <div className="flex w-60vw justify-between m-10">
-            <div>
-              <p className="mx-2 font-bold">Disciplinas em Curso:</p>
-              <Card className="w-100 border-0 mt-5">
-                <div className="w-full bg-gray-200 border border-primaria rounded-md p-3">
-                  Geografia
-                </div>
-                <div className="w-full bg-gray-200 border border-primaria rounded-md p-3">
-                  História
-                </div>
-                <div className="w-full bg-gray-200 border border-primaria rounded-md p-3">
-                  Matemática
-                </div>
-                <div className="w-full bg-gray-200 border border-primaria rounded-md p-3">
-                  Português
-                </div>
-                <div className="w-full bg-gray-200 border border-primaria rounded-md p-3">
-                  Ciências
-                </div>
-              </Card>
-            </div>
-            <div>
-              <p className="mx-2 font-bold">Aulas de Hoje</p>
-              <Card className="flex flex-row justify-between w-100 bg-gray-200 border border-primaria rounded-md mt-5">
-                <div className="mx-4">
-                  <p className="mb-3 font-bold">Horário:</p>
-                  <div className="flex flex-col gap-2">
-                    <p>13:00 - 13:40</p>
-                    <p>13:40 - 14:40</p>
-                    <p>14:40 - 15:40</p>
-                    <p>16:00 - 16:40</p>
-                    <p>16:40 - 17:40</p>
-                  </div>
-                </div>
-
-                <div className="mx-4">
-                  <p className="mb-3 font-bold">Disciplina:</p>
-                  <div className="flex flex-col gap-2">
-                    <p>Português</p>
-                    <p>Português</p>
-                    <p>Intervalo</p>
-                    <p>Matemática</p>
-                    <p>Matemática</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-        )}
-      </Card>
+        </Card>
+      ))}
     </div>
   );
 };

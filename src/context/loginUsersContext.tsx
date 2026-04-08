@@ -1,129 +1,99 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import Cookies from "js-cookie";
-
-export type UserData = {
-  id_user: number;
-  name: string;
-  cpf: string;
-  rg: string;
-  data_nascimento: string;
-  nome_pai: string;
-  nome_mae: string;
-  genero: string;
-  deficiencia: string;
-  logradouro: string;
-  numero: string;
-  bairro: string;
-  complemento: string;
-  cidade: string;
-  estado: string;
-  telefone: string;
-  celular: string;
-  email: string;
-};
-
-export type LoginResponse = {
-  message: string;
-  user: UserData; // Mudança: user já é UserData diretamente, não tem "User Data"
-  access_token: string;
-  token_type: string;
-  role: string[];
-};
-
-const STORAGE_KEYS = {
-  USER: "sigest_user",
-  TOKEN: "sigest_access_token",
-  TOKEN_TYPE: "sigest_token_type",
-  ROLE: "sigest_role",
-};
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { AuthenticatedUser, AuthLoginData } from "@/types/auth";
+import {
+  clearStoredUser,
+  getStoredRoles,
+  getStoredToken,
+  getStoredTokenType,
+  getStoredUser,
+  setStoredUser,
+} from "@/lib/auth-storage";
+import { postLogout } from "@/api/login/loginServices";
 
 type UserContextProps = {
-  user: UserData | null;
+  user: AuthenticatedUser | null;
   role: string[];
   accessToken: string | null;
   tokenType: string | null;
-  setUserData: (loginResponse: LoginResponse) => void;
-  clearUser: () => void;
+  setUserData: (loginData: AuthLoginData) => void;
+  clearUser: () => Promise<void>;
 };
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
 
+const toAuthenticatedUser = (loginData: AuthLoginData): AuthenticatedUser => ({
+  id: loginData.id,
+  nome: loginData.nome,
+  email: loginData.email,
+  role: loginData.role,
+  access_token: loginData.access_token,
+  token_type: loginData.token_type,
+});
+
 export const UserProvider = ({
   children,
-  initialUser,
 }: {
   children: ReactNode;
-  initialUser?: UserData;
 }) => {
-  const [user, setUser] = useState<UserData | null>(initialUser ?? null);
+  const [user, setUser] = useState<AuthenticatedUser | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [tokenType, setTokenType] = useState<string | null>(null);
   const [role, setRole] = useState<string[]>([]);
-  // Carregar dados dos cookies na inicialização
+
   useEffect(() => {
-    try {
-      const storedUser = Cookies.get(STORAGE_KEYS.USER);
-      const storedToken = Cookies.get(STORAGE_KEYS.TOKEN);
-      const storedTokenType = Cookies.get(STORAGE_KEYS.TOKEN_TYPE);
-      const storedRole = Cookies.get(STORAGE_KEYS.ROLE);
-      if (storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          if (parsedUser && typeof parsedUser === 'object') {
-            setUser(parsedUser);
-          }
-        } catch (e) {
-          console.error("Erro ao parsear dados do usuário:", e);
-          Cookies.remove(STORAGE_KEYS.USER);
-        }
-      }
-      if (storedToken) {
-        setAccessToken(storedToken);
-      }
-      if (storedTokenType) {
-        setTokenType(storedTokenType);
-      }
-      if (storedRole) {
-        setRole(JSON.parse(storedRole));
-      }
-    } catch (error) {
-      console.error("Erro ao carregar dados dos cookies:", error);
+    const storedUser = getStoredUser();
+    const storedToken = getStoredToken();
+    const storedTokenType = getStoredTokenType();
+    const storedRoles = getStoredRoles();
+
+    if (storedUser) {
+      setUser(storedUser);
     }
+
+    setAccessToken(storedToken);
+    setTokenType(storedTokenType);
+    setRole(storedRoles);
   }, []);
 
-  const setUserData = (loginResponse: LoginResponse) => {
-    // Mudança: user já é UserData diretamente
-    const userData = loginResponse.user;
-    setUser(userData);
-    setAccessToken(loginResponse.access_token);
-    setTokenType(loginResponse.token_type);
+  const setUserData = (loginData: AuthLoginData) => {
+    const authenticatedUser = toAuthenticatedUser(loginData);
 
-    // Salvar nos cookies (expira em 7 dias)
-    const expires = 7; // dias
-    Cookies.set(STORAGE_KEYS.USER, JSON.stringify(userData), { expires, sameSite: 'strict' });
-    Cookies.set(STORAGE_KEYS.TOKEN, loginResponse.access_token, { expires, sameSite: 'strict' });
-    Cookies.set(STORAGE_KEYS.TOKEN_TYPE, loginResponse.token_type, { expires, sameSite: 'strict' });
-    Cookies.set(STORAGE_KEYS.ROLE, JSON.stringify(loginResponse.role), { expires, sameSite: 'strict' });
+    setUser(authenticatedUser);
+    setAccessToken(authenticatedUser.access_token);
+    setTokenType(authenticatedUser.token_type);
+    setRole(authenticatedUser.role);
+    setStoredUser(authenticatedUser);
   };
 
-  const clearUser = () => {
-    setUser(null);
-    setAccessToken(null);
-    setTokenType(null);
-    setRole([]);
-    // Limpar cookies
-    Cookies.remove(STORAGE_KEYS.USER);
-    Cookies.remove(STORAGE_KEYS.TOKEN);
-    Cookies.remove(STORAGE_KEYS.TOKEN_TYPE);
-    Cookies.remove(STORAGE_KEYS.ROLE);
-    // Redirecionar para login
-    window.location.href = '/login';
+  const clearUser = async () => {
+    try {
+      if (getStoredToken()) {
+        await postLogout();
+      }
+    } catch {
+      // O backend pode já ter invalidado a sessão; limpeza local continua.
+    } finally {
+      clearStoredUser();
+      setUser(null);
+      setAccessToken(null);
+      setTokenType(null);
+      setRole([]);
+      window.location.href = "/login";
+    }
   };
 
   return (
-    <UserContext.Provider value={{ user, role, accessToken, tokenType, setUserData, clearUser }}>
+    <UserContext.Provider
+      value={{ user, role, accessToken, tokenType, setUserData, clearUser }}
+    >
       {children}
     </UserContext.Provider>
   );
@@ -136,4 +106,3 @@ export const useUser = () => {
   }
   return context;
 };
-

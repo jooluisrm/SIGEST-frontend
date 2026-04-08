@@ -1,116 +1,126 @@
-"use client"
+"use client";
 
-import { ReactNode, useEffect, useId, useState } from "react";
-import { TableGerenciar } from "./tableGerenciar";
-import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { PaginationTable } from "./paginationTable";
-import { AlertCircleIcon, Loader2, Search, Terminal } from "lucide-react";
-import { ButtonGerenciar } from "./buttonGerenciar";
-import { TitlePage } from "../shared/titlePage";
+import { startTransition, useId, useState, useTransition } from "react";
+import { AlertCircleIcon, Search } from "lucide-react";
+import { toast } from "sonner";
+import { searchFetchers } from "@/api/services";
+import { MODULES_BY_SLUG } from "@/config/modules";
 import { usePageType } from "@/context/pageTypeContext";
 import { useGerenciarData } from "@/hooks/use-gerenciar-data";
-import { Loader2Spin } from "../shared/loader2Spin";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { NormalizedListResponse } from "@/types/api";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { TableGerenciar } from "./tableGerenciar";
+import { PaginationTable } from "./paginationTable";
 import { AppInput } from "../shared/app-input";
-import { getProfessoresBySearch } from "@/api/professor/professorServices";
-
-// colocar um type generico para a state
-type GenericData = any;
+import { ButtonGerenciar } from "./buttonGerenciar";
+import { Loader2Spin } from "../shared/loader2Spin";
+import { TitlePage } from "../shared/titlePage";
 
 export const MainGerenciar = () => {
+  const { type } = usePageType();
+  const [search, setSearch] = useState("");
+  const [filteredData, setFilteredData] = useState<NormalizedListResponse<unknown> | null>(null);
+  const [isPending, startSearchTransition] = useTransition();
+  const id = useId();
 
-    const { type } = usePageType();
-    const [search, setSearch] = useState("");
-    const [filteredData, setFilteredData] = useState<GenericData | null>(null);
+  if (!type) {
+    return null;
+  }
 
-    // hook que faz a chamada GET (aluno, professor...)
-    const { data, loading, error, fetchData } = useGerenciarData<GenericData>(type);
+  const moduleMeta = MODULES_BY_SLUG[type];
+  const { data, loading, error, fetchData } = useGerenciarData<unknown>(type);
 
-    const id = useId();
+  const handlePageChange = (url: string) => {
+    startTransition(() => {
+      fetchData(url);
+      setFilteredData(null);
+    });
+  };
 
-    const handlePageChange = (url: string) => {
-        fetchData(url);
-        setFilteredData(null);
-    };
+  const handleSearch = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter") {
+      return;
+    }
 
-    const keyDownSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") {
-            if (search.trim() === "") {
-                setFilteredData(null);
-                return;
-            }
-            try {
-                const result = await getProfessoresBySearch(search);
-                if (result.professors) {
-                    setFilteredData({
-                        data: result.professors,
-                        meta: result.meta || null,
-                        links: result.links || null
-                    });
-                } else if (result.data) {
-                    setFilteredData(result);
-                } else {
-                    setFilteredData({ data: result, meta: null, links: null });
-                }
-            } catch (error) {
-                console.error("Erro ao buscar:", error);
-            }
-        }
-    };
+    if (!moduleMeta.capabilities.search) {
+      return;
+    }
 
-    const displayData = filteredData || data;
-    return (
-        <main className="min-h-screen">
-            <div className="container mx-auto px-5 min-h-screen">
-                <TitlePage title="Gerenciar" />
+    if (!search.trim()) {
+      setFilteredData(null);
+      fetchData();
+      return;
+    }
 
-                <Card>
-                    <CardHeader className="flex items-center justify-between">
-                        <ButtonGerenciar
-                            icon="add"
-                            className="bg-primaria"
-                            alt={`Cadastrar ${type}`}
-                            link={`/cadastrar/${type}`}
-                        />
-                        <div>
-                            <AppInput
-                                id={id}
-                                type="search"
-                                placeholder="Buscar"
-                                icon={<Search size={20} />}
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                onKeyDown={keyDownSearch}
-                            />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        {loading ? (
-                            <Loader2Spin />
-                        ) : error ? (
-                            <Alert variant="destructive">
-                                <AlertCircleIcon />
-                                <AlertTitle>Não foi possível carregar os dados</AlertTitle>
-                            </Alert>
-                        ) : (
-                            <TableGerenciar 
-                                dataList={displayData?.data || []} 
-                                onRefresh={fetchData}
-                            />
-                        )}
-                    </CardContent>
-                    <CardFooter>
-                        {displayData?.meta && (
-                            <PaginationTable
-                                meta={displayData.meta}
-                                onPageChange={handlePageChange}
-                            />
-                        )}
-                    </CardFooter>
-                </Card>
+    const searchFetcher = searchFetchers[type];
+    if (!searchFetcher) {
+      return;
+    }
 
-            </div>
+    try {
+      const response = await searchFetcher(search.trim());
+      startSearchTransition(() => {
+        setFilteredData(response);
+      });
+    } catch {
+      toast.error(`Erro ao buscar ${moduleMeta.label.toLowerCase()}.`);
+    }
+  };
 
-        </main>
-    );
-}
+  const displayData = filteredData ?? data;
+
+  return (
+    <main className="min-h-screen">
+      <div className="container mx-auto px-5 min-h-screen">
+        <TitlePage title="Gerenciar" />
+
+        <Card>
+          <CardHeader className="flex items-center justify-between gap-4">
+            {moduleMeta.capabilities.create ? (
+              <ButtonGerenciar
+                icon="add"
+                className="bg-primaria"
+                alt={`Cadastrar ${moduleMeta.label}`}
+                link={`/cadastrar/${type}`}
+              />
+            ) : (
+              <div />
+            )}
+            {moduleMeta.capabilities.search && (
+              <AppInput
+                id={id}
+                type="search"
+                placeholder={`Buscar ${moduleMeta.label.toLowerCase()}`}
+                icon={<Search size={20} />}
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                onKeyDown={handleSearch}
+              />
+            )}
+          </CardHeader>
+          <CardContent>
+            {loading || isPending ? (
+              <Loader2Spin />
+            ) : error ? (
+              <Alert variant="destructive">
+                <AlertCircleIcon />
+                <AlertTitle>Não foi possível carregar os dados</AlertTitle>
+              </Alert>
+            ) : (
+              <TableGerenciar
+                dataList={displayData?.data ?? []}
+                onRefresh={fetchData}
+              />
+            )}
+          </CardContent>
+          <CardFooter>
+            {displayData?.meta && (
+              <PaginationTable meta={displayData.meta} onPageChange={handlePageChange} />
+            )}
+          </CardFooter>
+        </Card>
+      </div>
+    </main>
+  );
+};

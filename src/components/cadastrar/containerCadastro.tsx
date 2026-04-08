@@ -1,30 +1,14 @@
 "use client";
 
+import { moduleRegistry } from "@/config/module-registry";
 import { usePageType } from "@/context/pageTypeContext";
-import { FormProfessor } from "./formularios/formProfessor";
-import { FormAluno } from "./formularios/formAluno";
-import { FormDisciplina } from "./formularios/formDisciplina";
-import { FormUsuario } from "./formularios/formUsuario";
 
 export const ContainerCadastro = () => {
-    const { type } = usePageType();
-    if (!type) return null;
+  const { type } = usePageType();
 
-    let pageRender: React.ReactNode = null;
+  if (!type) {
+    return null;
+  }
 
-    switch (type) {
-        case "professor":
-            pageRender = <FormProfessor />;
-            break;
-        case "aluno":
-            pageRender = <FormAluno />;
-            break;
-        case "disciplina":
-            pageRender = <FormDisciplina />;
-            break;
-        case "usuario": 
-            pageRender = <FormUsuario />;
-    }
-
-    return <div className="mt-10">{pageRender}</div>;
+  return <div className="mt-10">{moduleRegistry[type].renderForm?.({}) ?? null}</div>;
 };
