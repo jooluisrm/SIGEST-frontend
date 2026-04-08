@@ -1,31 +1,46 @@
-import { ApiLinks, ApiMeta } from "./getRequestType";
+export type Professor = {
+  id_user: number;
+  name: string;
+  cpf: string;
+  rg: string;
+  data_nascimento: string;
+  nome_pai: string | null;
+  nome_mae: string;
+  genero: string | null;
+  deficiencia: string;
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  complemento: string | null;
+  cidade: string;
+  estado: string;
+  telefone: string | null;
+  celular: string;
+  email: string;
+  id_professor: number;
+  matricula_adpm: string;
+  codigo_disciplina: string;
+};
 
-export type TypeProfessorCadastro = {
-    name: string;  // era "nome"
-    data_nascimento: string;
-    cpf: string;
-    rg: string;
-    genero: string;
-    nome_pai: string;
-    nome_mae: string;
-    deficiencia?: string;
-    logradouro: string;
-    numero: string;
-    bairro: string;
-    complemento?: string;
-    cidade: string;
-    estado: string;
-    telefone: string;
-    celular: string;
-    email: string;
-    matricula_adpm?: string;
-    codigo_disciplina: string;  // era "codigoDisciplina"
-    password?: string;  // Opcional para permitir atualização sem senha
-    // confirmarSenha removido do tipo (não vai no payload)
-}
-
-export type GetProfessoresResponse = {
-    data: TypeProfessorCadastro[];
-    links: ApiLinks;
-    meta: ApiMeta;
+export type ProfessorPayload = {
+  name?: string;
+  cpf?: string;
+  rg?: string;
+  data_nascimento?: string;
+  nome_pai?: string | null;
+  nome_mae?: string;
+  genero?: string | null;
+  deficiencia?: string;
+  logradouro?: string;
+  numero?: string | null;
+  bairro?: string;
+  complemento?: string | null;
+  cidade?: string;
+  estado?: string;
+  telefone?: string | null;
+  celular?: string;
+  email?: string;
+  password?: string;
+  matricula_adpm?: string;
+  codigo_disciplina?: string;
 };

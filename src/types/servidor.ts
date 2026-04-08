@@ -1,59 +1,46 @@
-import { ApiLinks, ApiMeta } from "./getRequestType";
-
-export type TypeServidorCadastro = {
-    name: string;
-    data_nascimento: string;
-    cpf: string;
-    rg: string;
-    genero: string;
-    nome_pai: string;
-    nome_mae: string;
-    deficiencia?: string;
-    logradouro: string;
-    numero: string;
-    bairro: string;
-    complemento?: string;
-    cidade: string;
-    estado: string;
-    telefone: string;
-    celular: string;
-    email: string;
-    password?: string;  // Opcional para permitir atualização sem senha
-    cargo: string;
-    setor: string;
-};
-
 export type Servidor = {
-    user_data: {
-        id_user: number;
-        name: string;
-        cpf: string;
-        rg: string;
-        data_nascimento: string; // formato ISO "YYYY-MM-DD"
-        nome_pai: string;
-        nome_mae: string;
-        genero: string;
-        deficiencia: string;
-        logradouro: string;
-        numero: string;
-        bairro: string;
-        complemento: string;
-        cidade: string;
-        estado: string;
-        telefone: string;
-        celular: string;
-        email: string;
-    };
-    servidor_data: {
-        id_servidor: number;
-        cargo: string;
-        setor: string;
-    };
+  id_user: number;
+  name: string;
+  cpf: string;
+  rg: string;
+  data_nascimento: string;
+  nome_pai: string | null;
+  nome_mae: string;
+  genero: string | null;
+  deficiencia: string;
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  complemento: string | null;
+  cidade: string;
+  estado: string;
+  telefone: string | null;
+  celular: string;
+  email: string;
+  id_servidor: number;
+  cargo: string;
+  setor: string;
 };
 
-export type GetServidoresResponse = {
-    data: Servidor[];
-    links: ApiLinks;
-    meta: ApiMeta;
+export type ServidorPayload = {
+  name?: string;
+  cpf?: string;
+  rg?: string;
+  data_nascimento?: string;
+  nome_pai?: string | null;
+  nome_mae?: string;
+  genero?: string | null;
+  deficiencia?: string;
+  logradouro?: string;
+  numero?: string | null;
+  bairro?: string;
+  complemento?: string | null;
+  cidade?: string;
+  estado?: string;
+  telefone?: string | null;
+  celular?: string;
+  email?: string;
+  password?: string;
+  cargo?: string;
+  setor?: string;
 };
-

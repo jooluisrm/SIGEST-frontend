@@ -1,37 +1,62 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { GetAlunosResponse, TypeAlunoCadastro } from "@/types/aluno";
-import { toast } from "sonner";
+import { Aluno, AlunoPayload } from "@/types/aluno";
+import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
+import {
+  extractResponseData,
+  handleApiError,
+  normalizeListResponse,
+  notifyApiSuccess,
+} from "@/lib/api-utils";
 
-export const getAlunos = async (url: string = 'api/alunos'): Promise<GetAlunosResponse> => {
-    const response = await axiosInstance.get<GetAlunosResponse>(url);
-    return response.data;
-}
+export const getAlunos = async (
+  url = "api/alunos"
+): Promise<NormalizedListResponse<Aluno>> => {
+  const response = await axiosInstance.get(url);
+  return normalizeListResponse<Aluno>(response.data);
+};
 
-export const postCadastrarAluno = async (data: TypeAlunoCadastro) => {
-    try {
-        const response = await axiosInstance.post('api/alunos', data);
-        toast.success(response.data.mensagem || "Aluno cadastrado com sucesso!");
-        return response.data;
-    } catch (error: any) {
-        console.log(error.response?.data?.message);
-        toast.error(error.response?.data?.message || "Erro ao cadastrar aluno");
-        throw error;
-    }
-}
+export const getAlunoById = async (id: number) => {
+  const response = await axiosInstance.get<ApiSuccessResponse<Aluno>>(
+    `api/alunos/${id}`
+  );
+  return extractResponseData<Aluno>(response.data);
+};
 
-export const putAtualizarAluno = async (id: number, data: TypeAlunoCadastro) => {
-    try {
-        const response = await axiosInstance.put(`api/alunos/${id}`, data);
-        toast.success(response.data.mensagem || "Aluno atualizado com sucesso!");
-        return response.data;
-    } catch (error: any) {
-        console.log(error.response?.data?.message);
-        toast.error(error.response?.data?.message || "Erro ao atualizar aluno");
-        throw error;
-    }
-}
+export const searchAlunos = async (value: string) => {
+  const response = await axiosInstance.get(`api/alunos/value/${value}`);
+  return normalizeListResponse<Aluno>(response.data);
+};
+
+export const postCadastrarAluno = async (data: AlunoPayload) => {
+  try {
+    const response = await axiosInstance.post<ApiSuccessResponse<Aluno>>(
+      "api/alunos",
+      data
+    );
+    notifyApiSuccess(response.data, "Aluno cadastrado com sucesso!");
+    return extractResponseData<Aluno>(response.data);
+  } catch (error) {
+    handleApiError(error, "Erro ao cadastrar aluno");
+  }
+};
+
+export const putAtualizarAluno = async (id: number, data: AlunoPayload) => {
+  try {
+    const response = await axiosInstance.put<ApiSuccessResponse<Aluno>>(
+      `api/alunos/${id}`,
+      data
+    );
+    notifyApiSuccess(response.data, "Aluno atualizado com sucesso!");
+    return extractResponseData<Aluno>(response.data);
+  } catch (error) {
+    handleApiError(error, "Erro ao atualizar aluno");
+  }
+};
 
 export const deleteAluno = async (id: number) => {
-    const response = await axiosInstance.delete(`api/alunos/${id}`);
-    return response.data;
-}
+  try {
+    await axiosInstance.delete(`api/alunos/${id}`);
+  } catch (error) {
+    handleApiError(error, "Erro ao deletar aluno");
+  }
+};

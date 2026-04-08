@@ -21,17 +21,17 @@ export const DropDownMenuProfile = () => {
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
-                    title={user.name}
+                    title={user.nome}
                     variant="ghost"
                     size="sm"
                     className="w-40 cursor-pointer"
                     >
-                        <span className="truncate font-bold">{user.name}</span>
+                        <span className="truncate font-bold">{user.nome}</span>
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-40">
                     <DropdownMenuLabel className="truncate">
-                        <span >{user.name}</span>
+                        <span>{user.nome}</span>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={clearUser} className="cursor-pointer">

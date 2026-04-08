@@ -1,43 +1,65 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { GetProfessoresResponse, TypeProfessorCadastro } from "@/types/professor";
-import { toast } from "sonner"
+import { Professor, ProfessorPayload } from "@/types/professor";
+import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
+import {
+  extractResponseData,
+  handleApiError,
+  normalizeListResponse,
+  notifyApiSuccess,
+} from "@/lib/api-utils";
 
-export const getProfessores = async (url: string = 'api/professors'): Promise<GetProfessoresResponse> => {
-    // Agora o get usa a URL recebida. O axios é inteligente: se a URL for completa 
-    // (http://...), ele a usará diretamente.
-    const response = await axiosInstance.get<GetProfessoresResponse>(url);
-    return response.data;
+export const getProfessores = async (
+  url = "api/professors"
+): Promise<NormalizedListResponse<Professor>> => {
+  const response = await axiosInstance.get(url);
+  return normalizeListResponse<Professor>(response.data);
 };
 
-export const getProfessoresBySearch = async (search: string) => {
-    const response = await axiosInstance.get(`api/professors/search-name?nome=${search}`);
-    return response.data;
+export const getProfessorById = async (id: number) => {
+  const response = await axiosInstance.get<ApiSuccessResponse<Professor>>(
+    `api/professors/${id}`
+  );
+  return extractResponseData<Professor>(response.data);
 };
 
-export const postCadastrarProfessor = async (data: TypeProfessorCadastro) => {
-    try {
-        const response = await axiosInstance.post('api/professors', data);
-        toast.success(response.data.mensagem);
-        return response.data;
-    } catch (error: any) {
-        console.log(error.response.data.message);
-        toast.error(error.response.data.message);
-    }
+export const searchProfessores = async (value: string) => {
+  const response = await axiosInstance.get(`api/professors/value/${value}`);
+  return normalizeListResponse<Professor>(response.data);
 };
 
-export const putAtualizarProfessor = async (id: number, data: TypeProfessorCadastro) => {
-    try {
-        const response = await axiosInstance.put(`api/professors/${id}`, data);
-        toast.success(response.data.mensagem || "Professor atualizado com sucesso!");
-        return response.data;
-    } catch (error: any) {
-        console.log(error.response?.data?.message);
-        toast.error(error.response?.data?.message || "Erro ao atualizar professor");
-        throw error;
-    }
+export const postCadastrarProfessor = async (data: ProfessorPayload) => {
+  try {
+    const response = await axiosInstance.post<ApiSuccessResponse<Professor>>(
+      "api/professors",
+      data
+    );
+    notifyApiSuccess(response.data, "Professor cadastrado com sucesso!");
+    return extractResponseData<Professor>(response.data);
+  } catch (error) {
+    handleApiError(error, "Erro ao cadastrar professor");
+  }
+};
+
+export const putAtualizarProfessor = async (
+  id: number,
+  data: ProfessorPayload
+) => {
+  try {
+    const response = await axiosInstance.put<ApiSuccessResponse<Professor>>(
+      `api/professors/${id}`,
+      data
+    );
+    notifyApiSuccess(response.data, "Professor atualizado com sucesso!");
+    return extractResponseData<Professor>(response.data);
+  } catch (error) {
+    handleApiError(error, "Erro ao atualizar professor");
+  }
 };
 
 export const deleteProfessor = async (id: number) => {
-    const response = await axiosInstance.delete(`api/professors/${id}`);
-    return response.data;
-}
+  try {
+    await axiosInstance.delete(`api/professors/${id}`);
+  } catch (error) {
+    handleApiError(error, "Erro ao deletar professor");
+  }
+};
