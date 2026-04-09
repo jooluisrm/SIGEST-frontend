@@ -28,6 +28,7 @@ export type ApiLinks = {
 export type ApiMetaLink = {
   url: string | null;
   label: string;
+  page?: number | null;
   active: boolean;
 };
 

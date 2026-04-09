@@ -116,11 +116,19 @@ export const normalizeListResponse = <T>(
   if ("status" in payload && "code" in payload && "message" in payload) {
     const wrapped = payload as ApiSuccessResponse<unknown>;
     const innerData = wrapped.data;
+    const rawPayload = payload as Record<string, unknown>;
+    const topLevelLinks =
+      "links" in rawPayload
+        ? (rawPayload.links as NormalizedListResponse<T>["links"])
+        : null;
+    const topLevelMeta = hasMeta(payload) ? payload.meta : null;
 
     if (Array.isArray(innerData)) {
       return {
         ...defaultResponse,
         data: innerData as T[],
+        links: topLevelLinks,
+        meta: topLevelMeta,
         status: wrapped.status,
         code: wrapped.code,
         message: wrapped.message,
