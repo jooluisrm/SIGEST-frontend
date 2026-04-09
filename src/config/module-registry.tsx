@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { deleteAluno } from "@/api/aluno/alunoServices";
-import { deleteCurso } from "@/api/curso/cursoServices";
-import { deleteDisciplina } from "@/api/disciplina/disciplinaServices";
+import { removeAluno } from "@/api/aluno/alunoServices";
+import { removeCurso } from "@/api/curso/cursoServices";
+import { removeDisciplina } from "@/api/disciplina/disciplinaServices";
 import { getPeriodosByCurso } from "@/api/periodo/periodoServices";
-import { deleteProfessor } from "@/api/professor/professorServices";
-import { getTurmasByPeriodo, deleteTurma } from "@/api/turma/turmaServices";
-import { deleteUsuario } from "@/api/usuario/usuarioServices";
+import { removeProfessor } from "@/api/professor/professorServices";
+import { getTurmasByPeriodo, removeTurma } from "@/api/turma/turmaServices";
+import { removeUsuario } from "@/api/usuario/usuarioServices";
 import { FormAluno } from "@/components/cadastrar/formularios/formAluno";
 import { FormCurso } from "@/components/cadastrar/formularios/formCurso";
 import { FormDisciplina } from "@/components/cadastrar/formularios/formDisciplina";
@@ -116,7 +116,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         },
       ];
     },
-    deleteItem: deleteAluno,
+    deleteItem: removeAluno,
   },
   professor: {
     ...MODULES_BY_SLUG.professor,
@@ -164,7 +164,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         },
       ];
     },
-    deleteItem: deleteProfessor,
+    deleteItem: removeProfessor,
   },
   usuario: {
     ...MODULES_BY_SLUG.usuario,
@@ -212,7 +212,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         },
       ];
     },
-    deleteItem: deleteUsuario,
+    deleteItem: removeUsuario,
   },
   disciplina: {
     ...MODULES_BY_SLUG.disciplina,
@@ -258,7 +258,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         },
       ];
     },
-    deleteItem: deleteDisciplina,
+    deleteItem: removeDisciplina,
   },
   curso: {
     ...MODULES_BY_SLUG.curso,
@@ -310,7 +310,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
           ]
         : [];
     },
-    deleteItem: deleteCurso,
+    deleteItem: removeCurso,
   },
   periodo: {
     ...MODULES_BY_SLUG.periodo,
@@ -391,6 +391,6 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         },
       ];
     },
-    deleteItem: deleteTurma,
+    deleteItem: removeTurma,
   },
 };

@@ -29,8 +29,10 @@ export const HeaderPage = () => {
   return (
     <header
       className={cn(
-        "fixed top-0 z-50 transition-all duration-300",
-        open && !isMobile ? "md:left-[16rem] md:w-[calc(100%-16rem)]" : "left-0 w-full"
+        "fixed top-0 z-40 transition-all duration-300",
+        isMobile && "left-0 w-full",
+        !isMobile && open && "md:left-[16rem] md:w-[calc(100%-16rem)]",
+        !isMobile && !open && "md:left-[3rem] md:w-[calc(100%-3rem)]"
       )}
     >
       <Card

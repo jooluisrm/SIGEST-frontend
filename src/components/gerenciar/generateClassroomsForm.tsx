@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { generateTurmasByPeriodo } from "@/api/periodo/periodoServices";
+import { useGenerateTurmasByPeriodo } from "@/hooks/queries/periodo";
 import { AppButton } from "@/components/shared/app-button";
 import { AppInput } from "@/components/shared/app-input";
 import { AppSelect } from "@/components/shared/app-select";
@@ -16,7 +16,7 @@ type Props = {
 export const GenerateClassroomsForm = ({ periodId, onRefresh }: Props) => {
   const [maxStudents, setMaxStudents] = useState("");
   const [shift, setShift] = useState("Matutino");
-  const [submitting, setSubmitting] = useState(false);
+  const generateMutation = useGenerateTurmasByPeriodo();
 
   const handleGenerate = async () => {
     if (!maxStudents) {
@@ -24,16 +24,16 @@ export const GenerateClassroomsForm = ({ periodId, onRefresh }: Props) => {
       return;
     }
 
-    setSubmitting(true);
     try {
-      await generateTurmasByPeriodo(periodId, {
-        max_students: Number(maxStudents),
-        shift: shift as "Matutino" | "Vespertino" | "Noturno",
+      await generateMutation.mutateAsync({
+        periodId,
+        payload: {
+          max_students: Number(maxStudents),
+          shift: shift as "Matutino" | "Vespertino" | "Noturno",
+        },
       });
       onRefresh?.();
-    } finally {
-      setSubmitting(false);
-    }
+    } catch {}
   };
 
   return (
@@ -67,7 +67,7 @@ export const GenerateClassroomsForm = ({ periodId, onRefresh }: Props) => {
         <AppButton
           type="button"
           onClick={handleGenerate}
-          isLoading={submitting}
+          isLoading={generateMutation.isPending}
           className="self-start"
         >
           Gerar

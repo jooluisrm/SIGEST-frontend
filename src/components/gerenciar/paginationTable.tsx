@@ -1,94 +1,120 @@
-// src/components/PaginationTable.tsx
+"use client";
 
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination"
-import { ApiMeta, ApiMetaLink } from "@/types/getRequestType";
+import { Button } from "@/components/ui/button";
+import { ApiMeta, ApiMetaLink } from "@/types/api";
 
 type Props = {
-    meta: ApiMeta;
-    onPageChange: (url: string) => void;
-}
+  meta: ApiMeta;
+  onPageChange: (url: string) => void;
+};
 
-export const PaginationTable = ({ meta, onPageChange  }: Props) => {
-    // Retorna null se não houver meta ou links para evitar erros
-    if (!meta || !meta.links) {
-        return null;
+const normalizeLabel = (label: string) =>
+  label
+    .replace(/&laquo;|&#171;/gi, "«")
+    .replace(/&raquo;|&#187;/gi, "»")
+    .replace(/&hellip;|&#8230;/gi, "...")
+    .replace(/&nbsp;/gi, " ")
+    .trim();
+
+const isPreviousLink = (label: string) => {
+  const normalized = normalizeLabel(label).toLowerCase();
+  return normalized.includes("anterior") || normalized.includes("previous");
+};
+
+const isNextLink = (label: string) => {
+  const normalized = normalizeLabel(label).toLowerCase();
+  return normalized.includes("próximo") || normalized.includes("proximo") || normalized.includes("next");
+};
+
+const isEllipsisLink = (label: string) => normalizeLabel(label) === "...";
+
+const isPageNumberLink = (link: ApiMetaLink) => {
+  const normalized = normalizeLabel(link.label);
+  return typeof link.page === "number" || /^\d+$/.test(normalized);
+};
+
+const renderPageLabel = (link: ApiMetaLink) => {
+  const normalized = normalizeLabel(link.label);
+  return /^\d+$/.test(normalized) ? normalized : String(link.page ?? normalized);
+};
+
+export const PaginationTable = ({ meta, onPageChange }: Props) => {
+  if (!meta?.links?.length || meta.last_page <= 1) {
+    return null;
+  }
+
+  const previousLink = meta.links.find((link) => isPreviousLink(link.label));
+  const nextLink = meta.links.find((link) => isNextLink(link.label));
+  const pageLinks = meta.links.filter(
+    (link) =>
+      !isPreviousLink(link.label) &&
+      !isNextLink(link.label) &&
+      (isPageNumberLink(link) || isEllipsisLink(link.label))
+  );
+
+  const handlePageChange = (link: ApiMetaLink) => {
+    if (!link.url) {
+      return;
     }
 
-    const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: ApiMetaLink) => {
-        // Se não houver URL, não faz nada
-        if (!link.url) {
-            e.preventDefault();
-            return;
-        }
-        // Previne a navegação padrão do navegador
-        e.preventDefault(); 
-        // Chama a função que recebemos por props com a nova URL
-        onPageChange(link.url);
-    };
+    onPageChange(link.url);
+  };
 
-    return (
-        <Pagination>
-            <PaginationContent>
-                {meta.links.map((link, index) => {
-                    // Verifica se é o botão "Previous" (case-insensitive)
-                    if (link.label.toLowerCase().includes('previous')) {
-                        return (
-                            <PaginationItem key={index}>
-                                <PaginationPrevious 
-                                    href={link.url ?? '#'} 
-                                    aria-disabled={!link.url}
-                                    tabIndex={!link.url ? -1 : undefined}
-                                    className={!link.url ? "pointer-events-none opacity-50" : undefined}
-                                    onClick={(e) => handleLinkClick(e, link)}
-                                />
-                            </PaginationItem>
-                        );
-                    }
+  return (
+    <div className="flex w-full flex-col items-center gap-3 border-t pt-6">
+      <div className="text-sm text-muted-foreground">
+        Página {meta.current_page} de {meta.last_page}
+      </div>
 
-                    // Verifica se é o botão "Next" (case-insensitive)
-                    if (link.label.toLowerCase().includes('next')) {
-                        return (
-                            <PaginationItem key={index}>
-                                <PaginationNext 
-                                    href={link.url ?? '#'}
-                                    aria-disabled={!link.url}
-                                    tabIndex={!link.url ? -1 : undefined}
-                                    className={!link.url ? "pointer-events-none opacity-50" : undefined}
-                                    onClick={(e) => handleLinkClick(e, link)} 
-                                />
-                            </PaginationItem>
-                        );
-                    }
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {previousLink && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handlePageChange(previousLink)}
+            disabled={!previousLink.url}
+          >
+            Anterior
+          </Button>
+        )}
 
-                    if (link.label === '...') {
-                        return (
-                            <PaginationItem key={index}>
-                                <PaginationEllipsis />
-                            </PaginationItem>
-                        );
-                    }
+        {pageLinks.map((link, index) => {
+          if (isEllipsisLink(link.label)) {
+            return (
+              <span
+                key={`ellipsis-${index}`}
+                className="px-2 text-sm text-muted-foreground"
+              >
+                ...
+              </span>
+            );
+          }
 
-                    return (
-                        <PaginationItem key={index}>
-                            <PaginationLink 
-                                href={link.url ?? '#'} 
-                                isActive={link.active}
-                                onClick={(e) => handleLinkClick(e, link)} 
-                            >
-                                {link.label}
-                            </PaginationLink>
-                        </PaginationItem>
-                    );
-                })}
-            </PaginationContent>
-        </Pagination>
-    );
-}
+          return (
+            <Button
+              key={`${renderPageLabel(link)}-${link.page ?? index}`}
+              type="button"
+              variant={link.active ? "default" : "outline"}
+              onClick={() => handlePageChange(link)}
+              disabled={!link.url}
+              className="min-w-10"
+            >
+              {renderPageLabel(link)}
+            </Button>
+          );
+        })}
+
+        {nextLink && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handlePageChange(nextLink)}
+            disabled={!nextLink.url}
+          >
+            Próximo
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};

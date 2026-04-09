@@ -13,9 +13,9 @@ import { Disciplina } from "@/types/disciplina";
 import { DisciplinaFields } from "./formGroups/disciplinaFields";
 import { FormButtons } from "./formComponents/formButtons";
 import {
-  postCadastrarDisciplina,
-  putAtualizarDisciplina,
-} from "@/api/disciplina/disciplinaServices";
+  useCreateDisciplina,
+  useUpdateDisciplina,
+} from "@/hooks/queries/disciplina";
 
 type Props = {
   isEdit?: boolean;
@@ -40,6 +40,8 @@ export const FormDisciplina = ({
   const { type } = usePageType();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = cadastroDisciplinaSchema();
+  const createMutation = useCreateDisciplina();
+  const updateMutation = useUpdateDisciplina();
 
   if (type !== "disciplina") {
     return null;
@@ -79,10 +81,10 @@ export const FormDisciplina = ({
 
     try {
       if (isEdit && defaultValues) {
-        await putAtualizarDisciplina(defaultValues.id, payload);
+        await updateMutation.mutateAsync({ id: defaultValues.id, payload });
         onRefresh?.();
       } else {
-        await postCadastrarDisciplina(payload);
+        await createMutation.mutateAsync(payload);
       }
     } finally {
       setIsSubmitting(false);

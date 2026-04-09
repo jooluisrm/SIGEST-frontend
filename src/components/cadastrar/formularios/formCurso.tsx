@@ -5,12 +5,12 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import { postCadastrarCurso, putAtualizarCurso } from "@/api/curso/cursoServices";
 import { CursoDataFields } from "./formGroups/cursoDataFields";
 import { FormButtons } from "./formComponents/formButtons";
 import { usePageType } from "@/context/pageTypeContext";
 import { cadastroCursoSchema } from "@/lib/schemas/cadastroCursoSchema";
 import { Course } from "@/types/course";
+import { useCreateCurso, useUpdateCurso } from "@/hooks/queries/curso";
 
 type Props = {
   isEdit?: boolean;
@@ -26,6 +26,8 @@ export const FormCurso = ({
   const { type } = usePageType();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = cadastroCursoSchema();
+  const createMutation = useCreateCurso();
+  const updateMutation = useUpdateCurso();
 
   if (type !== "curso") {
     return null;
@@ -63,10 +65,10 @@ export const FormCurso = ({
 
     try {
       if (isEdit && defaultValues) {
-        await putAtualizarCurso(defaultValues.id, payload);
+        await updateMutation.mutateAsync({ id: defaultValues.id, payload });
         onRefresh?.();
       } else {
-        await postCadastrarCurso(payload);
+        await createMutation.mutateAsync(payload);
       }
     } finally {
       setIsSubmitting(false);

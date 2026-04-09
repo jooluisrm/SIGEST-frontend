@@ -1,73 +1,74 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { detailFetchers } from "@/api/services";
-import {
-  DetailSection,
-  moduleRegistry,
-  RelatedSection,
-} from "@/config/module-registry";
+import { useMemo } from "react";
+import { moduleRegistry, RelatedSection } from "@/config/module-registry";
 import { usePageType } from "@/context/pageTypeContext";
+import {
+  useManagedModuleDetailQuery,
+  useManagedRelatedQuery,
+} from "@/hooks/queries/managed-modules";
 import { Alert, AlertTitle } from "../ui/alert";
 import { Card } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 
 export const ItemView = ({ id }: { id: number }) => {
   const { type } = usePageType();
-  const [sections, setSections] = useState<DetailSection[]>([]);
-  const [relatedSections, setRelatedSections] = useState<RelatedSection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const detailQuery = useManagedModuleDetailQuery(type ?? "aluno", id, !!type);
+  const relatedQuery = useManagedRelatedQuery(type ?? "aluno", id, !!type);
+  const relatedData = relatedQuery.data as { data: Array<any> } | undefined;
 
-  useEffect(() => {
-    let active = true;
+  const sections = useMemo(() => {
+    if (!type || !detailQuery.data) {
+      return [];
+    }
 
-    const loadData = async () => {
-      if (!type) {
-        return;
-      }
+    return moduleRegistry[type].detailSections(detailQuery.data);
+  }, [detailQuery.data, type]);
 
-      const registryEntry = moduleRegistry[type];
-      const detailPromise = detailFetchers[type](id);
-      const relatedPromise = registryEntry.getRelatedSections
-        ? registryEntry.getRelatedSections(id)
-        : Promise.resolve([]);
+  const relatedSections = useMemo<RelatedSection[]>(() => {
+    if (!type || !relatedData) {
+      return [];
+    }
 
-      try {
-        const [detail, related] = await Promise.all([detailPromise, relatedPromise]);
+    if (type === "curso") {
+      return relatedData.data.length
+        ? [
+            {
+              title: "Períodos Vinculados",
+              entries: relatedData.data.map((period) => ({
+                title: period.name,
+                description: `ID ${period.id}`,
+              })),
+            },
+          ]
+        : [];
+    }
 
-        if (!active) {
-          return;
-        }
+    if (type === "periodo") {
+      return relatedData.data.length
+        ? [
+            {
+              title: "Turmas Vinculadas",
+              entries: relatedData.data.map((classroom) => ({
+                title: classroom.name,
+                description: `${classroom.shift} · ${classroom.max_students} vagas`,
+              })),
+            },
+          ]
+        : [];
+    }
 
-        setSections(registryEntry.detailSections(detail));
-        setRelatedSections(related);
-      } catch {
-        if (active) {
-          setError("Não foi possível carregar os detalhes.");
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    };
+    return [];
+  }, [relatedData, type]);
 
-    loadData();
-
-    return () => {
-      active = false;
-    };
-  }, [id, type]);
-
-  if (loading) {
+  if (detailQuery.isLoading || relatedQuery.isLoading) {
     return <Skeleton className="h-64 w-full" />;
   }
 
-  if (error) {
+  if (detailQuery.isError || relatedQuery.isError) {
     return (
       <Alert variant="destructive">
-        <AlertTitle>{error}</AlertTitle>
+        <AlertTitle>Não foi possível carregar os detalhes.</AlertTitle>
       </Alert>
     );
   }

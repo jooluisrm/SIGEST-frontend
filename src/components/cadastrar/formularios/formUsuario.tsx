@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { postCadastrarUsuario, putAtualizarUsuario } from "@/api/usuario/usuarioServices";
 import { Form } from "@/components/ui/form";
 import { usePageType } from "@/context/pageTypeContext";
 import { cadastroUsuarioSchema } from "@/lib/schemas/cadastroUsuarioSchema";
@@ -14,6 +13,7 @@ import { AuthFields } from "./formGroups/AuthFields";
 import { PersonalDataFields } from "./formGroups/personalDataFields";
 import { UsuarioDataFields } from "./formGroups/usuarioDataFields";
 import { FormButtons } from "./formComponents/formButtons";
+import { useCreateUsuario, useUpdateUsuario } from "@/hooks/queries/usuario";
 
 type Props = {
   isEdit?: boolean;
@@ -38,6 +38,8 @@ export const FormUsuario = ({
   const { type } = usePageType();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = cadastroUsuarioSchema(isEdit);
+  const createMutation = useCreateUsuario();
+  const updateMutation = useUpdateUsuario();
 
   if (type !== "usuario") {
     return null;
@@ -112,10 +114,13 @@ export const FormUsuario = ({
 
     try {
       if (isEdit && defaultValues) {
-        await putAtualizarUsuario(defaultValues.id_servidor, payload);
+        await updateMutation.mutateAsync({
+          id: defaultValues.id_servidor,
+          payload,
+        });
         onRefresh?.();
       } else {
-        await postCadastrarUsuario(payload);
+        await createMutation.mutateAsync(payload);
       }
     } finally {
       setIsSubmitting(false);

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ButtonGerenciar, ButtonIconType } from "./buttonGerenciar";
-import React from "react";
 
 type Props = {
   triggerIcon: ButtonIconType;
@@ -16,7 +16,7 @@ type Props = {
   triggerClassName?: string;
   dialogTitle: string;
   dialogClassName?: string;
-  children: React.ReactNode;
+  children: React.ReactNode | (() => React.ReactNode);
 };
 
 export const ActionDialog = ({
@@ -27,23 +27,24 @@ export const ActionDialog = ({
   dialogClassName,
   children,
 }: Props) => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <ButtonGerenciar
           alt={triggerTooltip}
           icon={triggerIcon}
           className={triggerClassName}
-          size={"sm"}
+          size="sm"
         />
       </DialogTrigger>
       <DialogContent className={dialogClassName}>
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
-        {/* Aqui entra o conteúdo específico (formulário, detalhes, etc.) */}
         <main className="overflow-y-auto max-h-[calc(100vh-10rem)] overflow-x-hidden">
-          {children}
+          {open ? (typeof children === "function" ? children() : children) : null}
         </main>
       </DialogContent>
     </Dialog>

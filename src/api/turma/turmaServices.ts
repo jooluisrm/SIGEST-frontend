@@ -1,15 +1,15 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { Classroom, ClassroomPayload } from "@/types/classroom";
-import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
 import {
   extractResponseData,
   handleApiError,
   normalizeListResponse,
   notifyApiSuccess,
 } from "@/lib/api-utils";
+import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
+import { Classroom, ClassroomPayload } from "@/types/classroom";
 
-export const getTurmas = async (
-  url = "api/classrooms"
+export const listTurmas = async (
+  url = "classrooms"
 ): Promise<NormalizedListResponse<Classroom>> => {
   const response = await axiosInstance.get(url);
   return normalizeListResponse<Classroom>(response.data);
@@ -17,22 +17,22 @@ export const getTurmas = async (
 
 export const getTurmaById = async (id: number) => {
   const response = await axiosInstance.get<ApiSuccessResponse<Classroom>>(
-    `api/classrooms/${id}`
+    `classrooms/${id}`
   );
   return extractResponseData<Classroom>(response.data);
 };
 
 export const getTurmasByPeriodo = async (periodId: number) => {
   const response = await axiosInstance.get(
-    `api/classrooms/show-classroom-for-period/${periodId}`
+    `classrooms/show-classroom-for-period/${periodId}`
   );
   return normalizeListResponse<Classroom>(response.data);
 };
 
-export const postCadastrarTurma = async (data: ClassroomPayload) => {
+export const createTurma = async (data: ClassroomPayload) => {
   try {
     const response = await axiosInstance.post<ApiSuccessResponse<Classroom>>(
-      "api/classrooms",
+      "classrooms",
       data
     );
     notifyApiSuccess(response.data, "Turma cadastrada com sucesso!");
@@ -42,9 +42,9 @@ export const postCadastrarTurma = async (data: ClassroomPayload) => {
   }
 };
 
-export const deleteTurma = async (id: number) => {
+export const removeTurma = async (id: number) => {
   try {
-    await axiosInstance.delete(`api/classrooms/${id}`);
+    await axiosInstance.delete(`classrooms/${id}`);
   } catch (error) {
     handleApiError(error, "Erro ao deletar turma");
   }
