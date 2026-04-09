@@ -21,10 +21,10 @@ export const DropDownMenuProfile = () => {
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
-                    title={user.nome}
-                    variant="ghost"
-                    size="sm"
-                    className="w-40 cursor-pointer"
+                        title={user.nome}
+                        variant="ghost"
+                        size="sm"
+                        className="w-50 cursor-pointer"
                     >
                         <span className="truncate font-bold">{user.nome}</span>
                     </Button>
