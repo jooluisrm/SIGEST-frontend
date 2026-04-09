@@ -1,15 +1,15 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { Disciplina, DisciplinaPayload } from "@/types/disciplina";
-import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
 import {
   extractResponseData,
   handleApiError,
   normalizeListResponse,
   notifyApiSuccess,
 } from "@/lib/api-utils";
+import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
+import { Disciplina, DisciplinaPayload } from "@/types/disciplina";
 
-export const getDisciplinas = async (
-  url = "api/disciplinas"
+export const listDisciplinas = async (
+  url = "disciplinas"
 ): Promise<NormalizedListResponse<Disciplina>> => {
   const response = await axiosInstance.get(url);
   return normalizeListResponse<Disciplina>(response.data);
@@ -17,20 +17,20 @@ export const getDisciplinas = async (
 
 export const getDisciplinaById = async (id: number) => {
   const response = await axiosInstance.get<ApiSuccessResponse<Disciplina>>(
-    `api/disciplinas/${id}`
+    `disciplinas/${id}`
   );
   return extractResponseData<Disciplina>(response.data);
 };
 
 export const searchDisciplinas = async (value: string) => {
-  const response = await axiosInstance.get(`api/disciplinas/value/${value}`);
+  const response = await axiosInstance.get(`disciplinas/value/${value}`);
   return normalizeListResponse<Disciplina>(response.data);
 };
 
-export const postCadastrarDisciplina = async (data: DisciplinaPayload) => {
+export const createDisciplina = async (data: DisciplinaPayload) => {
   try {
     const response = await axiosInstance.post<ApiSuccessResponse<Disciplina>>(
-      "api/disciplinas",
+      "disciplinas",
       data
     );
     notifyApiSuccess(response.data, "Disciplina cadastrada com sucesso!");
@@ -40,13 +40,10 @@ export const postCadastrarDisciplina = async (data: DisciplinaPayload) => {
   }
 };
 
-export const putAtualizarDisciplina = async (
-  id: number,
-  data: DisciplinaPayload
-) => {
+export const updateDisciplina = async (id: number, data: DisciplinaPayload) => {
   try {
     const response = await axiosInstance.put<ApiSuccessResponse<Disciplina>>(
-      `api/disciplinas/${id}`,
+      `disciplinas/${id}`,
       data
     );
     notifyApiSuccess(response.data, "Disciplina atualizada com sucesso!");
@@ -56,9 +53,9 @@ export const putAtualizarDisciplina = async (
   }
 };
 
-export const deleteDisciplina = async (id: number) => {
+export const removeDisciplina = async (id: number) => {
   try {
-    await axiosInstance.delete(`api/disciplinas/${id}`);
+    await axiosInstance.delete(`disciplinas/${id}`);
   } catch (error) {
     handleApiError(error, "Erro ao deletar disciplina");
   }

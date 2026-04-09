@@ -1,38 +1,33 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { Course, CoursePayload } from "@/types/course";
-import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
 import {
   extractResponseData,
   handleApiError,
   normalizeListResponse,
   notifyApiSuccess,
 } from "@/lib/api-utils";
+import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
+import { Course, CoursePayload } from "@/types/course";
 
-export const getCursos = async (
-  url = "api/courses"
+export const listCursos = async (
+  url = "courses"
 ): Promise<NormalizedListResponse<Course>> => {
   const response = await axiosInstance.get(url);
   return normalizeListResponse<Course>(response.data);
 };
 
 export const getCursoById = async (id: number) => {
-  const response = await axiosInstance.get<ApiSuccessResponse<Course>>(
-    `api/courses/${id}`
-  );
+  const response = await axiosInstance.get<ApiSuccessResponse<Course>>(`courses/${id}`);
   return extractResponseData<Course>(response.data);
 };
 
 export const searchCursos = async (value: string) => {
-  const response = await axiosInstance.get(`api/courses/value/${value}`);
+  const response = await axiosInstance.get(`courses/value/${value}`);
   return normalizeListResponse<Course>(response.data);
 };
 
-export const postCadastrarCurso = async (data: CoursePayload) => {
+export const createCurso = async (data: CoursePayload) => {
   try {
-    const response = await axiosInstance.post<ApiSuccessResponse<Course>>(
-      "api/courses",
-      data
-    );
+    const response = await axiosInstance.post<ApiSuccessResponse<Course>>("courses", data);
     notifyApiSuccess(response.data, "Curso cadastrado com sucesso!");
     return extractResponseData<Course>(response.data);
   } catch (error) {
@@ -40,10 +35,10 @@ export const postCadastrarCurso = async (data: CoursePayload) => {
   }
 };
 
-export const putAtualizarCurso = async (id: number, data: CoursePayload) => {
+export const updateCurso = async (id: number, data: CoursePayload) => {
   try {
     const response = await axiosInstance.put<ApiSuccessResponse<Course>>(
-      `api/courses/${id}`,
+      `courses/${id}`,
       data
     );
     notifyApiSuccess(response.data, "Curso atualizado com sucesso!");
@@ -53,9 +48,9 @@ export const putAtualizarCurso = async (id: number, data: CoursePayload) => {
   }
 };
 
-export const deleteCurso = async (id: number) => {
+export const removeCurso = async (id: number) => {
   try {
-    await axiosInstance.delete(`api/courses/${id}`);
+    await axiosInstance.delete(`courses/${id}`);
   } catch (error) {
     handleApiError(error, "Erro ao deletar curso");
   }

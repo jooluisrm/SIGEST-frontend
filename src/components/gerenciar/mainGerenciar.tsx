@@ -1,12 +1,13 @@
 "use client";
 
-import { startTransition, useId, useState, useTransition } from "react";
+import { useId, useMemo, useState } from "react";
 import { AlertCircleIcon, Search } from "lucide-react";
-import { toast } from "sonner";
-import { searchFetchers } from "@/api/services";
 import { MODULES_BY_SLUG } from "@/config/modules";
 import { usePageType } from "@/context/pageTypeContext";
-import { useGerenciarData } from "@/hooks/use-gerenciar-data";
+import {
+  useManagedModuleListQuery,
+  useManagedModuleSearchQuery,
+} from "@/hooks/queries/managed-modules";
 import { NormalizedListResponse } from "@/types/api";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
@@ -20,8 +21,8 @@ import { TitlePage } from "../shared/titlePage";
 export const MainGerenciar = () => {
   const { type } = usePageType();
   const [search, setSearch] = useState("");
-  const [filteredData, setFilteredData] = useState<NormalizedListResponse<unknown> | null>(null);
-  const [isPending, startSearchTransition] = useTransition();
+  const [submittedSearch, setSubmittedSearch] = useState("");
+  const [pageUrl, setPageUrl] = useState<string | null>(null);
   const id = useId();
 
   if (!type) {
@@ -29,46 +30,48 @@ export const MainGerenciar = () => {
   }
 
   const moduleMeta = MODULES_BY_SLUG[type];
-  const { data, loading, error, fetchData } = useGerenciarData<unknown>(type);
+  const listQuery = useManagedModuleListQuery(type, pageUrl);
+  const searchQuery = useManagedModuleSearchQuery(
+    type,
+    submittedSearch,
+    moduleMeta.capabilities.search
+  );
 
   const handlePageChange = (url: string) => {
-    startTransition(() => {
-      fetchData(url);
-      setFilteredData(null);
-    });
+    setSubmittedSearch("");
+    setPageUrl(url);
   };
 
-  const handleSearch = async (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== "Enter") {
-      return;
-    }
-
-    if (!moduleMeta.capabilities.search) {
+  const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || !moduleMeta.capabilities.search) {
       return;
     }
 
     if (!search.trim()) {
-      setFilteredData(null);
-      fetchData();
+      setSubmittedSearch("");
+      setPageUrl(null);
       return;
     }
 
-    const searchFetcher = searchFetchers[type];
-    if (!searchFetcher) {
-      return;
-    }
-
-    try {
-      const response = await searchFetcher(search.trim());
-      startSearchTransition(() => {
-        setFilteredData(response);
-      });
-    } catch {
-      toast.error(`Erro ao buscar ${moduleMeta.label.toLowerCase()}.`);
-    }
+    setSubmittedSearch(search.trim());
+    setPageUrl(null);
   };
 
-  const displayData = filteredData ?? data;
+  const displayData = useMemo<NormalizedListResponse<unknown> | null>(
+    () => (submittedSearch ? searchQuery.data ?? null : listQuery.data ?? null),
+    [listQuery.data, searchQuery.data, submittedSearch]
+  );
+  const isLoading = submittedSearch ? searchQuery.isLoading : listQuery.isLoading;
+  const hasError = submittedSearch ? searchQuery.isError : listQuery.isError;
+
+  const handleRefresh = () => {
+    if (submittedSearch) {
+      void searchQuery.refetch();
+      return;
+    }
+
+    void listQuery.refetch();
+  };
 
   return (
     <main className="min-h-screen">
@@ -100,18 +103,15 @@ export const MainGerenciar = () => {
             )}
           </CardHeader>
           <CardContent>
-            {loading || isPending ? (
+            {isLoading ? (
               <Loader2Spin />
-            ) : error ? (
+            ) : hasError ? (
               <Alert variant="destructive">
                 <AlertCircleIcon />
                 <AlertTitle>Não foi possível carregar os dados</AlertTitle>
               </Alert>
             ) : (
-              <TableGerenciar
-                dataList={displayData?.data ?? []}
-                onRefresh={fetchData}
-              />
+              <TableGerenciar dataList={displayData?.data ?? []} onRefresh={handleRefresh} />
             )}
           </CardContent>
           <CardFooter>

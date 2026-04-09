@@ -7,11 +7,11 @@ import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  postForgotPasswordCode,
-  postLogin,
-  postResetPasswordCode,
-  postResetPasswordValidateCode,
-} from "@/api/login/loginServices";
+  useLoginMutation,
+  useRequestPasswordResetCodeMutation,
+  useResetPasswordMutation,
+  useValidatePasswordResetCodeMutation,
+} from "@/hooks/queries/auth";
 import { AppButton } from "../shared/app-button";
 import { AppInput } from "../shared/app-input";
 import { Button } from "../ui/button";
@@ -30,6 +30,10 @@ export const ContainerLogin = () => {
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const loginMutation = useLoginMutation();
+  const forgotPasswordMutation = useRequestPasswordResetCodeMutation();
+  const validateCodeMutation = useValidatePasswordResetCodeMutation();
+  const resetPasswordMutation = useResetPasswordMutation();
 
   const resetRecoveryFlow = () => {
     setCode("");
@@ -57,7 +61,7 @@ export const ContainerLogin = () => {
 
     setLoading(true);
     try {
-      const response = await postLogin({ email, password });
+      const response = await loginMutation.mutateAsync({ email, password });
       setUserData(response);
       toast.success("Login realizado com sucesso.");
       router.push("/dashboard");
@@ -76,7 +80,7 @@ export const ContainerLogin = () => {
 
     setLoading(true);
     try {
-      const response = await postForgotPasswordCode({ email });
+      const response = await forgotPasswordMutation.mutateAsync({ email });
       if (response.code === 422 || response.status === false) {
         toast.error(getApiMessage(response) ?? "Não foi possível enviar o código.");
         return;
@@ -99,7 +103,7 @@ export const ContainerLogin = () => {
 
     setLoading(true);
     try {
-      const response = await postResetPasswordValidateCode({ email, code });
+      const response = await validateCodeMutation.mutateAsync({ email, code });
       if (response.code === 422 || response.status === false) {
         toast.error(getApiMessage(response) ?? "Código inválido.");
         return;
@@ -127,7 +131,7 @@ export const ContainerLogin = () => {
 
     setLoading(true);
     try {
-      const response = await postResetPasswordCode({
+      const response = await resetPasswordMutation.mutateAsync({
         email,
         code,
         password: newPassword,

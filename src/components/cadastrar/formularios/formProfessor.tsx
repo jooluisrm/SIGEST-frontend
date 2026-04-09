@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { postCadastrarProfessor, putAtualizarProfessor } from "@/api/professor/professorServices";
 import { Form } from "@/components/ui/form";
 import { usePageType } from "@/context/pageTypeContext";
 import { cadastroProfessorSchema } from "@/lib/schemas/cadastroProfessorSchema";
@@ -14,6 +13,10 @@ import { AuthFields } from "./formGroups/AuthFields";
 import { PersonalDataFields } from "./formGroups/personalDataFields";
 import { ProfessorDataFields } from "./formGroups/professorDataFields";
 import { FormButtons } from "./formComponents/formButtons";
+import {
+  useCreateProfessor,
+  useUpdateProfessor,
+} from "@/hooks/queries/professor";
 
 type Props = {
   isEdit?: boolean;
@@ -38,6 +41,8 @@ export const FormProfessor = ({
   const { type } = usePageType();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = cadastroProfessorSchema(isEdit);
+  const createMutation = useCreateProfessor();
+  const updateMutation = useUpdateProfessor();
 
   if (type !== "professor") {
     return null;
@@ -112,10 +117,13 @@ export const FormProfessor = ({
 
     try {
       if (isEdit && defaultValues) {
-        await putAtualizarProfessor(defaultValues.id_professor, payload);
+        await updateMutation.mutateAsync({
+          id: defaultValues.id_professor,
+          payload,
+        });
         onRefresh?.();
       } else {
-        await postCadastrarProfessor(payload);
+        await createMutation.mutateAsync(payload);
       }
     } finally {
       setIsSubmitting(false);

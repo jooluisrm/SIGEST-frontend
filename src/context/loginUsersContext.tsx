@@ -16,7 +16,7 @@ import {
   getStoredUser,
   setStoredUser,
 } from "@/lib/auth-storage";
-import { postLogout } from "@/api/login/loginServices";
+import { useLogoutMutation } from "@/hooks/queries/auth";
 
 type UserContextProps = {
   user: AuthenticatedUser | null;
@@ -47,6 +47,7 @@ export const UserProvider = ({
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [tokenType, setTokenType] = useState<string | null>(null);
   const [role, setRole] = useState<string[]>([]);
+  const logoutMutation = useLogoutMutation();
 
   useEffect(() => {
     const storedUser = getStoredUser();
@@ -76,7 +77,7 @@ export const UserProvider = ({
   const clearUser = async () => {
     try {
       if (getStoredToken()) {
-        await postLogout();
+        await logoutMutation.mutateAsync();
       }
     } catch {
       // O backend pode já ter invalidado a sessão; limpeza local continua.

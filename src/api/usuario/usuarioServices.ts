@@ -1,15 +1,15 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { Servidor, ServidorPayload } from "@/types/servidor";
-import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
 import {
   extractResponseData,
   handleApiError,
   normalizeListResponse,
   notifyApiSuccess,
 } from "@/lib/api-utils";
+import { ApiSuccessResponse, NormalizedListResponse } from "@/types/api";
+import { Servidor, ServidorPayload } from "@/types/servidor";
 
-export const getUsuarios = async (
-  url = "api/servidors"
+export const listUsuarios = async (
+  url = "servidors"
 ): Promise<NormalizedListResponse<Servidor>> => {
   const response = await axiosInstance.get(url);
   return normalizeListResponse<Servidor>(response.data);
@@ -17,20 +17,20 @@ export const getUsuarios = async (
 
 export const getUsuarioById = async (id: number) => {
   const response = await axiosInstance.get<ApiSuccessResponse<Servidor>>(
-    `api/servidors/${id}`
+    `servidors/${id}`
   );
   return extractResponseData<Servidor>(response.data);
 };
 
 export const searchUsuarios = async (value: string) => {
-  const response = await axiosInstance.get(`api/servidors/value/${value}`);
+  const response = await axiosInstance.get(`servidors/value/${value}`);
   return normalizeListResponse<Servidor>(response.data);
 };
 
-export const postCadastrarUsuario = async (data: ServidorPayload) => {
+export const createUsuario = async (data: ServidorPayload) => {
   try {
     const response = await axiosInstance.post<ApiSuccessResponse<Servidor>>(
-      "api/servidors",
+      "servidors",
       data
     );
     notifyApiSuccess(response.data, "Usuário cadastrado com sucesso!");
@@ -40,10 +40,10 @@ export const postCadastrarUsuario = async (data: ServidorPayload) => {
   }
 };
 
-export const putAtualizarUsuario = async (id: number, data: ServidorPayload) => {
+export const updateUsuario = async (id: number, data: ServidorPayload) => {
   try {
     const response = await axiosInstance.put<ApiSuccessResponse<Servidor>>(
-      `api/servidors/${id}`,
+      `servidors/${id}`,
       data
     );
     notifyApiSuccess(response.data, "Usuário atualizado com sucesso!");
@@ -53,9 +53,9 @@ export const putAtualizarUsuario = async (id: number, data: ServidorPayload) => 
   }
 };
 
-export const deleteUsuario = async (id: number) => {
+export const removeUsuario = async (id: number) => {
   try {
-    await axiosInstance.delete(`api/servidors/${id}`);
+    await axiosInstance.delete(`servidors/${id}`);
   } catch (error) {
     handleApiError(error, "Erro ao deletar usuário");
   }

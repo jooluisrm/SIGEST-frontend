@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { startTransition, useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
@@ -10,9 +10,9 @@ import { AlunoDataFields } from "./formGroups/alunoDataFields";
 import { AuthFields } from "./formGroups/AuthFields";
 import { PersonalDataFields } from "./formGroups/personalDataFields";
 import { FormButtons } from "./formComponents/formButtons";
-import { getPeriodos } from "@/api/periodo/periodoServices";
-import { postCadastrarAluno, putAtualizarAluno } from "@/api/aluno/alunoServices";
-import { getTurmasByPeriodo } from "@/api/turma/turmaServices";
+import { useCreateAluno, useUpdateAluno } from "@/hooks/queries/aluno";
+import { usePeriodoList } from "@/hooks/queries/periodo";
+import { useTurmasByPeriodo } from "@/hooks/queries/turma";
 import { usePageType } from "@/context/pageTypeContext";
 import { Aluno } from "@/types/aluno";
 import { cadastroAlunoSchema } from "@/lib/schemas/cadastroAlunoSchema";
@@ -44,9 +44,9 @@ export const FormAluno = ({
 }: Props) => {
   const { type } = usePageType();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [periodOptions, setPeriodOptions] = useState<Option[]>([]);
-  const [classroomOptions, setClassroomOptions] = useState<Option[]>([]);
   const schema = cadastroAlunoSchema(isEdit);
+  const createMutation = useCreateAluno();
+  const updateMutation = useUpdateAluno();
 
   if (type !== "aluno") {
     return null;
@@ -89,66 +89,20 @@ export const FormAluno = ({
   });
 
   const selectedPeriod = form.watch("periodoId");
+  const periodosQuery = usePeriodoList();
+  const turmasQuery = useTurmasByPeriodo(
+    selectedPeriod ? Number(selectedPeriod) : null,
+    !!selectedPeriod
+  );
 
-  useEffect(() => {
-    let active = true;
-
-    const loadPeriods = async () => {
-      const response = await getPeriodos();
-      if (!active) {
-        return;
-      }
-
-      startTransition(() => {
-        setPeriodOptions(
-          response.data.map((period) => ({
-            value: String(period.id),
-            label: period.name,
-          }))
-        );
-      });
-    };
-
-    loadPeriods();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-
-    const loadClassrooms = async () => {
-      if (!selectedPeriod) {
-        startTransition(() => {
-          setClassroomOptions([]);
-          form.setValue("turmaId", "");
-        });
-        return;
-      }
-
-      const response = await getTurmasByPeriodo(Number(selectedPeriod));
-      if (!active) {
-        return;
-      }
-
-      startTransition(() => {
-        setClassroomOptions(
-          response.data.map((classroom) => ({
-            value: String(classroom.id),
-            label: classroom.name,
-          }))
-        );
-      });
-    };
-
-    loadClassrooms();
-
-    return () => {
-      active = false;
-    };
-  }, [form, selectedPeriod]);
+  const periodOptions: Option[] = (periodosQuery.data?.data ?? []).map((period) => ({
+    value: String(period.id),
+    label: period.name,
+  }));
+  const classroomOptions: Option[] = (turmasQuery.data?.data ?? []).map((classroom) => ({
+    value: String(classroom.id),
+    label: classroom.name,
+  }));
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
     setIsSubmitting(true);
@@ -181,10 +135,10 @@ export const FormAluno = ({
 
     try {
       if (isEdit && defaultValues) {
-        await putAtualizarAluno(defaultValues.id, payload);
+        await updateMutation.mutateAsync({ id: defaultValues.id, payload });
         onRefresh?.();
       } else {
-        await postCadastrarAluno(payload);
+        await createMutation.mutateAsync(payload);
       }
     } finally {
       setIsSubmitting(false);
@@ -204,7 +158,7 @@ export const FormAluno = ({
           isEdit={isEdit}
           periodOptions={periodOptions}
           classroomOptions={classroomOptions}
-          classroomDisabled={!selectedPeriod}
+          classroomDisabled={!selectedPeriod || turmasQuery.isLoading}
         />
         <AuthFields isEdit={isEdit} />
         <FormButtons isSubmitting={isSubmitting} isEdit={isEdit} />
