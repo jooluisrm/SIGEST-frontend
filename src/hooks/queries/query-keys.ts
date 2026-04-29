@@ -22,6 +22,7 @@ export const queryKeys = {
     byPeriod: (periodId: number) => ["turmas", "period", periodId] as const,
   },
   usuarios: buildResourceKeys("usuarios"),
+  avaliacoes: buildResourceKeys("avaliacoes"),
   status: ["status"] as const,
   frequencias: ["frequencias"] as const,
   ibge: {

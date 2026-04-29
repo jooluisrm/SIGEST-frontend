@@ -1,16 +1,25 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useState } from "react";
 import { Form } from "@/components/ui/form";
-import { CursoDataFields } from "./formGroups/cursoDataFields";
+import { FormFieldText } from "./formComponents/formFieldText";
 import { FormButtons } from "./formComponents/formButtons";
-import { usePageType } from "@/context/pageTypeContext";
-import { cadastroCursoSchema } from "@/lib/schemas/cadastroCursoSchema";
+import { Textarea } from "@/components/ui/textarea";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { TitleForm } from "./formComponents/titleForm";
 import { Course } from "@/types/course";
 import { useCreateCurso, useUpdateCurso } from "@/hooks/queries/curso";
+
+const cursoSchema = z.object({
+  nome: z.string().min(1, "Nome é obrigatório"),
+  series: z.string().min(1, "Quantidade de séries é obrigatória"),
+  cargaTotal: z.string().min(1, "Carga horária total é obrigatória"),
+  cargaSerie: z.string().min(1, "Carga horária por série é obrigatória"),
+  complementares: z.string().optional(),
+});
 
 type Props = {
   isEdit?: boolean;
@@ -18,49 +27,32 @@ type Props = {
   onRefresh?: () => void;
 };
 
-export const FormCurso = ({
-  isEdit = false,
-  defaultValues,
-  onRefresh,
-}: Props) => {
-  const { type } = usePageType();
+export const FormCurso = ({ isEdit, defaultValues, onRefresh }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const schema = cadastroCursoSchema();
   const createMutation = useCreateCurso();
   const updateMutation = useUpdateCurso();
 
-  if (type !== "curso") {
-    return null;
-  }
-
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema) as never,
+  const form = useForm<z.infer<typeof cursoSchema>>({
+    resolver: zodResolver(cursoSchema),
     defaultValues: {
       nome: defaultValues?.name ?? "",
-      numeroPeriodos: defaultValues?.number_periods
-        ? String(defaultValues.number_periods)
-        : "",
-      cargaHorariaTotal: defaultValues?.total_hours
-        ? String(defaultValues.total_hours)
-        : "",
-      cargaHorariaPeriodo: defaultValues?.hours_period
-        ? String(defaultValues.hours_period)
-        : "",
-      detalhes: defaultValues?.details ?? "",
-      status: defaultValues?.status === false || defaultValues?.status === 0 ? "inativo" : "ativo",
+      series: defaultValues?.number_periods ? String(defaultValues.number_periods) : "",
+      cargaTotal: defaultValues?.total_hours ? String(defaultValues.total_hours) : "",
+      cargaSerie: defaultValues?.hours_period ? String(defaultValues.hours_period) : "",
+      complementares: defaultValues?.details ?? "",
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof schema>) => {
+  const onSubmit = async (data: z.infer<typeof cursoSchema>) => {
     setIsSubmitting(true);
 
     const payload = {
       name: data.nome,
-      number_periods: Number(data.numeroPeriodos),
-      total_hours: Number(data.cargaHorariaTotal),
-      hours_period: Number(data.cargaHorariaPeriodo),
-      details: data.detalhes,
-      status: data.status === "ativo",
+      number_periods: Number(data.series),
+      total_hours: Number(data.cargaTotal),
+      hours_period: Number(data.cargaSerie),
+      details: data.complementares,
+      status: true, // Defaulting to active as the new schema doesn't have status field
     };
 
     try {
@@ -77,12 +69,57 @@ export const FormCurso = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex px-5 flex-col mx-1 mb-5 gap-4 w-full"
-        noValidate
-      >
-        <CursoDataFields />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-8 px-5">
+        <TitleForm text="Dados do Curso" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <FormFieldText
+            form={form}
+            name="nome"
+            label="Nome do Curso"
+            placeholder="Fundamental I"
+          />
+          <FormFieldText
+            form={form}
+            name="series"
+            label="Quantidade de Séries?"
+            placeholder="3"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <FormFieldText
+            form={form}
+            name="cargaTotal"
+            label="Carga Horária Total"
+            placeholder="800h"
+          />
+          <FormFieldText
+            form={form}
+            name="cargaSerie"
+            label="Carga Horária por Série"
+            placeholder="160h"
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="complementares"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="font-bold text-sm text-foreground/80 ml-1">Informações Complementares</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  placeholder="Aqui vão estar descritas as informações complementares relacionadas ao curso"
+                  className="min-h-[200px] bg-white border-primaria/20 rounded-2xl"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormButtons isSubmitting={isSubmitting} isEdit={isEdit} />
       </form>
     </Form>

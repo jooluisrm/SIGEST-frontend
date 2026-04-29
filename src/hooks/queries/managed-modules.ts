@@ -6,6 +6,12 @@ import {
   searchAlunos,
 } from "@/api/aluno/alunoServices";
 import {
+  getAvaliacaoById,
+  listAvaliacoes,
+  removeAvaliacao,
+  searchAvaliacoes,
+} from "@/api/avaliacao/avaliacaoServices";
+import {
   getCursoById,
   listCursos,
   removeCurso,
@@ -84,6 +90,10 @@ const listConfigs = {
     queryKey: queryKeys.turmas.list,
     queryFn: listTurmas,
   },
+  avaliacao: {
+    queryKey: queryKeys.avaliacoes.list,
+    queryFn: listAvaliacoes,
+  },
 } satisfies Record<
   PageTypeCentral,
   {
@@ -121,6 +131,10 @@ const detailConfigs = {
     queryKey: queryKeys.turmas.detail,
     queryFn: getTurmaById,
   },
+  avaliacao: {
+    queryKey: queryKeys.avaliacoes.detail,
+    queryFn: getAvaliacaoById,
+  },
 } satisfies Record<
   PageTypeCentral,
   {
@@ -149,6 +163,10 @@ const searchConfigs = {
   curso: {
     queryKey: queryKeys.cursos.search,
     queryFn: searchCursos,
+  },
+  avaliacao: {
+    queryKey: queryKeys.avaliacoes.search,
+    queryFn: searchAvaliacoes,
   },
 } as const satisfies Partial<
   Record<
@@ -203,6 +221,10 @@ const deleteConfigs = {
   turma: {
     mutationFn: removeTurma,
     invalidateKey: queryKeys.turmas.all,
+  },
+  avaliacao: {
+    mutationFn: removeAvaliacao,
+    invalidateKey: queryKeys.avaliacoes.all,
   },
 } as const;
 

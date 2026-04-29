@@ -6,6 +6,7 @@ export const ROUTE_TYPES = [
   "curso",
   "periodo",
   "turma",
+  "avaliacao",
 ] as const;
 
 export type PageTypeCentral = (typeof ROUTE_TYPES)[number];

@@ -14,6 +14,7 @@ import { FormDisciplina } from "@/components/cadastrar/formularios/formDisciplin
 import { FormProfessor } from "@/components/cadastrar/formularios/formProfessor";
 import { FormTurma } from "@/components/cadastrar/formularios/formTurma";
 import { FormUsuario } from "@/components/cadastrar/formularios/formUsuario";
+import { FormAvaliacao } from "@/components/cadastrar/formularios/formAvaliacao";
 import { GenerateClassroomsForm } from "@/components/gerenciar/generateClassroomsForm";
 import { MODULES_BY_SLUG } from "@/config/modules";
 import { Aluno } from "@/types/aluno";
@@ -24,6 +25,7 @@ import { Period } from "@/types/period";
 import { Professor } from "@/types/professor";
 import { PageTypeCentral } from "@/types/routerType";
 import { Servidor } from "@/types/servidor";
+import { TurmaExtraActions } from "@/components/gerenciar/specialized/TurmaExtraActions";
 
 export type SummaryData = {
   title: string;
@@ -54,8 +56,9 @@ export type ModuleRegistryEntry = {
   roles: readonly string[];
   capabilities: typeof MODULES_BY_SLUG[PageTypeCentral]["capabilities"];
   iconPath: string;
-  columns: [string, string, string];
+  columns: string[];
   getSummary: (item: unknown) => SummaryData;
+  getCells?: (item: unknown) => React.ReactNode[];
   getId: (item: unknown) => number;
   renderForm?: (props: ModuleFormProps) => React.ReactNode;
   detailSections: (detail: unknown) => DetailSection[];
@@ -217,7 +220,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
   disciplina: {
     ...MODULES_BY_SLUG.disciplina,
     iconPath: "/assets/disciplina-icon.png",
-    columns: ["Nome", "Sigla", "Área"],
+    columns: ["Código", "Nome", "Sigla", "Área", "Carga Horária"],
     getSummary: (item) => {
       const disciplina = item as Disciplina;
       return {
@@ -225,6 +228,16 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         secondary: disciplina.sigla,
         tertiary: disciplina.area_conhecimento,
       };
+    },
+    getCells: (item) => {
+      const disciplina = item as Disciplina;
+      return [
+        disciplina.id,
+        disciplina.nome,
+        disciplina.sigla,
+        disciplina.area_conhecimento,
+        disciplina.carga_horaria,
+      ];
     },
     getId: (item) => (item as Disciplina).id,
     renderForm: (props) => (
@@ -263,7 +276,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
   curso: {
     ...MODULES_BY_SLUG.curso,
     iconPath: "/assets/cadastro-icon.png",
-    columns: ["Nome", "Status", "Carga Horária"],
+    columns: ["Código", "Nome do Curso", "Períodos (Séries)", "Carga Horária", "Situação"],
     getSummary: (item) => {
       const curso = item as Course;
       return {
@@ -271,6 +284,16 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         secondary: boolToStatus(curso.status),
         tertiary: String(curso.total_hours),
       };
+    },
+    getCells: (item) => {
+      const curso = item as Course;
+      return [
+        curso.id,
+        curso.name,
+        curso.number_periods,
+        curso.total_hours,
+        boolToStatus(curso.status),
+      ];
     },
     getId: (item) => (item as Course).id,
     renderForm: (props) => (
@@ -300,14 +323,14 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
       const periods = await getPeriodosByCurso(id);
       return periods.data.length
         ? [
-            {
-              title: "Períodos Vinculados",
-              entries: periods.data.map((period) => ({
-                title: period.name,
-                description: `ID ${period.id}`,
-              })),
-            },
-          ]
+          {
+            title: "Períodos Vinculados",
+            entries: periods.data.map((period) => ({
+              title: period.name,
+              description: `ID ${period.id}`,
+            })),
+          },
+        ]
         : [];
     },
     deleteItem: removeCurso,
@@ -342,14 +365,14 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
       const turmas = await getTurmasByPeriodo(id);
       return turmas.data.length
         ? [
-            {
-              title: "Turmas Vinculadas",
-              entries: turmas.data.map((classroom) => ({
-                title: classroom.name,
-                description: `${classroom.shift} · ${classroom.max_students} vagas`,
-              })),
-            },
-          ]
+          {
+            title: "Turmas Vinculadas",
+            entries: turmas.data.map((classroom) => ({
+              title: classroom.name,
+              description: `${classroom.shift} · ${classroom.max_students} vagas`,
+            })),
+          },
+        ]
         : [];
     },
     renderExtraAction: (item, onRefresh) => (
@@ -359,7 +382,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
   turma: {
     ...MODULES_BY_SLUG.turma,
     iconPath: "/assets/relatorio-icon.png",
-    columns: ["Nome", "Turno", "Máx. Alunos"],
+    columns: ["Código", "Nome", "Período", "Turno", "Máx. Alunos", "Situação"],
     getSummary: (item) => {
       const turma = item as Classroom;
       return {
@@ -367,6 +390,17 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         secondary: turma.shift,
         tertiary: String(turma.max_students),
       };
+    },
+    getCells: (item) => {
+      const turma = item as Classroom;
+      return [
+        turma.id,
+        turma.name,
+        turma.period_id,
+        turma.shift,
+        turma.max_students,
+        boolToStatus(turma.status),
+      ];
     },
     getId: (item) => (item as Classroom).id,
     renderForm: (props) => (
@@ -392,5 +426,37 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
       ];
     },
     deleteItem: removeTurma,
+    renderExtraAction: () => <TurmaExtraActions />,
+  },
+  avaliacao: {
+    ...MODULES_BY_SLUG.avaliacao,
+    iconPath: "/assets/atividades-icon.png",
+    columns: ["Título", "Valor", "Data"],
+    getSummary: (item: any) => ({
+      title: item.titulo ?? "Sem Título",
+      secondary: `Valor: ${item.valor}`,
+      tertiary: item.data ?? "-",
+    }),
+    getId: (item: any) => item.id ?? 0,
+    renderForm: (props) => (
+      <FormAvaliacao
+        isEdit={props.isEdit}
+        defaultValues={props.defaultValues}
+        onRefresh={props.onRefresh}
+      />
+    ),
+    detailSections: (detail: any) => [
+      {
+        title: "Dados da Avaliação",
+        items: [
+          { label: "Título", value: detail.titulo },
+          { label: "Valor", value: detail.valor },
+          { label: "Tipo", value: detail.tipo },
+          { label: "Turma", value: detail.turma },
+          { label: "Data", value: detail.data },
+        ],
+      },
+    ],
+    deleteItem: async () => { }, // TODO: Implement API service
   },
 };

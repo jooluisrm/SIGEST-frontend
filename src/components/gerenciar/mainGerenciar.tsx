@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { AlertCircleIcon, Search } from "lucide-react";
-import { MODULES_BY_SLUG } from "@/config/modules";
+import { moduleRegistry } from "@/config/module-registry";
 import { usePageType } from "@/context/pageTypeContext";
 import {
   useManagedModuleListQuery,
@@ -29,7 +29,7 @@ export const MainGerenciar = () => {
     return null;
   }
 
-  const moduleMeta = MODULES_BY_SLUG[type];
+  const moduleMeta = moduleRegistry[type];
   const listQuery = useManagedModuleListQuery(type, pageUrl);
   const searchQuery = useManagedModuleSearchQuery(
     type,
@@ -111,7 +111,9 @@ export const MainGerenciar = () => {
                 <AlertTitle>Não foi possível carregar os dados</AlertTitle>
               </Alert>
             ) : (
-              <TableGerenciar dataList={displayData?.data ?? []} onRefresh={handleRefresh} />
+              <div className="overflow-x-auto py-6">
+                <TableGerenciar dataList={displayData?.data ?? []} onRefresh={handleRefresh} />
+              </div>
             )}
           </CardContent>
           <CardFooter>

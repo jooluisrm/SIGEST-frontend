@@ -42,9 +42,8 @@ export const HeaderPage = () => {
         )}
       >
         <div
-          className={`container mx-auto px-5 flex justify-between items-center h-full ${
-            !open && !isMobile && "md:px-[3rem]"
-          }`}
+          className={`container mx-auto px-5 flex justify-between items-center h-full ${!open && !isMobile && "md:px-[3rem]"
+            }`}
         >
           <div className="flex items-center gap-4">
             <Link href="/dashboard">

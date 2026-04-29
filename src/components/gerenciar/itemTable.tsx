@@ -21,6 +21,11 @@ export const ItemTable = ({ item, onRefresh }: Props) => {
 
   const moduleEntry = moduleRegistry[type];
   const summary = moduleEntry.getSummary(item);
+  const cells = moduleEntry.getCells?.(item) ?? [
+    summary.title,
+    summary.secondary,
+    summary.tertiary,
+  ];
   const id = moduleEntry.getId(item);
   const deleteMutation = useManagedDeleteMutation(type);
 
@@ -36,9 +41,11 @@ export const ItemTable = ({ item, onRefresh }: Props) => {
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{summary.title}</TableCell>
-      <TableCell className="hidden md:table-cell">{summary.secondary}</TableCell>
-      <TableCell className="hidden md:table-cell">{summary.tertiary}</TableCell>
+      {cells.map((cell, index) => (
+        <TableCell key={`${type}-${id}-cell-${index}`} className={index === 0 ? "font-medium" : ""}>
+          {cell}
+        </TableCell>
+      ))}
       <TableCell>
         <div className="flex items-center justify-end gap-1">
           {moduleEntry.capabilities.delete && (
