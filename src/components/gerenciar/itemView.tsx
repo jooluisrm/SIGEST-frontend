@@ -7,9 +7,13 @@ import {
   useManagedModuleDetailQuery,
   useManagedRelatedQuery,
 } from "@/hooks/queries/managed-modules";
+import { Course } from "@/types/course";
+import { Period } from "@/types/period";
 import { Alert, AlertTitle } from "../ui/alert";
 import { Card } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
+import { CourseDetailsContent } from "./Course-Details-Content";
+
 
 export const ItemView = ({ id }: { id: number }) => {
   const { type } = usePageType();
@@ -33,28 +37,28 @@ export const ItemView = ({ id }: { id: number }) => {
     if (type === "curso") {
       return relatedData.data.length
         ? [
-            {
-              title: "Períodos Vinculados",
-              entries: relatedData.data.map((period) => ({
-                title: period.name,
-                description: `ID ${period.id}`,
-              })),
-            },
-          ]
+          {
+            title: "Períodos Vinculados",
+            entries: relatedData.data.map((period) => ({
+              title: period.name,
+              description: `ID ${period.id}`,
+            })),
+          },
+        ]
         : [];
     }
 
     if (type === "periodo") {
       return relatedData.data.length
         ? [
-            {
-              title: "Turmas Vinculadas",
-              entries: relatedData.data.map((classroom) => ({
-                title: classroom.name,
-                description: `${classroom.shift} · ${classroom.max_students} vagas`,
-              })),
-            },
-          ]
+          {
+            title: "Turmas Vinculadas",
+            entries: relatedData.data.map((classroom) => ({
+              title: classroom.name,
+              description: `${classroom.shift} · ${classroom.max_students} vagas`,
+            })),
+          },
+        ]
         : [];
     }
 
@@ -70,6 +74,15 @@ export const ItemView = ({ id }: { id: number }) => {
       <Alert variant="destructive">
         <AlertTitle>Não foi possível carregar os detalhes.</AlertTitle>
       </Alert>
+    );
+  }
+
+  if (type === "curso" && detailQuery.data) {
+    return (
+      <CourseDetailsContent
+        course={detailQuery.data as Course}
+        periods={(relatedData?.data ?? []) as Period[]}
+      />
     );
   }
 
@@ -111,3 +124,5 @@ export const ItemView = ({ id }: { id: number }) => {
     </div>
   );
 };
+
+

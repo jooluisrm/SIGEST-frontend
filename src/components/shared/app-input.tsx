@@ -1,8 +1,8 @@
 import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority" 
+import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 import { useMask, type MaskType } from "@/hooks/use-mask";
-import { Input as ShadInput } from "@/components/ui/input" 
+import { Input as ShadInput } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 // Configurar os estilos dos inputs
@@ -22,9 +22,9 @@ const inputVariants = cva(
   }
 );
 
-export interface AppInputProps 
+export interface AppInputProps
   extends React.InputHTMLAttributes<HTMLInputElement>,
-          VariantProps<typeof inputVariants> {
+  VariantProps<typeof inputVariants> {
   label?: string
   error?: string
   icon?: React.ReactNode
@@ -32,7 +32,7 @@ export interface AppInputProps
 }
 
 const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
-  ({ className, id, label, error, icon, intent, onChange,  mask, ...props }, ref) => {
+  ({ className, id, label, error, icon, intent, onChange, mask, ...props }, ref) => {
     const inputId = id || React.useId()
 
     const Input = ShadInput;
@@ -68,10 +68,10 @@ const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
               inputVariants({ intent }), // Aplica os estilos da variante
               icon ? "pl-10" : "pl-3",
               error && "border-destructive focus-visible:ring-destructive text-destructive placeholder:text-destructive/60",
-              className 
+              className
             )}
             ref={ref}
-            onChange={handleOnChange} 
+            onChange={handleOnChange}
             {...props}
           />
         </div>

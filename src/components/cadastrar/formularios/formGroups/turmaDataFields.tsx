@@ -16,9 +16,10 @@ export const TurmaDataFields = ({ periodOptions }: Props) => {
   const form = useFormContext();
 
   return (
-    <>
-      <TitleForm text="Informações da Turma" />
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="flex flex-col gap-10">
+      <TitleForm text="Dados da Turma" />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <FormFieldSelect
           form={form}
           name="periodoId"
@@ -34,11 +35,14 @@ export const TurmaDataFields = ({ periodOptions }: Props) => {
         />
         <FormFieldText
           form={form}
-          name="maximoAlunos"
+          name="maxStudents"
           label="Máximo de Alunos"
           type="number"
           placeholder="Ex: 30"
         />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <FormFieldSelect
           form={form}
           name="turno"
@@ -61,6 +65,6 @@ export const TurmaDataFields = ({ periodOptions }: Props) => {
           placeholder="Selecione o status"
         />
       </div>
-    </>
+    </div>
   );
 };

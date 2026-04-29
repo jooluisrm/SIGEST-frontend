@@ -6,6 +6,14 @@ export type Course = {
   hours_period: number;
   details: string;
   status: boolean | 0 | 1;
+  periodo_letivo?: string | null;
+  periodoLetivo?: string | null;
+  current_period?: {
+    name?: string | null;
+  } | null;
+  currentPeriod?: {
+    name?: string | null;
+  } | null;
 };
 
 export type CoursePayload = {

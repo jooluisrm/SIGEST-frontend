@@ -11,7 +11,7 @@
 
   /* Cores do tema principal */
 
-  --primaria: #008B35; 
+  --primaria: #008B35;
   --secundaria: #FF7F2A;
   --secundaria1: #305F7D;
   --text1: #ffff;
@@ -178,6 +178,7 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

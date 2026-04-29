@@ -3,16 +3,17 @@
 import { hasModuleAccess, MODULES } from "@/config/modules";
 import { useUser } from "@/context/loginUsersContext";
 import { ItemGridDashboard } from "./itemGridDashboard";
+import type { PageTypeCentral } from "@/types/routerType";
 
-const iconMap = {
+const iconMap: Partial<Record<PageTypeCentral, string>> = {
   usuario: "/assets/servidor-icon.png",
   professor: "/assets/professor-icon.png",
   aluno: "/assets/aluno-icon.png",
   disciplina: "/assets/disciplina-icon.png",
   curso: "/assets/cadastro-icon.png",
-  periodo: "/assets/relatorio-icon.png",
   turma: "/assets/relatorio-icon.png",
-} as const;
+  avaliacao: "/assets/relatorio-icon.png",
+};
 
 export const DialogGridGerenciarDashboard = () => {
   const { role } = useUser();
@@ -28,7 +29,7 @@ export const DialogGridGerenciarDashboard = () => {
           key={module.slug}
           bg={2}
           text={module.label}
-          iconPath={iconMap[module.slug]}
+          iconPath={iconMap[module.slug] ?? "/assets/relatorio-icon.png"}
           link={`/gerenciar/${module.slug}`}
         />
       ))}

@@ -1,21 +1,29 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useState } from "react";
 import { Form } from "@/components/ui/form";
-import { usePageType } from "@/context/pageTypeContext";
-import {
-  CadastroDisciplinaFormValues,
-  cadastroDisciplinaSchema,
-} from "@/lib/schemas/cadastroDisciplinaSchema";
-import { Disciplina } from "@/types/disciplina";
-import { DisciplinaFields } from "./formGroups/disciplinaFields";
+import { FormFieldText } from "./formComponents/formFieldText";
 import { FormButtons } from "./formComponents/formButtons";
-import {
-  useCreateDisciplina,
-  useUpdateDisciplina,
-} from "@/hooks/queries/disciplina";
+import { TitleForm } from "./formComponents/titleForm";
+import { Textarea } from "@/components/ui/textarea";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Disciplina } from "@/types/disciplina";
+import { useCreateDisciplina, useUpdateDisciplina } from "@/hooks/queries/disciplina";
+
+const disciplinaSchema = z.object({
+  nome: z.string().min(1, "Nome é obrigatório"),
+  sigla: z.string().min(1, "Sigla é obrigatória"),
+  carga: z.string().min(1, "Carga é obrigatória"),
+  area: z.string().min(1, "Área é obrigatória"),
+  unidade: z.string().min(1, "Unidade é obrigatória"),
+  inicio: z.string().min(1, "Início é obrigatório"),
+  fim: z.string().optional(),
+  ementa: z.string().optional(),
+  bibliografia: z.string().optional(),
+});
 
 type Props = {
   isEdit?: boolean;
@@ -23,58 +31,37 @@ type Props = {
   onRefresh?: () => void;
 };
 
-const createValidDate = (value?: string | null) => {
-  if (!value) {
-    return undefined;
-  }
-
-  const parsedDate = new Date(value);
-  return Number.isNaN(parsedDate.getTime()) ? undefined : parsedDate;
-};
-
-export const FormDisciplina = ({
-  isEdit = false,
-  defaultValues,
-  onRefresh,
-}: Props) => {
-  const { type } = usePageType();
+export const FormDisciplina = ({ isEdit = false, defaultValues, onRefresh }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const schema = cadastroDisciplinaSchema();
   const createMutation = useCreateDisciplina();
   const updateMutation = useUpdateDisciplina();
 
-  if (type !== "disciplina") {
-    return null;
-  }
-
-  const form = useForm<CadastroDisciplinaFormValues>({
-    resolver: zodResolver(schema),
+  const form = useForm<z.infer<typeof disciplinaSchema>>({
+    resolver: zodResolver(disciplinaSchema),
     defaultValues: {
-      nomeDisciplina: defaultValues?.nome ?? "",
+      nome: defaultValues?.nome ?? "",
       sigla: defaultValues?.sigla ?? "",
-      areaConhecimento: defaultValues?.area_conhecimento ?? "",
+      carga: defaultValues?.carga_horaria ?? "",
+      area: defaultValues?.area_conhecimento ?? "",
       unidade: defaultValues?.unidade ?? "",
-      cargaHoraria: defaultValues?.carga_horaria ?? "",
-      dataInicio: createValidDate(defaultValues?.data_inicio) ?? new Date(),
-      dataEncerramento: createValidDate(defaultValues?.data_encerramento),
+      inicio: defaultValues?.data_inicio ?? "",
+      fim: defaultValues?.data_encerramento ?? "",
       ementa: defaultValues?.ementa ?? "",
       bibliografia: defaultValues?.bibliografia ?? "",
     },
   });
 
-  const onSubmit = async (data: CadastroDisciplinaFormValues) => {
+  const onSubmit = async (data: z.infer<typeof disciplinaSchema>) => {
     setIsSubmitting(true);
 
     const payload = {
-      nome: data.nomeDisciplina,
+      nome: data.nome,
       sigla: data.sigla,
-      area_conhecimento: data.areaConhecimento,
+      area_conhecimento: data.area,
       unidade: data.unidade,
-      carga_horaria: data.cargaHoraria,
-      data_inicio: data.dataInicio.toISOString().split("T")[0],
-      data_encerramento: data.dataEncerramento
-        ? data.dataEncerramento.toISOString().split("T")[0]
-        : undefined,
+      carga_horaria: data.carga,
+      data_inicio: data.inicio,
+      data_encerramento: data.fim || undefined,
       ementa: data.ementa,
       bibliografia: data.bibliografia,
     };
@@ -93,12 +80,51 @@ export const FormDisciplina = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex px-5 flex-col mx-1 mb-5 gap-4 w-full"
-        noValidate
-      >
-        <DisciplinaFields isEdit={isEdit} />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-10 px-5">
+        <TitleForm text="Dados da Disciplina" />
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <FormFieldText form={form} name="nome" label="Nome Disciplina" placeholder="Matemática" />
+          <FormFieldText form={form} name="sigla" label="Sigla" placeholder="MAT" />
+          <FormFieldText form={form} name="carga" label="Carga Horária" placeholder="200h" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <FormFieldText form={form} name="area" label="Área do Conhecimento" placeholder="Ciências Exatas" />
+          <FormFieldText form={form} name="unidade" label="Unidade" placeholder="Centro" />
+          <FormFieldText form={form} name="inicio" label="Data de Início" type="date" />
+          <FormFieldText form={form} name="fim" label="Data de Encerramento" type="date" />
+        </div>
+
+        <div className="flex flex-col gap-8">
+            <FormField
+                control={form.control}
+                name="ementa"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="font-bold text-sm text-foreground/80 ml-1">Ementa</FormLabel>
+                        <FormControl>
+                            <Textarea {...field} className="min-h-[150px] bg-white border-primaria/20 rounded-2xl" />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="bibliografia"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="font-bold text-sm text-foreground/80 ml-1">Bibliografia</FormLabel>
+                        <FormControl>
+                            <Textarea {...field} className="min-h-[150px] bg-white border-primaria/20 rounded-2xl" />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </div>
+
         <FormButtons isSubmitting={isSubmitting} isEdit={isEdit} />
       </form>
     </Form>
