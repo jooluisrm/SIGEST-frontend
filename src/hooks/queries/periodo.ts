@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  closePeriodo,
+  createPeriodo,
   generateTurmasByPeriodo,
   getPeriodoById,
   getPeriodosByCurso,
   listPeriodos,
 } from "@/api/periodo/periodoServices";
-import { GenerateClassroomsPayload } from "@/types/period";
+import { CreatePeriodPayload, GenerateClassroomsPayload } from "@/types/period";
 import { queryKeys } from "./query-keys";
 
 export const usePeriodoList = (url?: string | null) =>
@@ -29,6 +31,28 @@ export const usePeriodosByCurso = (courseId: number, enabled = true) =>
     enabled,
     staleTime: 60_000,
   });
+
+export const useCreatePeriodo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreatePeriodPayload) => createPeriodo(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.periodos.all });
+    },
+  });
+};
+
+export const useClosePeriodo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => closePeriodo(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.periodos.all });
+    },
+  });
+};
 
 export const useGenerateTurmasByPeriodo = () => {
   const queryClient = useQueryClient();

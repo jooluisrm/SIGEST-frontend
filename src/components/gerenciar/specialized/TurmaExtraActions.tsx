@@ -5,7 +5,7 @@ export const TurmaExtraActions = () => {
   return (
     <div className="flex gap-2">
       <ActionDialog
-        triggerIcon="view"
+        triggerIcon="edit"
         triggerTooltip="Enturmar Aluno"
         triggerClassName="bg-green-700 hover:bg-green-800 text-white transition-transform active:scale-90"
         dialogTitle="Enturmar Aluno"
@@ -15,7 +15,7 @@ export const TurmaExtraActions = () => {
       </ActionDialog>
 
       <ActionDialog
-        triggerIcon="view"
+        triggerIcon="edit"
         triggerTooltip="Desenturmar Aluno"
         triggerClassName="bg-red-700 hover:bg-red-800 text-white transition-transform active:scale-90"
         dialogTitle="Desenturmar Aluno"

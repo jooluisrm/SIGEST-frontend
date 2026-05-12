@@ -68,21 +68,21 @@ export const StudentEnrollmentModal = ({ isUnenroll = false }: { isUnenroll?: bo
         </table>
       </div>
 
-      <div className="flex items-center justify-center gap-8 mt-8">
-        <AppButton 
-          intent="cancel"
-          className="min-w-[200px] h-14 rounded-2xl text-xl font-bold shadow-lg active:scale-95 transition-all"
-        >
-          Cancelar
-        </AppButton>
+      <div className="mt-5 flex flex-col justify-center gap-2 md:flex-row md:gap-3">
         <AppButton 
           intent={isUnenroll ? "cancel" : "done1"}
           className={cn(
-            "min-w-[200px] h-14 rounded-2xl text-xl font-bold shadow-lg active:scale-95 transition-all",
+            "min-w-[120px]",
             isUnenroll && "bg-primaria"
           )}
         >
           {isUnenroll ? "Desenturmar" : "Enturmar"}
+        </AppButton>
+        <AppButton 
+          intent="cancel"
+          className="min-w-[120px]"
+        >
+          Cancelar
         </AppButton>
       </div>
     </div>

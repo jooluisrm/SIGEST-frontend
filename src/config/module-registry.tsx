@@ -26,6 +26,9 @@ import { Professor } from "@/types/professor";
 import { PageTypeCentral } from "@/types/routerType";
 import { Servidor } from "@/types/servidor";
 import { TurmaExtraActions } from "@/components/gerenciar/specialized/TurmaExtraActions";
+import { PeriodoLetivoModal } from "@/components/gerenciar/specialized/PeriodoLetivoModal";
+import { ActionDialog } from "@/components/gerenciar/actionDialog";
+import { ItemView } from "@/components/gerenciar/itemView";
 
 export type SummaryData = {
   title: string;
@@ -220,13 +223,13 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
   disciplina: {
     ...MODULES_BY_SLUG.disciplina,
     iconPath: "/assets/disciplina-icon.png",
-    columns: ["Código", "Nome", "Sigla", "Área", "Carga Horária"],
+    columns: ["Código Disciplina", "Nome Disciplina", "Carga Horaria", "Periodo"],
     getSummary: (item) => {
       const disciplina = item as Disciplina;
       return {
         title: disciplina.nome,
-        secondary: disciplina.sigla,
-        tertiary: disciplina.area_conhecimento,
+        secondary: disciplina.carga_horaria,
+        tertiary: "-",
       };
     },
     getCells: (item) => {
@@ -234,9 +237,8 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
       return [
         disciplina.id,
         disciplina.nome,
-        disciplina.sigla,
-        disciplina.area_conhecimento,
         disciplina.carga_horaria,
+        "A",
       ];
     },
     getId: (item) => (item as Disciplina).id,
@@ -276,7 +278,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
   curso: {
     ...MODULES_BY_SLUG.curso,
     iconPath: "/assets/cadastro-icon.png",
-    columns: ["Código", "Nome do Curso", "Períodos (Séries)", "Carga Horária", "Situação"],
+    columns: ["Código", "Nome do Curso", "Quantidade Períodos", "Carga Horária", "Situação", "Período Letivo"],
     getSummary: (item) => {
       const curso = item as Course;
       return {
@@ -293,6 +295,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         curso.number_periods,
         curso.total_hours,
         boolToStatus(curso.status),
+        <PeriodoLetivoModal key={`periodo-${curso.id}`} courseId={curso.id} />,
       ];
     },
     getId: (item) => (item as Course).id,
