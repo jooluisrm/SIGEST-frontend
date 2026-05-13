@@ -25,7 +25,7 @@ export const CourseDetailsContent = ({
       <div className="grid gap-x-6 gap-y-7 md:grid-cols-2">
         <ReadOnlyField label="Nome do Curso" value={course.name} />
         <ReadOnlyField
-          label="Quantidade de Séries?"
+          label="Quantidade de Períodos"
           value={String(course.number_periods)}
         />
         <ReadOnlyField
@@ -33,7 +33,7 @@ export const CourseDetailsContent = ({
           value={formatHours(course.total_hours)}
         />
         <ReadOnlyField
-          label="Carga Horária por Série"
+          label="Carga Horária por Período"
           value={formatHours(course.hours_period)}
         />
         <ReadOnlyField label="Período Letivo" value={getCoursePeriodLabel(course)} />

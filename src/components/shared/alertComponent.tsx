@@ -10,26 +10,42 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { ButtonGerenciar, ButtonIconType } from "../gerenciar/buttonGerenciar";
+import { AppButton } from "./app-button";
 
 type Props = {
-    triggerIcon: ButtonIconType;
+    triggerIcon?: ButtonIconType;
     triggerTooltip: string;
     triggerClassName?: string;
+    triggerLabel?: string;
     dialogTitle: string;
     dialogDescription: string;
     onConfirm?: () => void;
 }
 
-export const AlertDialogComponent = ({ onConfirm, dialogTitle, triggerIcon, triggerTooltip, triggerClassName, dialogDescription }: Props) => {
+export const AlertDialogComponent = ({ 
+    onConfirm, 
+    dialogTitle, 
+    triggerIcon, 
+    triggerTooltip, 
+    triggerClassName, 
+    triggerLabel,
+    dialogDescription 
+}: Props) => {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <ButtonGerenciar
-                    alt={triggerTooltip}
-                    icon={triggerIcon}
-                    className={triggerClassName}
-                    size={"sm"}
-                />
+                {triggerLabel ? (
+                    <AppButton className={triggerClassName}>
+                        {triggerLabel}
+                    </AppButton>
+                ) : (
+                    <ButtonGerenciar
+                        alt={triggerTooltip}
+                        icon={triggerIcon!}
+                        className={triggerClassName}
+                        size={"sm"}
+                    />
+                )}
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
