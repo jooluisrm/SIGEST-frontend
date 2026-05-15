@@ -15,6 +15,10 @@ export const queryKeys = {
   periodos: {
     ...buildResourceKeys("periodos"),
     byCourse: (courseId: number) => ["periodos", "course", courseId] as const,
+    letivosByCourse: (courseId: number) =>
+      ["periodos", "letivos-course", courseId] as const,
+    byPeriodoLetivo: (periodoLetivoId: number) =>
+      ["periodos", "periodo-letivo", periodoLetivoId] as const,
   },
   professores: buildResourceKeys("professores"),
   turmas: {
