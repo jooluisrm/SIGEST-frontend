@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ChevronDown, CheckCircle2, ChevronRight, ArrowLeft, Eye } from "lucide-react";
+import { Search, ChevronDown, CheckCircle2, ArrowLeft } from "lucide-react";
 import { CalendarioCadastro } from "@/components/ui/calendarioCadastro";
 import {
   Dialog,
@@ -13,8 +13,12 @@ import {
 } from "@/components/ui/dialog";
 import { AppButton } from "@/components/shared/app-button";
 import { AppInput } from "@/components/shared/app-input";
-import { usePeriodosByCurso, useCreatePeriodo, useClosePeriodo } from "@/hooks/queries/periodo";
-import { useTurmasByPeriodo } from "@/hooks/queries/turma";
+import {
+  useClosePeriodo,
+  useCreatePeriodo,
+  usePeriodosLetivosByCurso,
+  useSeriesByPeriodoLetivo,
+} from "@/hooks/queries/periodo";
 import { AlertDialogComponent } from "@/components/shared/alertComponent";
 import { cn } from "@/lib/utils";
 
@@ -28,8 +32,11 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
-  const { data: periods, isLoading } = usePeriodosByCurso(courseId);
-  const { data: classrooms, isLoading: isLoadingClassrooms } = useTurmasByPeriodo(selectedPeriodId, view === "DETAIL");
+  const { data: periods, isLoading } = usePeriodosLetivosByCurso(courseId);
+  const { data: series, isLoading: isLoadingSeries } = useSeriesByPeriodoLetivo(
+    selectedPeriodId,
+    view === "DETAIL"
+  );
   const createMutation = useCreatePeriodo();
   const closeMutation = useClosePeriodo();
 
@@ -203,26 +210,22 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
                   </h3>
 
                   <div className="flex flex-col gap-3 overflow-y-auto max-h-[300px] pr-1">
-                    {isLoadingClassrooms ? (
-                      <div className="text-center py-10 text-muted-foreground text-sm">Carregando turmas...</div>
-                    ) : (classrooms?.data ?? []).length === 0 ? (
-                      <div className="text-center py-10 text-muted-foreground text-sm">Nenhuma turma vinculada a este período.</div>
+                    {isLoadingSeries ? (
+                      <div className="text-center py-10 text-muted-foreground text-sm">Carregando series...</div>
+                    ) : (series?.data ?? []).length === 0 ? (
+                      <div className="text-center py-10 text-muted-foreground text-sm">Nenhuma serie vinculada a este periodo letivo.</div>
                     ) : (
-                      (classrooms?.data ?? []).map(classroom => (
-                        <div key={classroom.id} className="flex items-center justify-between p-4 border border-primaria/20 rounded-xl group hover:bg-primaria/10 transition-colors">
+                      (series?.data ?? []).map((serie) => (
+                        <div key={serie.id} className="flex items-center justify-between p-4 border border-primaria/20 rounded-xl group hover:bg-primaria/10 transition-colors">
                           <div className="flex flex-col">
-                            <span className="font-bold text-primaria">{classroom.name}</span>
-                            <span className="text-xs text-primaria/70">{classroom.shift} · {classroom.max_students} alunos</span>
+                            <span className="font-bold text-primaria">{serie.name}</span>
+                            <span className="text-xs text-primaria/70">
+                              {serie.total_hours ? `${serie.total_hours}h` : "Carga horaria nao informada"}
+                            </span>
                           </div>
-                          <div
-                            onClick={() => {
-                              window.location.href = `/gerenciar/turma?id=${classroom.id}`;
-                            }}
-                            className="bg-primaria p-2 rounded-lg cursor-pointer hover:bg-primaria/90 transition-colors shadow-sm active:scale-95"
-                            title="Visualizar Detalhes da Turma"
-                          >
-                            <Eye size={18} className="text-white" />
-                          </div>
+                          <span className="rounded-md bg-primaria/20 px-3 py-1 text-sm font-bold">
+                            {serie.status ? "Aberta" : "Fechada"}
+                          </span>
                         </div>
                       ))
                     )}

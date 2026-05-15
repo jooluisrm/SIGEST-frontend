@@ -5,6 +5,8 @@ import {
   generateTurmasByPeriodo,
   getPeriodoById,
   getPeriodosByCurso,
+  getPeriodosLetivosByCurso,
+  getSeriesByPeriodoLetivo,
   listPeriodos,
 } from "@/api/periodo/periodoServices";
 import { CreatePeriodPayload, GenerateClassroomsPayload } from "@/types/period";
@@ -29,6 +31,25 @@ export const usePeriodosByCurso = (courseId: number, enabled = true) =>
     queryKey: queryKeys.periodos.byCourse(courseId),
     queryFn: () => getPeriodosByCurso(courseId),
     enabled,
+    staleTime: 60_000,
+  });
+
+export const usePeriodosLetivosByCurso = (courseId: number, enabled = true) =>
+  useQuery({
+    queryKey: queryKeys.periodos.letivosByCourse(courseId),
+    queryFn: () => getPeriodosLetivosByCurso(courseId),
+    enabled,
+    staleTime: 60_000,
+  });
+
+export const useSeriesByPeriodoLetivo = (
+  periodoLetivoId?: number | null,
+  enabled = true
+) =>
+  useQuery({
+    queryKey: queryKeys.periodos.byPeriodoLetivo(periodoLetivoId ?? 0),
+    queryFn: () => getSeriesByPeriodoLetivo(periodoLetivoId as number),
+    enabled: enabled && !!periodoLetivoId,
     staleTime: 60_000,
   });
 
