@@ -9,6 +9,8 @@ export type Disciplina = {
   data_encerramento: string | null;
   ementa: string;
   bibliografia: string;
+  classroom_id?: number | null;
+  professor_id?: number | null;
 };
 
 export type DisciplinaPayload = {
@@ -21,4 +23,6 @@ export type DisciplinaPayload = {
   data_encerramento?: string;
   ementa?: string;
   bibliografia?: string;
+  classroom_id?: number | null;
+  professor_id?: number | null;
 };

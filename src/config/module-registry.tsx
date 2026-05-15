@@ -14,6 +14,7 @@ import { FormDisciplina } from "@/components/cadastrar/formularios/formDisciplin
 import { FormProfessor } from "@/components/cadastrar/formularios/formProfessor";
 import { FormTurma } from "@/components/cadastrar/formularios/formTurma";
 import { FormUsuario } from "@/components/cadastrar/formularios/formUsuario";
+import { removeAvaliacao } from "@/api/avaliacao/avaliacaoServices";
 import { FormAvaliacao } from "@/components/cadastrar/formularios/formAvaliacao";
 import { GenerateClassroomsForm } from "@/components/gerenciar/generateClassroomsForm";
 import { MODULES_BY_SLUG } from "@/config/modules";
@@ -223,13 +224,13 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
   disciplina: {
     ...MODULES_BY_SLUG.disciplina,
     iconPath: "/assets/disciplina-icon.png",
-    columns: ["Código Disciplina", "Nome Disciplina", "Carga Horaria", "Periodo"],
+    columns: ["ID", "Nome", "Área do Conhecimento", "Carga Horária"],
     getSummary: (item) => {
       const disciplina = item as Disciplina;
       return {
         title: disciplina.nome,
-        secondary: disciplina.carga_horaria,
-        tertiary: "-",
+        secondary: disciplina.area_conhecimento,
+        tertiary: disciplina.carga_horaria,
       };
     },
     getCells: (item) => {
@@ -237,8 +238,8 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
       return [
         disciplina.id,
         disciplina.nome,
+        disciplina.area_conhecimento,
         disciplina.carga_horaria,
-        "A",
       ];
     },
     getId: (item) => (item as Disciplina).id,
@@ -256,19 +257,16 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
           title: "Dados da Disciplina",
           items: [
             { label: "Nome", value: disciplina.nome },
-            { label: "Sigla", value: disciplina.sigla },
             { label: "Área", value: disciplina.area_conhecimento },
-            { label: "Unidade", value: disciplina.unidade },
             { label: "Carga Horária", value: disciplina.carga_horaria },
-            { label: "Início", value: disciplina.data_inicio },
-            { label: "Encerramento", value: disciplina.data_encerramento ?? "-" },
+            { label: "Turma", value: disciplina.classroom_id ?? "-" },
+            { label: "Professor", value: disciplina.professor_id ?? "-" },
           ],
         },
         {
           title: "Conteúdo",
           items: [
             { label: "Ementa", value: disciplina.ementa },
-            { label: "Bibliografia", value: disciplina.bibliografia },
           ],
         },
       ];
@@ -429,17 +427,26 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
       ];
     },
     deleteItem: removeTurma,
-    renderExtraAction: () => <TurmaExtraActions />,
+    renderExtraAction: (item, onRefresh) => (
+      <TurmaExtraActions turma={item as Classroom} onRefresh={onRefresh} />
+    ),
   },
   avaliacao: {
     ...MODULES_BY_SLUG.avaliacao,
     iconPath: "/assets/atividades-icon.png",
-    columns: ["Título", "Valor", "Data"],
+    columns: ["ID", "Título", "Valor", "Tipo", "Data"],
     getSummary: (item: any) => ({
       title: item.titulo ?? "Sem Título",
       secondary: `Valor: ${item.valor}`,
       tertiary: item.data ?? "-",
     }),
+    getCells: (item: any) => [
+      item.id,
+      item.titulo,
+      item.valor,
+      item.tipo,
+      item.data,
+    ],
     getId: (item: any) => item.id ?? 0,
     renderForm: (props) => (
       <FormAvaliacao
@@ -460,6 +467,6 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         ],
       },
     ],
-    deleteItem: async () => { }, // TODO: Implement API service
+    deleteItem: removeAvaliacao,
   },
 };
