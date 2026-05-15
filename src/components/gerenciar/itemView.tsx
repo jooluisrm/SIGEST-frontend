@@ -69,15 +69,10 @@ export const ItemView = ({ id }: { id: number }) => {
     return <Skeleton className="h-64 w-full" />;
   }
 
-  if (detailQuery.isError) {
+  if (detailQuery.isError || relatedQuery.isError) {
     return (
       <Alert variant="destructive">
         <AlertTitle>Não foi possível carregar os detalhes.</AlertTitle>
-        {relatedQuery.isError && (
-          <p className="text-sm mt-2 text-destructive-foreground/80">
-            Aviso: Alguns dados relacionados não puderam ser carregados.
-          </p>
-        )}
       </Alert>
     );
   }

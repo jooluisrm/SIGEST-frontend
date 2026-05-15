@@ -10,25 +10,25 @@ import { Classroom } from "@/types/classroom";
 import { CreatePeriodPayload, GenerateClassroomsPayload, Period } from "@/types/period";
 
 export const listPeriodos = async (
-  url = "periodoletivo"
+  url = "periods"
 ): Promise<NormalizedListResponse<Period>> => {
   const response = await axiosInstance.get(url);
   return normalizeListResponse<Period>(response.data);
 };
 
 export const getPeriodoById = async (id: number) => {
-  const response = await axiosInstance.get<ApiSuccessResponse<Period>>(`periodoletivo/${id}`);
+  const response = await axiosInstance.get<ApiSuccessResponse<Period>>(`periods/${id}`);
   return extractResponseData<Period>(response.data);
 };
 
 export const getPeriodosByCurso = async (courseId: number) => {
-  const response = await axiosInstance.get(`periodoletivo/show-periods-for-course/${courseId}`);
+  const response = await axiosInstance.get(`periods/show-periods-for-course/${courseId}`);
   return normalizeListResponse<Period>(response.data);
 };
 
 export const createPeriodo = async (payload: CreatePeriodPayload) => {
   try {
-    const response = await axiosInstance.post<ApiSuccessResponse<Period>>("periodoletivo", payload);
+    const response = await axiosInstance.post<ApiSuccessResponse<Period>>("periods", payload);
     notifyApiSuccess(response.data, "Período Letivo criado com sucesso!");
     return extractResponseData<Period>(response.data);
   } catch (error) {
@@ -38,7 +38,7 @@ export const createPeriodo = async (payload: CreatePeriodPayload) => {
 
 export const closePeriodo = async (id: number) => {
   try {
-    const response = await axiosInstance.patch<ApiSuccessResponse<Period>>(`periodoletivo/${id}`, { status: false });
+    const response = await axiosInstance.patch<ApiSuccessResponse<Period>>(`periods/${id}`, { status: false });
     notifyApiSuccess(response.data, "Período Letivo fechado com sucesso!");
     return extractResponseData<Period>(response.data);
   } catch (error) {
@@ -52,7 +52,7 @@ export const generateTurmasByPeriodo = async (
 ) => {
   try {
     const response = await axiosInstance.get<ApiSuccessResponse<Classroom[] | null>>(
-      `periodoletivo/${periodId}/generate-classrooms`,
+      `periods/${periodId}/generate-classrooms`,
       { params }
     );
     notifyApiSuccess(response.data, "Turmas geradas com sucesso!");
