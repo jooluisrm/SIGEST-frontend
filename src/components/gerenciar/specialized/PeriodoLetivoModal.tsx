@@ -9,10 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { AppButton } from "@/components/shared/app-button";
 import { AppInput } from "@/components/shared/app-input";
 import { usePeriodosByCurso, useCreatePeriodo, useClosePeriodo } from "@/hooks/queries/periodo";
+import { useTurmasByPeriodo } from "@/hooks/queries/turma";
 import { AlertDialogComponent } from "@/components/shared/alertComponent";
 import { cn } from "@/lib/utils";
 
@@ -23,11 +25,11 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
   const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
 
-  // Form State
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
   const { data: periods, isLoading } = usePeriodosByCurso(courseId);
+  const { data: classrooms, isLoading: isLoadingClassrooms } = useTurmasByPeriodo(selectedPeriodId, view === "DETAIL");
   const createMutation = useCreatePeriodo();
   const closeMutation = useClosePeriodo();
 
@@ -59,27 +61,35 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
     <Dialog onOpenChange={(open) => !open && setView("LIST")}>
       <DialogTrigger asChild>
         <AppButton
-          className="bg-green-600 hover:bg-green-700 text-white px-6 h-10 rounded-xl font-bold transition-all active:scale-95"
+          className="bg-primaria hover:bg-primaria/90 text-white px-6 h-10 rounded-xl font-bold transition-all active:scale-95"
         >
           Gerenciar
         </AppButton>
       </DialogTrigger>
-      <DialogContent className="max-w-md border-green-600/20 rounded-[2rem]">
+      <DialogContent className="max-w-md border-primaria/20 rounded-[2rem]">
+        <DialogHeader className="sr-only">
+          <DialogTitle>
+            {view === "CREATE" ? "Abrir Período Letivo" : view === "SUCCESS" ? "Sucesso" : view === "DETAIL" ? "Detalhes" : "Períodos Letivos"}
+          </DialogTitle>
+          <DialogDescription>
+            Gerenciamento de períodos letivos para o curso selecionado.
+          </DialogDescription>
+        </DialogHeader>
+
         <div className="flex flex-col gap-6 min-h-[500px]">
-          
           <div className="flex items-center gap-3">
-             <div 
-               onClick={view !== "LIST" ? handleBack : undefined}
-               className={cn(
-                 "bg-green-600 p-1.5 rounded-lg cursor-pointer hover:bg-green-700 transition-colors",
-                 view === "LIST" && "opacity-0 cursor-default"
-               )}
-             >
-               <ArrowLeft size={18} className="text-white" />
-             </div>
-             <h2 className="text-2xl font-bold text-foreground/90">
-                {view === "CREATE" ? "Abrir Período Letivo" : view === "SUCCESS" ? "Sucesso" : view === "DETAIL" ? "Detalhes" : "Períodos Letivos"}
-             </h2>
+            <div
+              onClick={view !== "LIST" ? handleBack : undefined}
+              className={cn(
+                "bg-primaria p-1.5 rounded-lg cursor-pointer hover:bg-primaria/90 transition-colors",
+                view === "LIST" && "opacity-0 cursor-default"
+              )}
+            >
+              <ArrowLeft size={18} className="text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground/90">
+              {view === "CREATE" ? "Abrir Período Letivo" : view === "SUCCESS" ? "Sucesso" : view === "DETAIL" ? "Detalhes" : "Períodos Letivos"}
+            </h2>
           </div>
 
           <div className="flex-1 flex flex-col gap-6">
@@ -88,14 +98,14 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
                 <div className="relative group">
                   <AppInput
                     placeholder="Buscar Periodo letivo"
-                    icon={<Search size={18} className="text-green-600/50" />}
-                    className="h-12 border-green-600/20 bg-green-50/20 group-hover:border-green-600/40 transition-all rounded-xl"
+                    icon={<Search size={18} className="text-primaria/50" />}
+                    className="h-12 border-primaria/20 group-hover:border-primaria/40 transition-all rounded-xl"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
 
-                <div className="flex flex-col gap-3 overflow-y-auto max-h-[350px] pr-1 rounded-2xl p-4 bg-green-50/10">
+                <div className="flex flex-col gap-3 overflow-y-auto max-h-[350px] pr-1 rounded-2xl p-4">
                   {isLoading ? (
                     <div className="text-center py-10 text-muted-foreground">Carregando...</div>
                   ) : filteredPeriods.length === 0 ? (
@@ -104,14 +114,14 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
                     filteredPeriods.map((period) => (
                       <div
                         key={period.id}
-                        className="flex items-center justify-between p-4 border border-green-600/20 rounded-xl bg-white hover:bg-green-50 transition-colors cursor-pointer group"
+                        className="h-12 flex items-center justify-between p-4 border border-primaria/20 rounded-xl bg-white hover:bg-primaria/5 transition-colors cursor-pointer group"
                         onClick={() => {
-                            setSelectedPeriodId(period.id);
-                            setView("DETAIL");
+                          setSelectedPeriodId(period.id);
+                          setView("DETAIL");
                         }}
                       >
                         <span className="font-medium text-foreground/80">{period.name}</span>
-                        <ChevronDown size={20} className="text-green-600/50 group-hover:text-green-600 transition-colors" />
+                        <ChevronDown size={20} className="text-primaria/50 group-hover:text-primaria transition-colors" />
                       </div>
                     ))
                   )}
@@ -120,7 +130,7 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
                 <div className="mt-auto flex justify-center">
                   <AppButton
                     onClick={handleOpenCreate}
-                    className="bg-green-600 hover:bg-green-700 min-w-[140px] h-12 rounded-xl text-lg font-bold shadow-md"
+                    className="bg-primaria hover:bg-primaria/90 min-w-[140px] h-12 rounded-xl text-lg font-bold shadow-md"
                   >
                     Abrir
                   </AppButton>
@@ -130,20 +140,20 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
 
             {view === "CREATE" && (
               <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-right-4 duration-300 h-full">
-                <div className="bg-green-50/10 border border-green-600/20 rounded-[2rem] p-8 flex flex-col gap-8 flex-1">
+                <div className="border border-primaria/20 rounded-[2rem] p-8 flex flex-col gap-8 flex-1">
                   <div className="flex flex-col gap-3">
                     <label className="text-base font-bold text-foreground/70">Qual a data de início do período?</label>
                     <CalendarioCadastro
-                        value={startDate}
-                        onValueChange={setStartDate}
+                      value={startDate}
+                      onValueChange={setStartDate}
                     />
                   </div>
 
                   <div className="flex flex-col gap-3">
                     <label className="text-base font-bold text-foreground/70">Qual a data de finalização do período?</label>
                     <CalendarioCadastro
-                        value={endDate}
-                        onValueChange={setEndDate}
+                      value={endDate}
+                      onValueChange={setEndDate}
                     />
                   </div>
                 </div>
@@ -152,7 +162,7 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
                   <AppButton
                     onClick={handleCreate}
                     isLoading={createMutation.isPending}
-                    className="bg-green-600 hover:bg-green-700 min-w-[140px] h-12 rounded-xl font-bold shadow-md text-lg"
+                    className="bg-primaria hover:bg-primaria/90 min-w-[140px] h-12 rounded-xl font-bold shadow-md text-lg"
                   >
                     Abrir
                   </AppButton>
@@ -168,8 +178,8 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
 
             {view === "SUCCESS" && (
               <div className="flex flex-col items-center justify-center gap-6 py-20 animate-in zoom-in duration-300">
-                <div className="bg-green-100 p-6 rounded-full">
-                  <CheckCircle2 size={80} className="text-green-600" />
+                <div className="p-6 rounded-full">
+                  <CheckCircle2 size={80} className="text-primaria" />
                 </div>
                 <h3 className="text-2xl font-bold text-center">Período Letivo criado com sucesso!</h3>
                 <AppButton
@@ -178,7 +188,7 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
                     setStartDate(undefined);
                     setEndDate(undefined);
                   }}
-                  className="bg-green-600 hover:bg-green-700 min-w-[140px] h-12 rounded-xl text-lg font-bold shadow-md mt-6"
+                  className="bg-primaria hover:bg-primaria/90 min-w-[140px] h-12 rounded-xl text-lg font-bold shadow-md mt-6"
                 >
                   Concluir
                 </AppButton>
@@ -187,20 +197,35 @@ export const PeriodoLetivoModal = ({ courseId }: { courseId: number }) => {
 
             {view === "DETAIL" && (
               <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-left-4 duration-300 h-full">
-                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-green-50/10 flex-1">
+                <div className="flex flex-col gap-4 rounded-[2rem] p-6 flex-1">
                   <h3 className="text-xl font-bold text-foreground/80 mb-2">
                     {periods?.data.find(p => p.id === selectedPeriodId)?.name ?? "Período"}
                   </h3>
-                  
-                  <div className="flex flex-col gap-3">
-                    {[1, 2, 3, 4].map(serie => (
-                      <div key={serie} className="flex items-center justify-between p-4 border border-green-600/30 rounded-xl group hover:bg-green-100 transition-colors">
-                        <span className="font-bold text-green-800">Série {serie}</span>
-                        <div className="bg-green-800 p-1.5 rounded-md">
-                           <Eye size={16} className="text-white" />
+
+                  <div className="flex flex-col gap-3 overflow-y-auto max-h-[300px] pr-1">
+                    {isLoadingClassrooms ? (
+                      <div className="text-center py-10 text-muted-foreground text-sm">Carregando turmas...</div>
+                    ) : (classrooms?.data ?? []).length === 0 ? (
+                      <div className="text-center py-10 text-muted-foreground text-sm">Nenhuma turma vinculada a este período.</div>
+                    ) : (
+                      (classrooms?.data ?? []).map(classroom => (
+                        <div key={classroom.id} className="flex items-center justify-between p-4 border border-primaria/20 rounded-xl group hover:bg-primaria/10 transition-colors">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-primaria">{classroom.name}</span>
+                            <span className="text-xs text-primaria/70">{classroom.shift} · {classroom.max_students} alunos</span>
+                          </div>
+                          <div
+                            onClick={() => {
+                              window.location.href = `/gerenciar/turma?id=${classroom.id}`;
+                            }}
+                            className="bg-primaria p-2 rounded-lg cursor-pointer hover:bg-primaria/90 transition-colors shadow-sm active:scale-95"
+                            title="Visualizar Detalhes da Turma"
+                          >
+                            <Eye size={18} className="text-white" />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
 

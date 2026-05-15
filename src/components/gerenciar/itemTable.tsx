@@ -107,7 +107,7 @@ export const ItemTable = ({ item, onRefresh }: Props) => {
             {isDisciplina && (
               <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-2 hover:bg-green-100 rounded-lg transition-colors text-green-600"
+                className="p-2 hover:bg-primaria/10 rounded-lg transition-colors text-primaria"
               >
                 {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
               </button>

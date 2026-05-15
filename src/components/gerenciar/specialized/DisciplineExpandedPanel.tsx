@@ -8,15 +8,15 @@ export const DisciplineExpandedPanel = () => {
 
       {/* Large Green Buttons */}
       <div className="flex flex-wrap gap-4 flex-1 justify-center md:justify-start">
-        <button className="flex flex-col items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white w-36 h-36 rounded-[1.5rem] transition-all active:scale-95 shadow-lg shadow-green-600/20">
+        <button className="flex flex-col items-center justify-center gap-3 bg-primaria hover:bg-primaria/90 text-white w-36 h-36 rounded-[1.5rem] transition-all active:scale-95 shadow-lg shadow-primaria/20">
           <span className="text-lg font-bold">Frequencia</span>
         </button>
 
-        <button className="flex flex-col items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white w-36 h-36 rounded-[1.5rem] transition-all active:scale-95 shadow-lg shadow-green-600/20">
+        <button className="flex flex-col items-center justify-center gap-3 bg-primaria hover:bg-primaria/90 text-white w-36 h-36 rounded-[1.5rem] transition-all active:scale-95 shadow-lg shadow-primaria/20">
           <span className="text-lg font-bold">Avaliações</span>
         </button>
 
-        <button className="flex flex-col items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white w-36 h-36 rounded-[1.5rem] transition-all active:scale-95 shadow-lg shadow-green-600/20">
+        <button className="flex flex-col items-center justify-center gap-3 bg-primaria hover:bg-primaria/90 text-white w-36 h-36 rounded-[1.5rem] transition-all active:scale-95 shadow-lg shadow-primaria/20">
           <span className="text-lg font-bold">Informações</span>
         </button>
       </div>
@@ -31,7 +31,7 @@ export const DisciplineExpandedPanel = () => {
             <span className="text-xl font-bold text-slate-600">Pontos distribuidos</span>
             <div className="h-8 bg-slate-200 rounded-lg overflow-hidden flex relative">
               <div
-                className="bg-green-600 h-full transition-all duration-1000"
+                className="bg-primaria h-full transition-all duration-1000"
                 style={{ width: "35%" }}
               />
               <div className="absolute left-2 top-1/2 -translate-y-1/2 text-white text-sm font-bold px-1 rounded">
@@ -45,7 +45,7 @@ export const DisciplineExpandedPanel = () => {
             <span className="text-xl font-bold text-slate-600">Aulas lançadas</span>
             <div className="h-8 bg-slate-200 rounded-lg overflow-hidden flex relative">
               <div
-                className="bg-green-600 h-full transition-all duration-1000"
+                className="bg-primaria h-full transition-all duration-1000"
                 style={{ width: "20%" }}
               />
               <div className="absolute left-2 top-1/2 -translate-y-1/2 text-white text-sm font-bold px-1 rounded">
