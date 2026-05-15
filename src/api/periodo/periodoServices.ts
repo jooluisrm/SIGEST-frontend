@@ -63,7 +63,7 @@ export const createPeriodo = async (payload: CreatePeriodPayload) => {
         data_encerramento: payload.end_date,
       }
     );
-    notifyApiSuccess(response.data, "Periodo Letivo criado com sucesso!");
+    notifyApiSuccess(response.data, "Período Letivo criado com sucesso!");
     return extractResponseData<Period>(response.data);
   } catch (error) {
     handleApiError(error, "Erro ao criar periodo letivo");
@@ -76,7 +76,7 @@ export const closePeriodo = async (id: number) => {
       `${PERIODO_LETIVO_ENDPOINT}/${id}`,
       { status: false }
     );
-    notifyApiSuccess(response.data, "Periodo Letivo fechado com sucesso!");
+    notifyApiSuccess(response.data, "Período Letivo fechado com sucesso!");
     return extractResponseData<Period>(response.data);
   } catch (error) {
     handleApiError(error, "Erro ao fechar periodo letivo");
