@@ -35,7 +35,7 @@ export const TurmaDataFields = ({ periodOptions }: Props) => {
         />
         <FormFieldText
           form={form}
-          name="maxStudents"
+          name="maximoAlunos"
           label="Máximo de Alunos"
           type="number"
           placeholder="Ex: 30"
