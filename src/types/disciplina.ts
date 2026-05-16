@@ -1,19 +1,22 @@
 export type Disciplina = {
   id: number;
-  nome: string;
-  sigla: string;
+  name?: string;
+  nome?: string;
+  sigla?: string;
   area_conhecimento: string;
-  unidade: string;
+  unidade?: string;
   carga_horaria: string;
-  data_inicio: string;
-  data_encerramento: string | null;
+  data_inicio?: string;
+  data_encerramento?: string | null;
   ementa: string;
-  bibliografia: string;
+  bibliografia?: string;
   classroom_id?: number | null;
   professor_id?: number | null;
+  status?: boolean | 0 | 1;
 };
 
 export type DisciplinaPayload = {
+  name?: string;
   nome?: string;
   sigla?: string;
   area_conhecimento?: string;
@@ -25,4 +28,5 @@ export type DisciplinaPayload = {
   bibliografia?: string;
   classroom_id?: number | null;
   professor_id?: number | null;
+  status?: boolean;
 };

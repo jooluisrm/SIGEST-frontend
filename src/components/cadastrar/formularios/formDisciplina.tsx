@@ -24,8 +24,8 @@ const disciplinaSchema = z.object({
   data_encerramento: z.string().min(1, "Data de encerramento é obrigatória"),
   ementa: z.string().min(1, "Ementa é obrigatória").max(500),
   bibliografia: z.string().min(1, "Bibliografia é obrigatória").max(300),
-  turmaId: z.string().optional(),
-  professorId: z.string().optional(),
+  turmaId: z.string().min(1, "Turma é obrigatória"),
+  professorId: z.string().min(1, "Professor é obrigatório"),
 });
 
 type Props = {
@@ -53,7 +53,7 @@ export const FormDisciplina = ({ isEdit = false, defaultValues, onRefresh }: Pro
   const form = useForm<z.infer<typeof disciplinaSchema>>({
     resolver: zodResolver(disciplinaSchema),
     defaultValues: {
-      nome: defaultValues?.nome ?? "",
+      nome: defaultValues?.nome ?? defaultValues?.name ?? "",
       sigla: defaultValues?.sigla ?? "",
       area_conhecimento: defaultValues?.area_conhecimento ?? "",
       unidade: defaultValues?.unidade ?? "",
@@ -62,15 +62,22 @@ export const FormDisciplina = ({ isEdit = false, defaultValues, onRefresh }: Pro
       data_encerramento: defaultValues?.data_encerramento ?? "",
       ementa: defaultValues?.ementa ?? "",
       bibliografia: defaultValues?.bibliografia ?? "",
-      turmaId: "",
-      professorId: "",
+      turmaId: defaultValues?.classroom_id ? String(defaultValues.classroom_id) : "",
+      professorId: defaultValues?.professor_id ? String(defaultValues.professor_id) : "",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof disciplinaSchema>) => {
     setIsSubmitting(true);
-    // Removemos os campos de vínculo antes de enviar ao backend
-    const { turmaId, professorId, ...payload } = data;
+    const payload = {
+      name: data.nome,
+      area_conhecimento: data.area_conhecimento,
+      carga_horaria: data.carga_horaria,
+      ementa: data.ementa,
+      classroom_id: Number(data.turmaId),
+      professor_id: Number(data.professorId),
+      status: true,
+    };
     
     try {
       if (isEdit && defaultValues) {

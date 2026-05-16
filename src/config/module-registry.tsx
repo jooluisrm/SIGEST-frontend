@@ -228,7 +228,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
     getSummary: (item) => {
       const disciplina = item as Disciplina;
       return {
-        title: disciplina.nome,
+        title: disciplina.nome ?? disciplina.name ?? "-",
         secondary: disciplina.area_conhecimento,
         tertiary: disciplina.carga_horaria,
       };
@@ -237,7 +237,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
       const disciplina = item as Disciplina;
       return [
         disciplina.id,
-        disciplina.nome,
+        disciplina.nome ?? disciplina.name ?? "-",
         disciplina.area_conhecimento,
         disciplina.carga_horaria,
       ];
@@ -256,7 +256,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
         {
           title: "Dados da Disciplina",
           items: [
-            { label: "Nome", value: disciplina.nome },
+            { label: "Nome", value: disciplina.nome ?? disciplina.name ?? "-" },
             { label: "Área", value: disciplina.area_conhecimento },
             { label: "Carga Horária", value: disciplina.carga_horaria },
             { label: "Turma", value: disciplina.classroom_id ?? "-" },

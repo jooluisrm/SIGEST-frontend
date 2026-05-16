@@ -19,6 +19,7 @@ const cursoSchema = z.object({
   series: z.string().min(1, "Quantidade de períodos é obrigatória"),
   cargaTotal: z.string().min(1, "Carga horária total é obrigatória"),
   cargaSerie: z.string().min(1, "Carga horária por série é obrigatória"),
+  detalhes: z.string().min(1, "Detalhes são obrigatórios"),
 });
 
 type Props = {
@@ -39,6 +40,7 @@ export const FormCurso = ({ isEdit, defaultValues, onRefresh }: Props) => {
       series: defaultValues?.number_periods ? String(defaultValues.number_periods) : "",
       cargaTotal: defaultValues?.total_hours ? String(defaultValues.total_hours) : "",
       cargaSerie: defaultValues?.hours_period ? String(defaultValues.hours_period) : "",
+      detalhes: defaultValues?.details ?? "",
     },
   });
 
@@ -50,6 +52,7 @@ export const FormCurso = ({ isEdit, defaultValues, onRefresh }: Props) => {
       number_periods: Number(data.series),
       total_hours: Number(data.cargaTotal),
       hours_period: Number(data.cargaSerie),
+      details: data.detalhes,
       status: true, 
     };
 
@@ -106,6 +109,24 @@ export const FormCurso = ({ isEdit, defaultValues, onRefresh }: Props) => {
             placeholder="160h"
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="detalhes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Detalhes</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  placeholder="Informe detalhes do curso"
+                  className="min-h-28 border-primaria focus-visible:ring-primaria"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormButtons isSubmitting={isSubmitting} isEdit={isEdit} />
       </form>
