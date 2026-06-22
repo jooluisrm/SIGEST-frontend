@@ -448,16 +448,16 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
   avaliacao: {
     ...MODULES_BY_SLUG.avaliacao,
     iconPath: "/assets/atividades-icon.png",
-    columns: ["ID", "TÃ­tulo", "Valor", "Tipo", "Data"],
+    columns: ["ID", "Título", "Valor", "Tipo", "Data"],
     getSummary: (item: any) => ({
-      title: item.titulo ?? "Sem TÃ­tulo",
-      secondary: `Valor: ${item.valor}`,
+      title: item.titulo ?? item.title ?? "Sem Título",
+      secondary: `Valor: ${item.valor ?? item.pontuacao_maxima ?? item.max_pontos ?? "-"}`,
       tertiary: item.data ?? "-",
     }),
     getCells: (item: any) => [
       item.id,
-      item.titulo,
-      item.valor,
+      item.titulo ?? item.title,
+      item.valor ?? item.pontuacao_maxima ?? item.max_pontos ?? "-",
       item.tipo,
       item.data,
     ],
@@ -471,10 +471,10 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
     ),
     detailSections: (detail: any) => [
       {
-        title: "Dados da AvaliaÃ§Ã£o",
+        title: "Dados da Avaliação",
         items: [
-          { label: "TÃ­tulo", value: detail.titulo },
-          { label: "Valor", value: detail.valor },
+          { label: "Título", value: detail.titulo ?? detail.title },
+          { label: "Valor", value: detail.valor ?? detail.pontuacao_maxima ?? detail.max_pontos },
           { label: "Tipo", value: detail.tipo },
           { label: "Turma", value: detail.turma },
           { label: "Data", value: detail.data },

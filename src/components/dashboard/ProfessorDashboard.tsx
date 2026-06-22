@@ -10,30 +10,15 @@ import { useProfessorList } from "@/hooks/queries/professor";
 import { Disciplina } from "@/types/disciplina";
 import { Frequencia } from "@/types/frequencia";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ProfessorEvaluationView } from "./ProfessorEvaluationView";
 import { ProfessorFrequencyView } from "./ProfessorFrequencyView";
 
 type ProfessorPanel = "home" | "frequency" | "evaluation" | "info";
 
-const getClassroomLabel = (disciplina: Disciplina) =>
-  disciplina.classroom_id ? `Turma ${disciplina.classroom_id}` : "-";
-
-const getPeriodLabel = (disciplina: Disciplina) =>
-  disciplina.unidade ?? disciplina.sigla ?? "-";
-
-const countFrequenciaEntries = (frequencia: Frequencia) =>
-  (frequencia.presencas ?? frequencia.alunos ?? []).length;
-
-const percent = (value: number, total: number) =>
-  total ? Math.min(100, Math.round((value / total) * 100)) : 0;
+const getClassroomLabel = (disciplina: Disciplina) => (disciplina.classroom_id ? `Turma ${disciplina.classroom_id}` : "-");
+const getPeriodLabel = (disciplina: Disciplina) => disciplina.unidade ?? disciplina.sigla ?? "-";
+const percent = (value: number, total: number) => (total ? Math.min(100, Math.round((value / total) * 100)) : 0);
 
 const StatBar = ({ label, value }: { label: string; value: number }) => (
   <div className="space-y-2">
@@ -67,10 +52,7 @@ export const ProfessorDashboard = () => {
 
   const disciplinas = useMemo(() => {
     const list = disciplinasQuery.data?.data ?? [];
-    if (!professor?.id_professor) {
-      return [];
-    }
-
+    if (!professor?.id_professor) return [];
     return list.filter((disciplina) => disciplina.professor_id === professor.id_professor);
   }, [disciplinasQuery.data?.data, professor?.id_professor]);
 
@@ -85,43 +67,20 @@ export const ProfessorDashboard = () => {
   };
 
   const selectedStats = useMemo(() => {
-    if (!selectedDisciplina && !expandedId) {
-      return { evaluationPercent: 0, classPercent: 0 };
-    }
+    if (!selectedDisciplina && !expandedId) return { evaluationPercent: 0, classPercent: 0 };
 
     const disciplinaId = selectedDisciplina?.id ?? expandedId;
-    const avaliacoes = (avaliacoesQuery.data?.data ?? []).filter(
-      (avaliacao) => avaliacao.disciplina_id === disciplinaId
-    );
-    const frequencias = (frequenciasQuery.data?.data ?? []).filter(
-      (frequencia) => frequencia.disciplina_id === disciplinaId
-    );
-    const pontos = avaliacoes.reduce(
-      (total, avaliacao) =>
-        total +
-        Number(avaliacao.pontuacao_maxima ?? avaliacao.max_pontos ?? avaliacao.valor ?? 0),
-      0
-    );
-    const aulas = frequencias.length;
-
+    const avaliacoes = (avaliacoesQuery.data?.data ?? []).filter((avaliacao) => avaliacao.disciplina_id === disciplinaId);
+    const frequencias = (frequenciasQuery.data?.data ?? []).filter((frequencia) => frequencia.disciplina_id === disciplinaId);
+    const pontos = avaliacoes.reduce((total, avaliacao) => total + Number(avaliacao.pontuacao_maxima ?? avaliacao.max_pontos ?? avaliacao.valor ?? 0), 0);
     return {
       evaluationPercent: percent(pontos, 100),
-      classPercent: percent(aulas, 20),
+      classPercent: percent(frequencias.length, 20),
     };
-  }, [
-    avaliacoesQuery.data?.data,
-    expandedId,
-    frequenciasQuery.data?.data,
-    selectedDisciplina,
-  ]);
+  }, [avaliacoesQuery.data?.data, expandedId, frequenciasQuery.data?.data, selectedDisciplina]);
 
-  if (panel === "frequency" && selectedDisciplina) {
-    return <ProfessorFrequencyView disciplina={selectedDisciplina} onBack={handleBack} />;
-  }
-
-  if (panel === "evaluation" && selectedDisciplina) {
-    return <ProfessorEvaluationView disciplina={selectedDisciplina} onBack={handleBack} />;
-  }
+  if (panel === "frequency" && selectedDisciplina) return <ProfessorFrequencyView disciplina={selectedDisciplina} onBack={handleBack} />;
+  if (panel === "evaluation" && selectedDisciplina) return <ProfessorEvaluationView disciplina={selectedDisciplina} onBack={handleBack} />;
 
   if (panel === "info" && selectedDisciplina) {
     return (
@@ -152,9 +111,7 @@ export const ProfessorDashboard = () => {
         <Button size="icon" className="bg-primaria" aria-label="Voltar">
           <ArrowLeft />
         </Button>
-        <h1 className="text-3xl font-bold md:text-4xl">
-          Bem vindo {user?.nome ?? "Professor"}
-        </h1>
+        <h1 className="text-3xl font-bold md:text-4xl">Bem vindo {user?.nome ?? "Professor"}</h1>
       </div>
 
       <div className="rounded-lg bg-white p-5 shadow-sm md:p-8">
@@ -181,11 +138,7 @@ export const ProfessorDashboard = () => {
                       <TableCell>{disciplina.carga_horaria}</TableCell>
                       <TableCell>{getPeriodLabel(disciplina)}</TableCell>
                       <TableCell>
-                        <button
-                          type="button"
-                          className="text-primaria"
-                          onClick={() => setExpandedId(isExpanded ? null : disciplina.id)}
-                        >
+                        <button type="button" className="text-primaria" onClick={() => setExpandedId(isExpanded ? null : disciplina.id)}>
                           {isExpanded ? <ChevronUp /> : <ChevronDown />}
                         </button>
                       </TableCell>
@@ -195,36 +148,21 @@ export const ProfessorDashboard = () => {
                         <TableCell colSpan={5} className="whitespace-normal bg-zinc-50 p-8">
                           <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
                             <div className="grid gap-5 md:grid-cols-3">
-                              <Button
-                                className="h-32 rounded-lg bg-primaria text-2xl font-bold"
-                                onClick={() => openPanel("frequency", disciplina)}
-                              >
+                              <Button className="h-32 rounded-lg bg-primaria text-2xl font-bold" onClick={() => openPanel("frequency", disciplina)}>
                                 Frequência
                               </Button>
-                              <Button
-                                className="h-32 rounded-lg bg-primaria text-2xl font-bold"
-                                onClick={() => openPanel("evaluation", disciplina)}
-                              >
+                              <Button className="h-32 rounded-lg bg-primaria text-2xl font-bold" onClick={() => openPanel("evaluation", disciplina)}>
                                 Avaliações
                               </Button>
-                              <Button
-                                className="h-32 rounded-lg bg-primaria text-2xl font-bold"
-                                onClick={() => openPanel("info", disciplina)}
-                              >
+                              <Button className="h-32 rounded-lg bg-primaria text-2xl font-bold" onClick={() => openPanel("info", disciplina)}>
                                 <Info />
                                 Informações
                               </Button>
                             </div>
                             <aside className="space-y-6">
                               <h3 className="text-3xl font-bold text-zinc-600">Estatísticas</h3>
-                              <StatBar
-                                label="Pontos distribuídos"
-                                value={selectedStats.evaluationPercent}
-                              />
-                              <StatBar
-                                label="Aulas lançadas"
-                                value={selectedStats.classPercent}
-                              />
+                              <StatBar label="Pontos distribuídos" value={selectedStats.evaluationPercent} />
+                              <StatBar label="Aulas lançadas" value={selectedStats.classPercent} />
                             </aside>
                           </div>
                         </TableCell>

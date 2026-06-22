@@ -3,7 +3,7 @@ import {
   createAvaliacao,
   listAvaliacoes,
 } from "@/api/avaliacao/avaliacaoServices";
-import { AvaliacaoPayload } from "@/types/avaliacao";
+import { AtividadePayload } from "@/types/avaliacao";
 import { queryKeys } from "./query-keys";
 
 export const useAvaliacaoList = () =>
@@ -16,7 +16,7 @@ export const useCreateAvaliacao = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: AvaliacaoPayload) => createAvaliacao(payload),
+    mutationFn: (payload: AtividadePayload) => createAvaliacao(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.avaliacoes.all });
     },
