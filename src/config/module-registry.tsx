@@ -30,6 +30,20 @@ import { TurmaExtraActions } from "@/components/gerenciar/specialized/TurmaExtra
 import { PeriodoLetivoModal } from "@/components/gerenciar/specialized/PeriodoLetivoModal";
 import { ActionDialog } from "@/components/gerenciar/actionDialog";
 import { ItemView } from "@/components/gerenciar/itemView";
+import { useTurmaDetail } from "@/hooks/queries/turma";
+import { useProfessorDetail } from "@/hooks/queries/professor";
+
+const TurmaCell = ({ classroomId }: { classroomId: number }) => {
+  const { data, isLoading } = useTurmaDetail(classroomId, !!classroomId);
+  if (isLoading) return <span className="text-muted-foreground text-sm">Carregando...</span>;
+  return <span>{data?.name ?? `- (ID: ${classroomId})`}</span>;
+};
+
+const ProfessorCell = ({ professorId }: { professorId: number }) => {
+  const { data, isLoading } = useProfessorDetail(professorId, !!professorId);
+  if (isLoading) return <span className="text-muted-foreground text-sm">Carregando...</span>;
+  return <span>{data?.name ?? `- (ID: ${professorId})`}</span>;
+};
 
 export type SummaryData = {
   title: string;
@@ -224,7 +238,7 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
   disciplina: {
     ...MODULES_BY_SLUG.disciplina,
     iconPath: "/assets/disciplina-icon.png",
-    columns: ["ID", "Nome", "Área do Conhecimento", "Carga Horária"],
+    columns: ["Nome Disciplina", "Turma", "Professor", "Carga Horária"],
     getSummary: (item) => {
       const disciplina = item as Disciplina;
       return {
@@ -236,9 +250,9 @@ export const moduleRegistry: Record<PageTypeCentral, ModuleRegistryEntry> = {
     getCells: (item) => {
       const disciplina = item as Disciplina;
       return [
-        disciplina.id,
         disciplina.nome ?? disciplina.name ?? "-",
-        disciplina.area_conhecimento,
+        disciplina.classroom_id ? <TurmaCell key={`turma-${disciplina.id}`} classroomId={disciplina.classroom_id} /> : "-",
+        disciplina.professor_id ? <ProfessorCell key={`prof-${disciplina.id}`} professorId={disciplina.professor_id} /> : "-",
         disciplina.carga_horaria,
       ];
     },

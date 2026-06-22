@@ -28,7 +28,11 @@ export const queryKeys = {
   usuarios: buildResourceKeys("usuarios"),
   avaliacoes: buildResourceKeys("avaliacoes"),
   status: ["status"] as const,
-  frequencias: ["frequencias"] as const,
+  frequencias: {
+    ...buildResourceKeys("frequencias"),
+    byDisciplina: (disciplinaId: number) =>
+      ["frequencias", "disciplina", disciplinaId] as const,
+  },
   ibge: {
     states: ["ibge", "states"] as const,
     cities: (uf?: string) => ["ibge", "cities", uf ?? null] as const,

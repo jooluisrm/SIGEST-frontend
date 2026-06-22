@@ -65,7 +65,7 @@ export const MODULES: readonly ModuleMeta[] = [
   {
     slug: "disciplina",
     label: "Disciplina",
-    pluralLabel: "Disciplinas",
+    pluralLabel: "Oferta de Disciplinas",
     roles: ["admin", "servidor"],
     capabilities: {
       manage: true,

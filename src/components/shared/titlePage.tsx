@@ -10,7 +10,10 @@ type Props = {
 
 export const TitlePage = ({ title }: Props) => {
   const { type } = usePageType();
-  const moduleLabel = type ? MODULES_BY_SLUG[type]?.pluralLabel ?? type : "";
+  let moduleLabel = type ? MODULES_BY_SLUG[type]?.pluralLabel ?? type : "";
+  if (type === "disciplina") {
+    moduleLabel = title === "Cadastrar" ? "Oferta" : "Oferta de Disciplinas";
+  }
 
   return (
     <div className="flex items-center justify-start gap-5">

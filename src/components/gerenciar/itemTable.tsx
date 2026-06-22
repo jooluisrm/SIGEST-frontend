@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { toast } from "sonner";
 import { moduleRegistry } from "@/config/module-registry";
 import { usePageType } from "@/context/pageTypeContext";
@@ -8,8 +7,6 @@ import { ItemView } from "./itemView";
 import { AlertDialogComponent } from "../shared/alertComponent";
 import { TableCell, TableRow } from "../ui/table";
 import { cn } from "@/lib/utils";
-import { DisciplineExpandedPanel } from "./specialized/DisciplineExpandedPanel";
-import { ChevronDown, ChevronUp } from "lucide-react";
 
 type Props = {
   item: unknown;
@@ -18,7 +15,6 @@ type Props = {
 
 export const ItemTable = ({ item, onRefresh }: Props) => {
   const { type } = usePageType();
-  const [isExpanded, setIsExpanded] = useState(false);
 
   if (!type) {
     return null;
@@ -51,7 +47,7 @@ export const ItemTable = ({ item, onRefresh }: Props) => {
       <TableRow 
         className={cn(
           "transition-colors",
-          isExpanded ? "bg-slate-50/80 hover:bg-slate-50/80" : "hover:bg-muted/50"
+          "hover:bg-muted/50"
         )}
       >
         {cells.map((cell, index) => (
@@ -61,67 +57,47 @@ export const ItemTable = ({ item, onRefresh }: Props) => {
         ))}
         <TableCell>
           <div className="flex items-center justify-end gap-1">
-            {!isDisciplina && (
-              <>
-                {moduleEntry.capabilities.delete && (
-                  <AlertDialogComponent
-                    onConfirm={handleDelete}
-                    triggerClassName="bg-red-500"
-                    triggerIcon="delete"
-                    triggerTooltip={`Deletar ${moduleEntry.label.toLowerCase()}`}
-                    dialogTitle={`Deletar ${moduleEntry.label}`}
-                    dialogDescription={`Tem certeza que deseja deletar este ${moduleEntry.label.toLowerCase()}?`}
-                  />
-                )}
-                {moduleEntry.capabilities.edit && moduleEntry.renderForm && (
-                  <ActionDialog
-                    triggerIcon="edit"
-                    triggerTooltip={`Editar ${moduleEntry.label.toLowerCase()}`}
-                    triggerClassName="bg-secundaria"
-                    dialogTitle={`Editar ${moduleEntry.label}`}
-                  >
-                    {() =>
-                      moduleEntry.renderForm?.({
-                        isEdit: true,
-                        defaultValues: item,
-                        onRefresh,
-                      }) ?? null
-                    }
-                  </ActionDialog>
-                )}
-                {moduleEntry.capabilities.detail && (
-                  <ActionDialog
-                    triggerIcon="view"
-                    triggerTooltip={`Visualizar ${moduleEntry.label.toLowerCase()}`}
-                    triggerClassName="bg-secundaria1"
-                    dialogClassName="min-w-[80vw]"
-                    dialogTitle={`Visualizar ${moduleEntry.label}`}
-                  >
-                    {() => <ItemView id={id} />}
-                  </ActionDialog>
-                )}
-                {moduleEntry.renderExtraAction?.(item, onRefresh)}
-              </>
+            {moduleEntry.capabilities.delete && (
+              <AlertDialogComponent
+                onConfirm={handleDelete}
+                triggerClassName="bg-red-500"
+                triggerIcon="delete"
+                triggerTooltip={`Deletar ${moduleEntry.label.toLowerCase()}`}
+                dialogTitle={`Deletar ${moduleEntry.label}`}
+                dialogDescription={`Tem certeza que deseja deletar este ${moduleEntry.label.toLowerCase()}?`}
+              />
             )}
-            
-            {isDisciplina && (
-              <button 
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="p-2 hover:bg-primaria/10 rounded-lg transition-colors text-primaria"
+            {moduleEntry.capabilities.edit && moduleEntry.renderForm && (
+              <ActionDialog
+                triggerIcon="edit"
+                triggerTooltip={`Editar ${moduleEntry.label.toLowerCase()}`}
+                triggerClassName="bg-secundaria"
+                dialogTitle={`Editar ${moduleEntry.label}`}
               >
-                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-              </button>
+                {() =>
+                  moduleEntry.renderForm?.({
+                    isEdit: true,
+                    defaultValues: item,
+                    onRefresh,
+                  }) ?? null
+                }
+              </ActionDialog>
             )}
+            {moduleEntry.capabilities.detail && (
+              <ActionDialog
+                triggerIcon="view"
+                triggerTooltip={`Visualizar ${moduleEntry.label.toLowerCase()}`}
+                triggerClassName="bg-secundaria1"
+                dialogClassName="min-w-[80vw]"
+                dialogTitle={`Visualizar ${moduleEntry.label}`}
+              >
+                {() => <ItemView id={id} />}
+              </ActionDialog>
+            )}
+            {moduleEntry.renderExtraAction?.(item, onRefresh)}
           </div>
         </TableCell>
       </TableRow>
-      {isDisciplina && isExpanded && (
-        <TableRow className="hover:bg-transparent border-none">
-          <TableCell colSpan={cells.length + 1} className="p-0 border-none">
-            <DisciplineExpandedPanel />
-          </TableCell>
-        </TableRow>
-      )}
     </>
   );
 };
