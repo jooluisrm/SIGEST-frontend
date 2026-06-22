@@ -6,9 +6,11 @@ import { useUser } from "@/context/loginUsersContext";
 import { useAvaliacaoList } from "@/hooks/queries/avaliacao";
 import { useDisciplinaList } from "@/hooks/queries/disciplina";
 import { useFrequenciaList } from "@/hooks/queries/frequencia";
+import { useOfertaDisciplinaList } from "@/hooks/queries/ofertaDisciplina";
 import { useProfessorList } from "@/hooks/queries/professor";
 import { Disciplina } from "@/types/disciplina";
 import { Frequencia } from "@/types/frequencia";
+import { OfertaDisciplina } from "@/types/oferta-disciplina";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ProfessorEvaluationView } from "./ProfessorEvaluationView";
@@ -42,6 +44,7 @@ export const ProfessorDashboard = () => {
 
   const professoresQuery = useProfessorList();
   const disciplinasQuery = useDisciplinaList();
+  const ofertasQuery = useOfertaDisciplinaList();
   const frequenciasQuery = useFrequenciaList();
   const avaliacoesQuery = useAvaliacaoList();
 
@@ -52,9 +55,18 @@ export const ProfessorDashboard = () => {
 
   const disciplinas = useMemo(() => {
     const list = disciplinasQuery.data?.data ?? [];
+    const ofertas = ofertasQuery.data?.data ?? [];
     if (!professor?.id_professor) return [];
-    return list.filter((disciplina) => disciplina.professor_id === professor.id_professor);
-  }, [disciplinasQuery.data?.data, professor?.id_professor]);
+
+    const disciplinaIds = new Set<number>();
+    ofertas.forEach((oferta: OfertaDisciplina) => {
+      if (oferta.professor?.id_professor === professor.id_professor && oferta.disciplina?.id) {
+        disciplinaIds.add(oferta.disciplina.id);
+      }
+    });
+
+    return list.filter((disciplina) => disciplinaIds.has(disciplina.id));
+  }, [disciplinasQuery.data?.data, ofertasQuery.data?.data, professor?.id_professor]);
 
   const openPanel = (nextPanel: ProfessorPanel, disciplina: Disciplina) => {
     setSelectedDisciplina(disciplina);
@@ -148,13 +160,13 @@ export const ProfessorDashboard = () => {
                         <TableCell colSpan={5} className="whitespace-normal bg-zinc-50 p-8">
                           <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
                             <div className="grid gap-5 md:grid-cols-3">
-                              <Button className="h-32 rounded-lg bg-primaria text-2xl font-bold" onClick={() => openPanel("frequency", disciplina)}>
+                              <Button className="h-full rounded-lg bg-primaria text-2xl font-bold" onClick={() => openPanel("frequency", disciplina)}>
                                 Frequência
                               </Button>
-                              <Button className="h-32 rounded-lg bg-primaria text-2xl font-bold" onClick={() => openPanel("evaluation", disciplina)}>
+                              <Button className="h-full rounded-lg bg-primaria text-2xl font-bold" onClick={() => openPanel("evaluation", disciplina)}>
                                 Avaliações
                               </Button>
-                              <Button className="h-32 rounded-lg bg-primaria text-2xl font-bold" onClick={() => openPanel("info", disciplina)}>
+                              <Button className="h-full rounded-lg bg-primaria text-2xl font-bold" onClick={() => openPanel("info", disciplina)}>
                                 <Info />
                                 Informações
                               </Button>

@@ -109,8 +109,8 @@ export const ProfessorEvaluationView = ({ disciplina, onBack }: Props) => {
       <div className="rounded-lg bg-white p-6 shadow-sm">
         <div className="mb-4 flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <h2 className="text-2xl font-bold">{filteredAvaliacoes.length} Avaliações</h2>
-          <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-2.5 text-primaria" />
+          <div className="flex items-center relative w-full md:w-64">
+            <Search className="absolute left-3 text-primaria" />
             <Input className="border-primaria pl-10" placeholder="Buscar" value={search} onChange={(event) => setSearch(event.target.value)} />
           </div>
         </div>
