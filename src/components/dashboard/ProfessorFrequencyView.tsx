@@ -1,221 +1,419 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Plus, Search } from "lucide-react";
-import { toast } from "sonner";
-import { useAlunoList } from "@/hooks/queries/aluno";
-import { useCreateFrequencia, useFrequenciaList } from "@/hooks/queries/frequencia";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Plus, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useOfertaDisciplinaList } from "@/hooks/queries/ofertaDisciplina";
 import { useTurmaList } from "@/hooks/queries/turma";
-import { Aluno } from "@/types/aluno";
-import { Classroom } from "@/types/classroom";
+import { AppInput } from "@/components/shared/app-input";
 import { Disciplina } from "@/types/disciplina";
-import { Frequencia, FrequenciaStatus } from "@/types/frequencia";
+import { Frequencia } from "@/types/frequencia";
+import { OfertaDisciplina } from "@/types/oferta-disciplina";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Classroom } from "@/types/classroom";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import axiosInstance from "@/lib/axiosInstance";
+import { toast } from "sonner";
+import { ActionDialog } from "@/components/gerenciar/actionDialog";
+import { AlertDialogComponent } from "@/components/shared/alertComponent";
+import { PaginationTable } from "@/components/gerenciar/paginationTable";
 
 type Props = { disciplina: Disciplina; onBack: () => void };
 
-const getFrequencyDate = (frequencia: Frequencia) => frequencia.data_aula ?? frequencia.data ?? "-";
-const getFrequencyContent = (frequencia: Frequencia) => frequencia.conteudo_trabalhado ?? frequencia.conteudo ?? "-";
+type FrequencyItem = Frequencia & {
+  situacao?: boolean | 0 | 1;
+  justificativa?: string | null;
+};
 
-const summarizePresence = (frequencia: Frequencia) => {
-  const entries = frequencia.presencas ?? frequencia.alunos ?? [];
-  const total = entries.length;
-  const present = entries.filter((entry) => entry.status === "P").length;
-  const absent = entries.filter((entry) => entry.status === "F").length;
-  const justified = entries.filter((entry) => entry.status === "J").length;
-  const percent = total ? Math.round((present / total) * 100) : 0;
-  return { present, absent, justified, percent };
+type SessionGroup = {
+  key: string;
+  data: string;
+  turma: string;
+  disciplina: string;
+  conteudo: string;
+  items: FrequencyItem[];
+};
+
+const formatDate = (value?: string) => {
+  if (!value) return "-";
+  const dateStr = value.length === 10 ? `${value}T12:00:00` : value;
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("pt-BR").format(date);
+};
+
+const normalizeDateKey = (value?: string) => value?.slice(0, 10) ?? "";
+
+const getPresenceLabel = (item: FrequencyItem) => {
+  if (item.situacao === true || item.situacao === 1) return { label: "P", className: "text-green-600" };
+  if (item.justificativa) return { label: "J", className: "text-orange-500" };
+  return { label: "F", className: "text-red-600" };
 };
 
 export const ProfessorFrequencyView = ({ disciplina, onBack }: Props) => {
-  const [isRegistering, setIsRegistering] = useState(false);
+  const router = useRouter();
   const [search, setSearch] = useState("");
-  const [date, setDate] = useState("");
-  const [classroomId, setClassroomId] = useState(disciplina.classroom_id ? String(disciplina.classroom_id) : "");
-  const [content, setContent] = useState("");
-  const [attendance, setAttendance] = useState<Record<number, FrequenciaStatus>>({});
-  const frequenciasQuery = useFrequenciaList();
-  const alunosQuery = useAlunoList();
+  const [frequencias, setFrequencias] = useState<FrequencyItem[]>([]);
+  const [page, setPage] = useState(1);
+
+  const ofertasQuery = useOfertaDisciplinaList();
   const turmasQuery = useTurmaList();
-  const createFrequencia = useCreateFrequencia();
 
-  const turmas = turmasQuery.data?.data ?? [];
-  const selectedClassroomId = Number(classroomId);
-  const selectedClassroom = turmas.find((turma) => turma.id === selectedClassroomId);
+  const ofertasDaDisciplina = useMemo(() => {
+    const ofertas = ofertasQuery.data?.data ?? [];
+    return ofertas.filter((oferta: OfertaDisciplina) => oferta.disciplina?.id === disciplina.id);
+  }, [ofertasQuery.data?.data, disciplina.id]);
 
-  const disciplinaFrequencias = useMemo(() => (frequenciasQuery.data?.data ?? []).filter((frequencia) => frequencia.disciplina_id === disciplina.id), [disciplina.id, frequenciasQuery.data?.data]);
-  const filteredFrequencias = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
-    if (!normalizedSearch) return disciplinaFrequencias;
-    return disciplinaFrequencias.filter((frequencia) => [getFrequencyDate(frequencia), frequencia.turma, getFrequencyContent(frequencia)].join(" ").toLowerCase().includes(normalizedSearch));
-  }, [disciplinaFrequencias, search]);
-  const alunosDaTurma = useMemo(() => {
-    const alunos = alunosQuery.data?.data ?? [];
-    if (!selectedClassroomId) return [];
-    return alunos.filter((aluno) => aluno.classroom_id === selectedClassroomId);
-  }, [alunosQuery.data?.data, selectedClassroomId]);
+  const turmaNomePorOferta = useMemo(() => {
+    const turmaMap = new Map<number, string>();
+    (turmasQuery.data?.data ?? []).forEach((turma: Classroom) => {
+      turmaMap.set(turma.id, turma.name);
+    });
+    return (oferta: OfertaDisciplina) => {
+      const turmaId = oferta.classroom?.id ?? (oferta as OfertaDisciplina & { classroom_id?: number })?.classroom_id;
+      return turmaId ? turmaMap.get(turmaId) ?? `Turma ${turmaId}` : "-";
+    };
+  }, [turmasQuery.data?.data]);
 
-  const updateAttendance = (alunoId: number, status: FrequenciaStatus) => setAttendance((current) => ({ ...current, [alunoId]: status }));
+  const loadFrequenciasDaMatricula = useCallback(async (matriculaDisciplinaId: number) => {
+    const frequencias: FrequencyItem[] = [];
+    let page = 1;
 
-  const handleSave = async () => {
-    if (!date || !classroomId || !content.trim()) {
-      toast.error("Preencha data, turma e conteúdo.");
+    while (true) {
+      const frequenciasResponse = await axiosInstance.get(
+        `frequencias/matricula-disciplina/${matriculaDisciplinaId}?page=${page}`
+      );
+      const frequenciasPayload = frequenciasResponse.data?.data ?? frequenciasResponse.data;
+      const list = Array.isArray(frequenciasPayload) ? frequenciasPayload : frequenciasPayload?.data ?? [];
+
+      frequencias.push(...list);
+
+      const lastPage = frequenciasResponse.data?.meta?.last_page ?? frequenciasPayload?.meta?.last_page ?? 1;
+      if (page >= lastPage) {
+        break;
+      }
+
+      page += 1;
+    }
+
+    return frequencias;
+  }, []);
+
+  const loadMatriculasDaOferta = useCallback(async (ofertaId: number) => {
+    const matriculas: { id: number }[] = [];
+    let page = 1;
+
+    while (true) {
+      const response = await axiosInstance.get(`matricula-disciplinas/oferta/${ofertaId}?page=${page}`);
+      const payload = response.data?.data ?? response.data;
+      const list = Array.isArray(payload) ? payload : payload?.data ?? [];
+
+      matriculas.push(...list);
+
+      const lastPage = response.data?.meta?.last_page ?? payload?.meta?.last_page ?? 1;
+      if (page >= lastPage) {
+        break;
+      }
+
+      page += 1;
+    }
+
+    return matriculas;
+  }, []);
+
+  const loadFrequencias = useCallback(async () => {
+    if (!ofertasDaDisciplina.length) {
+      setFrequencias([]);
       return;
     }
-    if (!alunosDaTurma.length) {
-      toast.error("Nenhum aluno encontrado para a turma selecionada.");
-      return;
-    }
 
-    await createFrequencia.mutateAsync({
-      data_aula: date,
-      classroom_id: selectedClassroomId,
-      turma_id: selectedClassroomId,
-      disciplina_id: disciplina.id,
-      conteudo: content,
-      conteudo_trabalhado: content,
-      presencas: alunosDaTurma.map((aluno) => ({ aluno_id: aluno.id, status: attendance[aluno.id] ?? "P" })),
+    try {
+      const lists = await Promise.all(
+        ofertasDaDisciplina.map(async (oferta) => {
+          const matriculas = await loadMatriculasDaOferta(oferta.id);
+
+          const frequenciasPorOferta = await Promise.all(
+            matriculas.map(async (item: { id: number }) => loadFrequenciasDaMatricula(item.id))
+          );
+
+          const flatFrequencias = frequenciasPorOferta.flat().map((freq: any) => ({
+            ...freq,
+            __turmaNome: turmaNomePorOferta(oferta),
+          }));
+
+          return flatFrequencias;
+        })
+      );
+
+      setFrequencias(lists.flat());
+    } catch {
+      setFrequencias([]);
+    }
+  }, [loadFrequenciasDaMatricula, loadMatriculasDaOferta, ofertasDaDisciplina]);
+
+  useEffect(() => {
+    void loadFrequencias();
+  }, [loadFrequencias]);
+
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === "frequencia:refresh") {
+        void loadFrequencias();
+      }
+    };
+
+    const onRefreshEvent = () => {
+      void loadFrequencias();
+    };
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", onRefreshEvent);
+    window.addEventListener("frequencia:refresh", onRefreshEvent as EventListener);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("focus", onRefreshEvent);
+      window.removeEventListener("frequencia:refresh", onRefreshEvent as EventListener);
+    };
+  }, [loadFrequencias]);
+
+  const groupedSessions = useMemo<SessionGroup[]>(() => {
+    const map = new Map<string, SessionGroup>();
+    frequencias.forEach((item) => {
+      const data = normalizeDateKey(item.data_aula ?? item.data);
+      const conteudo = item.conteudo_trabalhado ?? item.conteudo ?? "-";
+      const matriculaDisciplina = item.matricula_disciplina as
+        | {
+            oferta_disciplina?: {
+              classroom?: { name?: string };
+            };
+          }
+        | undefined;
+      const turmaNome = (item as any).__turmaNome ?? matriculaDisciplina?.oferta_disciplina?.classroom?.name ?? "-";
+      const key = `${data}-${turmaNome}-${conteudo}`;
+      const current = map.get(key);
+      if (!current) {
+        map.set(key, {
+          key,
+          data,
+          turma: turmaNome,
+          disciplina: disciplina.nome ?? disciplina.name ?? "-",
+          conteudo,
+          items: [item],
+        });
+      } else {
+        current.items.push(item);
+      }
     });
 
-    setIsRegistering(false);
-    setDate("");
-    setContent("");
-    setAttendance({});
+    return Array.from(map.values()).sort((a, b) => b.data.localeCompare(a.data));
+  }, [disciplina.name, disciplina.nome, frequencias]);
+
+  const filteredGroups = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return groupedSessions;
+    return groupedSessions.filter((group) =>
+      [group.data, group.turma, group.disciplina, group.conteudo].join(" ").toLowerCase().includes(q)
+    );
+  }, [groupedSessions, search]);
+
+  const perPage = 5;
+  const totalPages = Math.max(1, Math.ceil(filteredGroups.length / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const pagedGroups = filteredGroups.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, disciplina.id]);
+
+  const handleDeleteGroup = async (group: SessionGroup) => {
+    try {
+      await Promise.all(group.items.map((item) => axiosInstance.delete(`frequencias/${item.id}`)));
+      toast.success("Lista de presença excluída com sucesso.");
+      setFrequencias((current) => current.filter((item) => normalizeDateKey(item.data_aula ?? item.data) !== group.data));
+    } catch {
+      toast.error("Não foi possível excluir a lista.");
+    }
   };
 
-  if (isRegistering) {
-    return (
-      <section className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Button size="icon" className="bg-primaria" onClick={() => setIsRegistering(false)}>
-            <ArrowLeft />
-          </Button>
-          <h1 className="text-3xl font-bold">Registrar Frequência</h1>
-        </div>
-        <div className="rounded-lg bg-white p-6 shadow-sm">
-          <div className="grid gap-4 md:grid-cols-[180px_220px_1fr]">
-            <label className="space-y-2 font-semibold">
-              <span>Data da Aula</span>
-              <Input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-            </label>
-            <label className="space-y-2 font-semibold">
-              <span>Turma</span>
-              <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={classroomId} onChange={(event) => setClassroomId(event.target.value)}>
-                <option value="">Selecione</option>
-                {turmas.map((turma: Classroom) => (
-                  <option key={turma.id} value={turma.id}>{turma.name}</option>
-                ))}
-              </select>
-            </label>
-            <label className="space-y-2 font-semibold">
-              <span>Conteúdo Trabalhado</span>
-              <Input value={content} onChange={(event) => setContent(event.target.value)} />
-            </label>
-          </div>
-          <div className="mt-8 overflow-hidden rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Aluno</TableHead>
-                  <TableHead>Matrícula</TableHead>
-                  <TableHead className="text-right">Presença</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {alunosDaTurma.map((aluno: Aluno) => (
-                  <TableRow key={aluno.id}>
-                    <TableCell className="font-medium">{aluno.name}</TableCell>
-                    <TableCell>{aluno.matricula}</TableCell>
-                    <TableCell>
-                      <div className="flex justify-end gap-2">
-                        {(["P", "F", "J"] as FrequenciaStatus[]).map((status) => (
-                          <button key={status} type="button" onClick={() => updateAttendance(aluno.id, status)} className={cn("h-9 w-9 rounded-md border font-bold transition", status === "P" && "border-green-600 text-green-700", status === "F" && "border-red-600 text-red-700", status === "J" && "border-orange-500 text-orange-600", (attendance[aluno.id] ?? "P") === status && status === "P" && "bg-green-600 text-white", attendance[aluno.id] === status && status === "F" && "bg-red-600 text-white", attendance[aluno.id] === status && status === "J" && "bg-orange-500 text-white")}>{status}</button>
-                        ))}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {!alunosDaTurma.length && (
-                  <TableRow>
-                    <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
-                      Selecione uma turma com alunos cadastrados.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-          <div className="mt-6 flex justify-end">
-            <Button className="bg-primaria" onClick={handleSave} disabled={createFrequencia.isPending}>
-              <Check />
-              Salvar Frequência
-            </Button>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const paginationMeta = {
+    current_page: currentPage,
+    from: filteredGroups.length ? (currentPage - 1) * perPage + 1 : null,
+    last_page: totalPages,
+    links: [
+      { url: null, label: "Anterior", active: false },
+      ...Array.from({ length: totalPages }, (_, index) => ({
+        url: `?page=${index + 1}`,
+        label: String(index + 1),
+        active: index + 1 === currentPage,
+      })),
+      { url: null, label: "Próximo", active: false },
+    ],
+    path: "",
+    per_page: perPage,
+    to: filteredGroups.length ? Math.min(currentPage * perPage, filteredGroups.length) : null,
+    total: filteredGroups.length,
+  } as any;
 
   return (
-    <section className="space-y-6">
-      <div className="space-y-3">
-        <div className="flex items-center gap-3">
-          <Button size="icon" className="bg-primaria" onClick={onBack}>
-            <ArrowLeft />
-          </Button>
-          <h1 className="text-3xl font-bold">Cadastrar Frequência</h1>
-        </div>
-        <Button className="bg-primaria text-lg" onClick={() => setIsRegistering(true)}>
-          <Plus />
-          Registrar Frequência
-        </Button>
-      </div>
-      <div className="rounded-lg bg-white p-6 shadow-sm">
-        <div className="mb-4 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <h2 className="text-2xl font-bold">{filteredFrequencias.length} Registros de Frequência</h2>
-          <div className="flex relative w-full md:w-64">
-            <Search className="absolute left-3 text-primaria" />
-            <Input className="border-primaria pl-10" placeholder="Buscar" value={search} onChange={(event) => setSearch(event.target.value)} />
-          </div>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Turma</TableHead>
-              <TableHead>Disciplina</TableHead>
-              <TableHead>Conteúdo</TableHead>
-              <TableHead>Presença</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredFrequencias.map((frequencia) => {
-              const summary = summarizePresence(frequencia);
-              return (
-                <TableRow key={frequencia.id}>
-                  <TableCell>{getFrequencyDate(frequencia)}</TableCell>
-                  <TableCell>{frequencia.turma ?? selectedClassroom?.name ?? "-"}</TableCell>
-                  <TableCell>{disciplina.nome ?? disciplina.name}</TableCell>
-                  <TableCell>{getFrequencyContent(frequencia)}</TableCell>
-                  <TableCell className="font-bold">
-                    <span className="text-green-600">{summary.present}P</span> / <span className="text-red-600">{summary.absent}F</span> / <span className="text-orange-500">{summary.justified}J</span> <span className="ml-2">({summary.percent}%)</span>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {!filteredFrequencias.length && (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                  Nenhum registro de frequência encontrado.
-                </TableCell>
-              </TableRow>
+    <main className="min-h-screen">
+      <div className="container mx-auto px-5 pt-10 min-h-screen">
+        <Card>
+          <CardHeader className="flex flex-col items-start gap-4">
+            <div className="flex items-center gap-3">
+              <Button size="icon" className="bg-primaria" onClick={onBack}>
+                <ArrowLeft />
+              </Button>
+              <h1 className="text-xl sm:text-3xl md:text-4xl font-bold">Cadastrar Frequência</h1>
+            </div>
+            <Button className="bg-primaria text-lg" onClick={() => router.push(`/frequencia/registrar/${disciplina.id}`)}>
+              <Plus />
+              Registrar Frequência
+            </Button>
+          </CardHeader>
+
+          <CardContent>
+            <div className="mb-4 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <h2 className="text-lg font-semibold">{`${filteredGroups.length} Registros de Frequência`}</h2>
+              <div className="relative flex w-full items-center md:w-64">
+                <AppInput
+                  className="border-primaria pl-10"
+                  placeholder="Buscar"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  intent="formCamp"
+                  icon={<Search className="h-4 w-4" />}
+                />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto py-6">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Turma</TableHead>
+                    <TableHead>Disciplina</TableHead>
+                    <TableHead>Conteúdo</TableHead>
+                    <TableHead>Presença</TableHead>
+                    <TableHead className="w-24 text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pagedGroups.map((group) => {
+                    const present = group.items.filter((item) => item.situacao === true || item.situacao === 1).length;
+                    const absent = group.items.filter((item) => item.situacao === false || item.situacao === 0).length;
+                    const justified = group.items.filter((item) => item.justificativa && (item.situacao === false || item.situacao === 0)).length;
+                    const percent = group.items.length ? Math.round((present / group.items.length) * 100) : 0;
+
+                    return (
+                      <TableRow key={group.key}>
+                        <TableCell>{formatDate(group.data)}</TableCell>
+                        <TableCell>{group.turma}</TableCell>
+                        <TableCell>{group.disciplina}</TableCell>
+                        <TableCell>{group.conteudo}</TableCell>
+                        <TableCell className="font-medium">
+                          <span className="text-green-600">{present}P</span> /{" "}
+                          <span className="text-red-600">{absent}F</span> /{" "}
+                          <span className="text-orange-500">{justified}J</span>{" "}
+                          <span className="ml-2">({percent}%)</span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-end gap-1">
+                            <ActionDialog
+                              triggerIcon="view"
+                              triggerTooltip="Visualizar frequência"
+                              triggerClassName="bg-secundaria1"
+                              dialogTitle="Detalhes da Lista de Presença"
+                            >
+                              {() => (
+                                <div className="overflow-hidden rounded-md border">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead>Aluno</TableHead>
+                                        <TableHead>Matrícula</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Justificativa</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {group.items.map((item) => {
+                                        const aluno =
+                                          item.matricula_disciplina?.matricula?.aluno?.name ??
+                                          item.matricula_disciplina?.matricula?.aluno?.nome ??
+                                          item.matricula_disciplina?.matricula?.codigo_matricula ??
+                                          "-";
+                                        const matricula = item.matricula_disciplina?.matricula?.codigo_matricula ?? "-";
+                                        const presence = getPresenceLabel(item);
+                                        return (
+                                          <TableRow key={item.id}>
+                                            <TableCell>{aluno}</TableCell>
+                                            <TableCell>{matricula}</TableCell>
+                                            <TableCell className={presence.className}>{presence.label}</TableCell>
+                                            <TableCell>{item.justificativa ?? "-"}</TableCell>
+                                          </TableRow>
+                                        );
+                                      })}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              )}
+                            </ActionDialog>
+                            <ActionDialog
+                              triggerIcon="edit"
+                              triggerTooltip="Editar frequência"
+                              triggerClassName="bg-secundaria"
+                              dialogTitle="Editar Lista de Presença"
+                            >
+                              {() => (
+                                <div className="space-y-4 p-2">
+                                  <p className="text-sm text-muted-foreground">
+                                    A edição completa da lista e dos presentes pode ser integrada aqui.
+                                  </p>
+                                </div>
+                              )}
+                            </ActionDialog>
+                            <AlertDialogComponent
+                              triggerIcon="delete"
+                              triggerTooltip="Excluir frequência"
+                              triggerClassName="bg-red-500"
+                              dialogTitle="Excluir Lista de Presença"
+                              dialogDescription="Tem certeza que deseja excluir esta lista de presença? Esta ação não poderá ser desfeita."
+                              onConfirm={() => handleDeleteGroup(group)}
+                            />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {!pagedGroups.length && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                        Nenhum registro de frequência encontrado.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            {filteredGroups.length > perPage && (
+              <PaginationTable
+                meta={paginationMeta}
+                onPageChange={(url) => {
+                  const match = url.match(/[?&]page=(\d+)/);
+                  if (match) {
+                    setPage(Number(match[1]));
+                  }
+                }}
+              />
             )}
-          </TableBody>
-        </Table>
+          </CardContent>
+        </Card>
       </div>
-    </section>
+    </main>
   );
 };

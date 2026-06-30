@@ -6,10 +6,10 @@ import {
 import { AtividadePayload } from "@/types/avaliacao";
 import { queryKeys } from "./query-keys";
 
-export const useAvaliacaoList = () =>
+export const useAvaliacaoList = (url?: string | null) =>
   useQuery({
-    queryKey: queryKeys.avaliacoes.lists(),
-    queryFn: () => listAvaliacoes(),
+    queryKey: [...queryKeys.avaliacoes.lists(), url ?? "default"],
+    queryFn: () => listAvaliacoes(url ?? undefined),
   });
 
 export const useCreateAvaliacao = () => {

@@ -4,50 +4,102 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, Check, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useAvaliacaoList, useCreateAvaliacao } from "@/hooks/queries/avaliacao";
+import { useOfertaDisciplinaList } from "@/hooks/queries/ofertaDisciplina";
 import { Atividade } from "@/types/avaliacao";
 import { Disciplina } from "@/types/disciplina";
+import { OfertaDisciplina } from "@/types/oferta-disciplina";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { AppInput } from "@/components/shared/app-input";
+import { CalendarioCadastro } from "@/components/ui/calendarioCadastro";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type Props = { disciplina: Disciplina; onBack: () => void };
 
-const getMaxScore = (avaliacao: Atividade) => avaliacao.pontuacao_maxima ?? avaliacao.max_pontos ?? avaliacao.valor ?? "-";
+const formatDate = (value?: string) => {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("pt-BR").format(date);
+};
+
+const extractScore = (avaliacao: Atividade) => {
+  const raw =
+    avaliacao.pontuacao_maxima ??
+    avaliacao.max_pontos ??
+    avaliacao.valor ??
+    avaliacao.descricao ??
+    "-";
+
+  if (typeof raw === "number") return raw;
+  if (typeof raw === "string") {
+    const match = raw.match(/(\d+(?:[.,]\d+)?)/);
+    return match ? match[1].replace(",", ".") : raw;
+  }
+
+  return "-";
+};
 
 export const ProfessorEvaluationView = ({ disciplina, onBack }: Props) => {
   const [isCreating, setIsCreating] = useState(false);
   const [search, setSearch] = useState("");
+  const [nome, setNome] = useState("");
   const [tipo, setTipo] = useState("Prova");
   const [data, setData] = useState("");
   const [pontuacao, setPontuacao] = useState("");
-  const avaliacoesQuery = useAvaliacaoList();
+  const ofertasQuery = useOfertaDisciplinaList();
   const createAvaliacao = useCreateAvaliacao();
 
-  const disciplinaAvaliacoes = useMemo(() => (avaliacoesQuery.data?.data ?? []).filter((avaliacao) => avaliacao.disciplina_id === disciplina.id), [avaliacoesQuery.data?.data, disciplina.id]);
+  const ofertaDaDisciplina = useMemo(() => {
+    const ofertas = ofertasQuery.data?.data ?? [];
+    return ofertas.find((oferta: OfertaDisciplina) => oferta.disciplina?.id === disciplina.id);
+  }, [ofertasQuery.data?.data, disciplina.id]);
+
+  const avaliacoesQuery = useAvaliacaoList(
+    ofertaDaDisciplina?.id ? `atividades/oferta/${ofertaDaDisciplina.id}` : null
+  );
+
+  const avaliacoes = useMemo(() => avaliacoesQuery.data?.data ?? [], [avaliacoesQuery.data?.data]);
+
   const filteredAvaliacoes = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
-    if (!normalizedSearch) return disciplinaAvaliacoes;
-    return disciplinaAvaliacoes.filter((avaliacao) => [avaliacao.id, avaliacao.titulo, avaliacao.tipo, avaliacao.data].join(" ").toLowerCase().includes(normalizedSearch));
-  }, [disciplinaAvaliacoes, search]);
+    if (!normalizedSearch) return avaliacoes;
+    return avaliacoes.filter((avaliacao) =>
+      [avaliacao.id, avaliacao.titulo, avaliacao.tipo, formatDate(avaliacao.data_inicio ?? avaliacao.data)]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedSearch)
+    );
+  }, [avaliacoes, search]);
 
   const handleSave = async () => {
-    if (!tipo || !data || !pontuacao) {
-      toast.error("Preencha tipo, data e pontuação máxima.");
+    if (!nome.trim() || !tipo || !data || !pontuacao) {
+      toast.error("Preencha nome, tipo, data e pontuação máxima.");
+      return;
+    }
+
+    if (!ofertaDaDisciplina?.id) {
+      toast.error("Não foi possível identificar a oferta desta disciplina.");
       return;
     }
 
     await createAvaliacao.mutateAsync({
-      titulo: `${tipo} - ${disciplina.nome ?? disciplina.name ?? "Disciplina"}`,
+      titulo: nome.trim(),
       tipo,
-      data,
-      valor: Number(pontuacao),
-      max_pontos: Number(pontuacao),
-      pontuacao_maxima: Number(pontuacao),
-      disciplina_id: disciplina.id,
-      turma_id: disciplina.classroom_id ?? undefined,
+      data_inicio: data,
+      data_fim: null,
+      descricao: `Pontuação máxima: ${pontuacao}`,
+      oferta_disciplina_id: ofertaDaDisciplina.id,
     });
 
     setIsCreating(false);
+    setNome("");
     setTipo("Prova");
     setData("");
     setPontuacao("");
@@ -60,28 +112,59 @@ export const ProfessorEvaluationView = ({ disciplina, onBack }: Props) => {
           <Button size="icon" className="bg-primaria" onClick={() => setIsCreating(false)}>
             <ArrowLeft />
           </Button>
-          <h1 className="text-3xl font-bold">Cadastro de Avaliações</h1>
+          <h1 className="text-2xl font-semibold">Cadastro de Avaliações</h1>
         </div>
-        <div className="max-w-3xl rounded-lg bg-white p-6 shadow-sm">
-          <div className="grid gap-5 md:grid-cols-3">
-            <label className="space-y-2 font-semibold">
+
+        <div className="w-full rounded-lg bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-10">
+            <label className="space-y-2">
+              <span>Nome da Avaliação</span>
+              <AppInput
+                value={nome}
+                onChange={(event) => setNome(event.target.value)}
+                intent="formCamp"
+                placeholder="Ex: Prova Bimestral 1"
+              />
+            </label>
+
+            <label className="space-y-2">
               <span>Tipo de Avaliação</span>
-              <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={tipo} onChange={(event) => setTipo(event.target.value)}>
-                <option value="Prova">Prova</option>
-                <option value="Trabalho">Trabalho</option>
-                <option value="Exercício">Exercício</option>
-              </select>
+              <Select value={tipo} onValueChange={setTipo}>
+                <SelectTrigger className="w-full border-primaria">
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Prova">Prova</SelectItem>
+                  <SelectItem value="Trabalho">Trabalho</SelectItem>
+                  <SelectItem value="Exercício">Exercício</SelectItem>
+                </SelectContent>
+              </Select>
             </label>
-            <label className="space-y-2 font-semibold">
+
+            <label className="space-y-2">
               <span>Data</span>
-              <Input type="date" value={data} onChange={(event) => setData(event.target.value)} />
+              <CalendarioCadastro
+                value={data ? new Date(`${data}T00:00:00`) : undefined}
+                onValueChange={(selectedDate) =>
+                  setData(selectedDate ? selectedDate.toISOString().split("T")[0] : "")
+                }
+              />
             </label>
-            <label className="space-y-2 font-semibold">
+
+            <label className="space-y-2">
               <span>Pontuação Máxima</span>
-              <Input type="number" min="0" step="0.1" value={pontuacao} onChange={(event) => setPontuacao(event.target.value)} />
+              <AppInput
+                type="number"
+                min="0"
+                step="0.1"
+                value={pontuacao}
+                onChange={(event) => setPontuacao(event.target.value)}
+                intent="formCamp"
+              />
             </label>
           </div>
-          <div className="mt-8 flex justify-end">
+
+          <div className="mt-10 flex justify-end">
             <Button className="bg-primaria" onClick={handleSave} disabled={createAvaliacao.isPending}>
               <Check />
               Salvar Avaliação
@@ -99,21 +182,29 @@ export const ProfessorEvaluationView = ({ disciplina, onBack }: Props) => {
           <Button size="icon" className="bg-primaria" onClick={onBack}>
             <ArrowLeft />
           </Button>
-          <h1 className="text-3xl font-bold">Gerenciar Avaliação</h1>
+          <h1 className="text-2xl font-semibold">Gerenciar Avaliação</h1>
         </div>
-        <Button className="bg-primaria text-lg" onClick={() => setIsCreating(true)}>
+        <Button className="bg-primaria" onClick={() => setIsCreating(true)}>
           <Plus />
           Criar Avaliação
         </Button>
       </div>
+
       <div className="rounded-lg bg-white p-6 shadow-sm">
         <div className="mb-4 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <h2 className="text-2xl font-bold">{filteredAvaliacoes.length} Avaliações</h2>
-          <div className="flex items-center relative w-full md:w-64">
-            <Search className="absolute left-3 text-primaria" />
-            <Input className="border-primaria pl-10" placeholder="Buscar" value={search} onChange={(event) => setSearch(event.target.value)} />
+          <h2 className="text-xl font-semibold">{filteredAvaliacoes.length} Avaliações</h2>
+          <div className="relative flex w-full items-center md:w-64">
+            <AppInput
+              className="border-primaria pl-10"
+              placeholder="Buscar"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              intent="formCamp"
+              icon={<Search className="h-4 w-4" />}
+            />
           </div>
         </div>
+
         <Table>
           <TableHeader>
             <TableRow>
@@ -128,8 +219,8 @@ export const ProfessorEvaluationView = ({ disciplina, onBack }: Props) => {
               <TableRow key={avaliacao.id}>
                 <TableCell>{avaliacao.id}</TableCell>
                 <TableCell>{avaliacao.titulo}</TableCell>
-                <TableCell>{avaliacao.data}</TableCell>
-                <TableCell>{getMaxScore(avaliacao)}</TableCell>
+                <TableCell>{formatDate(avaliacao.data_inicio ?? avaliacao.data)}</TableCell>
+                <TableCell>{extractScore(avaliacao)}</TableCell>
               </TableRow>
             ))}
             {!filteredAvaliacoes.length && (

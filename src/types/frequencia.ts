@@ -13,6 +13,20 @@ export type Frequencia = {
   id: number;
   data?: string;
   data_aula?: string;
+  matricula_disciplina_id?: number;
+  matricula_disciplina?: {
+    id?: number;
+    matricula?: {
+      id?: number;
+      aluno_id?: number;
+      codigo_matricula?: string;
+      aluno?: {
+        id?: number;
+        name?: string;
+        nome?: string;
+      };
+    };
+  };
   classroom_id?: number;
   turma_id?: number;
   turma?: string;
@@ -25,11 +39,8 @@ export type Frequencia = {
 };
 
 export type FrequenciaPayload = {
-  data_aula: string;
-  classroom_id?: number;
-  turma_id?: number;
-  disciplina_id: number;
-  conteudo: string;
-  conteudo_trabalhado?: string;
-  presencas: FrequenciaAluno[];
+  matricula_disciplina_id: number;
+  data: string;
+  situacao: boolean;
+  justificativa?: string | null;
 };
