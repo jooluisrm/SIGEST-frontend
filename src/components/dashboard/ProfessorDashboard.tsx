@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ChevronDown, ChevronUp, Info } from "lucide-react";
 import { useUser } from "@/context/loginUsersContext";
 import { useAvaliacaoList } from "@/hooks/queries/avaliacao";
@@ -12,6 +12,7 @@ import { Frequencia } from "@/types/frequencia";
 import { OfertaDisciplina } from "@/types/oferta-disciplina";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import axiosInstance from "@/lib/axiosInstance";
 import { ProfessorEvaluationView } from "./ProfessorEvaluationView";
 import { ProfessorFrequencyView } from "./ProfessorFrequencyView";
 
@@ -34,6 +35,140 @@ const StatBar = ({ label, value }: { label: string; value: number }) => (
     </div>
   </div>
 );
+
+type StudentInfo = {
+  id: number;
+  name: string;
+  enrollmentCode: string;
+};
+
+type ActivityInfo = {
+  id: number;
+  title: string;
+  maxScore: number;
+};
+
+const extractScoreNum = (raw: any): number => {
+  if (typeof raw === "number") return raw;
+  if (typeof raw === "string") {
+    const match = raw.match(/(\d+(?:[.,]\d+)?)/);
+    return match ? Number(match[1].replace(",", ".")) : 0;
+  }
+  return 0;
+};
+
+const DisciplineGradesSection = ({ ofertaId }: { ofertaId: number }) => {
+  const [students, setStudents] = useState<StudentInfo[]>([]);
+  const [activities, setActivities] = useState<ActivityInfo[]>([]);
+  const [grades, setGrades] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Fetch Students
+        const matriculasRes = await axiosInstance.get(`matricula-disciplinas/oferta/${ofertaId}`);
+        const matriculasPayload = matriculasRes.data?.data ?? matriculasRes.data;
+        const studentsList = (Array.isArray(matriculasPayload) ? matriculasPayload : matriculasPayload?.data ?? []).map((m: any) => ({
+          id: m.id,
+          name: m.matricula?.aluno?.name ?? m.matricula?.aluno?.nome ?? "-",
+          enrollmentCode: m.matricula?.codigo_matricula ?? "-",
+        }));
+
+        // Fetch Activities
+        const atividadesRes = await axiosInstance.get(`atividades/oferta/${ofertaId}`);
+        const atividadesPayload = atividadesRes.data?.data ?? atividadesRes.data;
+        const activitiesList = (Array.isArray(atividadesPayload) ? atividadesPayload : atividadesPayload?.data ?? []).map((a: any) => ({
+          id: a.id,
+          title: a.titulo ?? a.title ?? "-",
+          maxScore: extractScoreNum(a.pontuacao_maxima ?? a.max_pontos ?? a.valor ?? a.descricao),
+        }));
+
+        // Fetch Grades for each activity
+        const gradesMap: Record<string, number> = {};
+        await Promise.all(activitiesList.map(async (act: ActivityInfo) => {
+          try {
+            const gradesRes = await axiosInstance.get(`nota-atividades/atividade/${act.id}`);
+            const gradesPayload = gradesRes.data?.data ?? gradesRes.data;
+            const gradesList = Array.isArray(gradesPayload) ? gradesPayload : gradesPayload?.data ?? [];
+            gradesList.forEach((g: any) => {
+              const studentId = g.matricula_disciplina_id;
+              if (studentId) {
+                gradesMap[`${studentId}-${act.id}`] = Number(g.nota ?? 0);
+              }
+            });
+          } catch (err) {
+            console.error("Error fetching grades for activity", act.id, err);
+          }
+        }));
+
+        setStudents(studentsList);
+        setActivities(activitiesList);
+        setGrades(gradesMap);
+      } catch (err) {
+        console.error("Error fetching discipline info data", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchData();
+  }, [ofertaId]);
+
+  if (loading) {
+    return <div className="text-center py-6 text-zinc-500">Carregando alunos e notas...</div>;
+  }
+
+  if (students.length === 0) {
+    return <div className="text-center py-6 text-zinc-500">Nenhum aluno matriculado nesta disciplina.</div>;
+  }
+
+  return (
+    <div className="rounded-lg bg-white p-6 shadow-sm space-y-4">
+      <h3 className="text-xl font-bold text-zinc-700">Alunos e Notas</h3>
+      <div className="overflow-x-auto border rounded-md">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome do Aluno</TableHead>
+              <TableHead>Matrícula</TableHead>
+              {activities.map((act) => (
+                <TableHead key={act.id} className="text-center">
+                  {act.title}
+                </TableHead>
+              ))}
+              <TableHead className="text-right font-bold">Nota Total</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {students.map((student) => {
+              let total = 0;
+              return (
+                <TableRow key={student.id}>
+                  <TableCell className="font-medium">{student.name}</TableCell>
+                  <TableCell>{student.enrollmentCode}</TableCell>
+                  {activities.map((act) => {
+                    const grade = grades[`${student.id}-${act.id}`];
+                    if (grade !== undefined) {
+                      total += grade;
+                    }
+                    return (
+                      <TableCell key={act.id} className="text-center">
+                        {grade !== undefined ? grade : "-"}
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell className="text-right font-bold text-primaria">{total.toFixed(1)}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
 
 export const ProfessorDashboard = () => {
   const { user } = useUser();
@@ -101,6 +236,17 @@ export const ProfessorDashboard = () => {
     };
   }, [avaliacoesQuery.data?.data, expandedId, frequenciasQuery.data?.data, selectedDisciplina]);
 
+  const ofertaDaDisciplina = useMemo(() => {
+    if (!selectedDisciplina) return null;
+    const ofertas = ofertasQuery.data?.data ?? [];
+    return ofertas.find((oferta: OfertaDisciplina) => {
+      const professorId =
+        oferta.professor?.id_user ?? (oferta as OfertaDisciplina & { professor_id?: number }).professor_id;
+      const disciplinaId = oferta.disciplina?.id ?? (oferta as OfertaDisciplina & { disciplina_id?: number }).disciplina_id;
+      return professorId === user?.id && disciplinaId === selectedDisciplina.id;
+    });
+  }, [ofertasQuery.data?.data, selectedDisciplina, user?.id]);
+
   if (panel === "frequency" && selectedDisciplina) return <ProfessorFrequencyView disciplina={selectedDisciplina} onBack={handleBack} />;
   if (panel === "evaluation" && selectedDisciplina) return <ProfessorEvaluationView disciplina={selectedDisciplina} onBack={handleBack} />;
 
@@ -123,6 +269,9 @@ export const ProfessorDashboard = () => {
             <p className="md:col-span-2"><strong>Ementa:</strong> {selectedDisciplina.ementa ?? "-"}</p>
           </div>
         </div>
+        {ofertaDaDisciplina && (
+          <DisciplineGradesSection ofertaId={ofertaDaDisciplina.id} />
+        )}
       </section>
     );
   }

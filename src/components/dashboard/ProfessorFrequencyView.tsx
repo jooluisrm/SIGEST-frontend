@@ -25,6 +25,20 @@ type Props = { disciplina: Disciplina; onBack: () => void };
 type FrequencyItem = Frequencia & {
   situacao?: boolean | 0 | 1;
   justificativa?: string | null;
+  __matriculaDisciplina?: {
+    matricula?: {
+      codigo_matricula?: string;
+      aluno?: {
+        name?: string;
+        nome?: string;
+      };
+    };
+    oferta_disciplina?: {
+      classroom?: {
+        name?: string;
+      };
+    };
+  };
 };
 
 type SessionGroup = {
@@ -135,15 +149,23 @@ export const ProfessorFrequencyView = ({ disciplina, onBack }: Props) => {
           const matriculas = await loadMatriculasDaOferta(oferta.id);
 
           const frequenciasPorOferta = await Promise.all(
-            matriculas.map(async (item: { id: number }) => loadFrequenciasDaMatricula(item.id))
+            matriculas.map(async (item: { id: number; matricula?: { codigo_matricula?: string; aluno?: { name?: string; nome?: string } } }) => {
+              const frequenciasDaMatricula = await loadFrequenciasDaMatricula(item.id);
+              return frequenciasDaMatricula.map((freq) => ({
+                ...freq,
+                __matriculaDisciplina: {
+                  matricula: item.matricula,
+                  oferta_disciplina: {
+                    classroom: {
+                      name: turmaNomePorOferta(oferta),
+                    },
+                  },
+                },
+              }));
+            })
           );
 
-          const flatFrequencias = frequenciasPorOferta.flat().map((freq: any) => ({
-            ...freq,
-            __turmaNome: turmaNomePorOferta(oferta),
-          }));
-
-          return flatFrequencias;
+          return frequenciasPorOferta.flat();
         })
       );
 
@@ -184,14 +206,14 @@ export const ProfessorFrequencyView = ({ disciplina, onBack }: Props) => {
     frequencias.forEach((item) => {
       const data = normalizeDateKey(item.data_aula ?? item.data);
       const conteudo = item.conteudo_trabalhado ?? item.conteudo ?? "-";
-      const matriculaDisciplina = item.matricula_disciplina as
+      const matriculaDisciplina = (item.matricula_disciplina ?? item.__matriculaDisciplina) as
         | {
             oferta_disciplina?: {
               classroom?: { name?: string };
             };
           }
         | undefined;
-      const turmaNome = (item as any).__turmaNome ?? matriculaDisciplina?.oferta_disciplina?.classroom?.name ?? "-";
+      const turmaNome = matriculaDisciplina?.oferta_disciplina?.classroom?.name ?? "-";
       const key = `${data}-${turmaNome}-${conteudo}`;
       const current = map.get(key);
       if (!current) {
@@ -232,7 +254,20 @@ export const ProfessorFrequencyView = ({ disciplina, onBack }: Props) => {
     try {
       await Promise.all(group.items.map((item) => axiosInstance.delete(`frequencias/${item.id}`)));
       toast.success("Lista de presença excluída com sucesso.");
-      setFrequencias((current) => current.filter((item) => normalizeDateKey(item.data_aula ?? item.data) !== group.data));
+      setFrequencias((current) =>
+        current.filter((item) => {
+          const itemData = normalizeDateKey(item.data_aula ?? item.data);
+          const itemConteudo = item.conteudo_trabalhado ?? item.conteudo ?? "-";
+          const itemTurma = ((item.matricula_disciplina ?? item.__matriculaDisciplina) as
+            | {
+                oferta_disciplina?: {
+                  classroom?: { name?: string };
+                };
+              }
+            | undefined)?.oferta_disciplina?.classroom?.name ?? "-";
+          return !(itemData === group.data && itemConteudo === group.conteudo && itemTurma === group.turma);
+        })
+      );
     } catch {
       toast.error("Não foi possível excluir a lista.");
     }
@@ -306,7 +341,8 @@ export const ProfessorFrequencyView = ({ disciplina, onBack }: Props) => {
                     const present = group.items.filter((item) => item.situacao === true || item.situacao === 1).length;
                     const absent = group.items.filter((item) => item.situacao === false || item.situacao === 0).length;
                     const justified = group.items.filter((item) => item.justificativa && (item.situacao === false || item.situacao === 0)).length;
-                    const percent = group.items.length ? Math.round((present / group.items.length) * 100) : 0;
+                    const unexcused = Math.max(0, absent - justified);
+                    const percent = group.items.length ? Math.round(((present + justified) / group.items.length) * 100) : 0;
 
                     return (
                       <TableRow key={group.key}>
@@ -316,7 +352,7 @@ export const ProfessorFrequencyView = ({ disciplina, onBack }: Props) => {
                         <TableCell>{group.conteudo}</TableCell>
                         <TableCell className="font-medium">
                           <span className="text-green-600">{present}P</span> /{" "}
-                          <span className="text-red-600">{absent}F</span> /{" "}
+                          <span className="text-red-600">{unexcused}F</span> /{" "}
                           <span className="text-orange-500">{justified}J</span>{" "}
                           <span className="ml-2">({percent}%)</span>
                         </TableCell>
